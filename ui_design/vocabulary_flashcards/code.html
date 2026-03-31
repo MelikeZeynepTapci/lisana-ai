@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LinguaTutor | Vocabulary Mastery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed": "#3a2257",
+              "surface-variant": "#e7edb1",
+              "on-background": "#363b10",
+              "inverse-surface": "#0e0f03",
+              "surface-tint": "#725991",
+              "on-secondary-container": "#734900",
+              "on-error-container": "#68001f",
+              "on-tertiary": "#ffffff",
+              "tertiary-fixed-dim": "#93ddc7",
+              "primary-fixed-dim": "#cdafee",
+              "inverse-primary": "#dbbdfd",
+              "surface-container-highest": "#e7edb1",
+              "outline-variant": "#b8be86",
+              "on-error": "#ffffff",
+              "tertiary": "#22705f",
+              "error": "#b3374e",
+              "background": "#fefee5",
+              "secondary-dim": "#7c4f00",
+              "surface-bright": "#fefee5",
+              "primary-container": "#dbbdfd",
+              "surface-container-high": "#eef2bf",
+              "on-primary-container": "#4f376c",
+              "on-tertiary-fixed": "#004437",
+              "on-surface-variant": "#626838",
+              "on-secondary-fixed": "#5a3800",
+              "primary": "#725991",
+              "primary-dim": "#664d84",
+              "tertiary-dim": "#0e6453",
+              "on-tertiary-container": "#005949",
+              "secondary": "#8c5900",
+              "tertiary-container": "#a0ecd5",
+              "outline": "#7f8452",
+              "tertiary-fixed": "#a0ecd5",
+              "surface-container": "#f4f7ce",
+              "surface": "#fefee5",
+              "inverse-on-surface": "#9e9e88",
+              "secondary-fixed": "#ffddb6",
+              "on-secondary-fixed-variant": "#805100",
+              "surface-container-lowest": "#ffffff",
+              "on-surface": "#363b10",
+              "error-container": "#f76a80",
+              "secondary-container": "#ffddb6",
+              "primary-fixed": "#dbbdfd",
+              "secondary-fixed-dim": "#ffcb8b",
+              "on-primary-fixed-variant": "#584076",
+              "on-secondary": "#ffffff",
+              "error-dim": "#770326",
+              "on-tertiary-fixed-variant": "#0d6352",
+              "surface-dim": "#e1e8a2",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#fafcda"
+            },
+            fontFamily: {
+              "headline": ["Lexend"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-glass {
+            background: rgba(219, 189, 253, 0.6);
+            backdrop-filter: blur(20px);
+        }
+        .ambient-shadow {
+            box-shadow: 0 20px 40px -10px rgba(54, 59, 16, 0.05);
+        }
+        /* Hidden state for the back of the card until interaction */
+        .card-back { display: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-4 docked left h-screen w-64 border-r-0 bg-[#fafcda] dark:bg-slate-900 font-lexend text-on-surface dark:text-slate-100 z-50">
+<div class="mb-8 px-4">
+<h1 class="text-2xl font-bold text-[#725991] dark:text-[#967BB6]">LinguaTutor</h1>
+<p class="text-xs opacity-60">Premium Learning</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 text-[#363b10] dark:text-slate-400 px-4 py-3 hover:bg-[#e7edb1] dark:hover:bg-slate-800 transition-colors scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-[#363b10] dark:text-slate-400 px-4 py-3 hover:bg-[#e7edb1] dark:hover:bg-slate-800 transition-colors scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">mic_external_on</span>
+<span>Speaking</span>
+</a>
+<a class="flex items-center gap-3 text-[#363b10] dark:text-slate-400 px-4 py-3 hover:bg-[#e7edb1] dark:hover:bg-slate-800 transition-colors scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">headphones</span>
+<span>Listening</span>
+</a>
+<!-- Active Navigation Item: Vocabulary -->
+<a class="flex items-center gap-3 bg-[#fefee5] dark:bg-slate-800 text-[#22705f] dark:text-[#22705f] rounded-full px-4 py-3 font-semibold scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+<span>Vocabulary</span>
+</a>
+<a class="flex items-center gap-3 text-[#363b10] dark:text-slate-400 px-4 py-3 hover:bg-[#e7edb1] dark:hover:bg-slate-800 transition-colors scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">spellcheck</span>
+<span>Grammar</span>
+</a>
+<a class="flex items-center gap-3 text-[#363b10] dark:text-slate-400 px-4 py-3 hover:bg-[#e7edb1] dark:hover:bg-slate-800 transition-colors scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span>Progress</span>
+</a>
+</nav>
+<div class="mt-auto p-4 bg-surface-container rounded-lg space-y-3">
+<p class="text-sm font-semibold text-center">Upgrade to Pro</p>
+<button class="w-full py-2 bg-gradient-to-br from-primary to-primary-dim text-white rounded-full text-sm font-bold shadow-md">Get Access</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen relative overflow-hidden">
+<!-- TopNavBar Shell -->
+<header class="sticky top-0 z-40 flex justify-between items-center px-12 py-6 w-full bg-[#fefee5]/60 backdrop-blur-xl">
+<div>
+<h2 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight">Vocabulary Mastery</h2>
+<p class="font-body text-sm text-on-surface-variant">Level: Intermediate • Spanish</p>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-full font-bold">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span>12 Day Streak</span>
+</div>
+<button class="flex items-center gap-2 font-bold text-primary hover:opacity-80 transition-opacity">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border-2 border-primary-container">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="professional headshot of a smiling young man with clean lighting and neutral studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQD22xi-IxgRcRjed2dYI4C7vT5ZY0UhPSe_31MXJRWJhij6aTggSnhDxnomTMx1mQadmad0oGFVwAobGfhbeihh5h09qcxdyvUoxw1Dg0WuxEshCag5Dfk8xLs0wvehXUk17X-VORq__ThadKk1SxlkYENoI3pnBRyOtDM2J3TDQhYNt9BgLJwMksggy5cPWXN-VNMHJCNHBlcrZrVZQTJvSJE23VVpx9bsje7eZlJHnYt5q1CzhGStgLeqpRowvgUkI3HxXR4syq"/>
+</div>
+<span>Profile</span>
+</button>
+</div>
+</header>
+<div class="px-12 py-8 grid grid-cols-12 gap-10">
+<!-- Left: Collection Picker (Editorial List) -->
+<section class="col-span-3 space-y-8">
+<div>
+<h3 class="font-headline text-lg font-bold mb-6 text-on-surface/80">Collections</h3>
+<div class="space-y-3">
+<button class="w-full flex items-center justify-between p-5 rounded-lg bg-surface-container-lowest ambient-shadow text-left group hover:bg-surface-container-high transition-all">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-tertiary-container rounded-full flex items-center justify-center text-on-tertiary-container">
+<span class="material-symbols-outlined">restaurant</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Food &amp; Drinks</p>
+<p class="text-xs text-on-surface-variant">42 words • 85% Mastered</p>
+</div>
+</div>
+</button>
+<button class="w-full flex items-center justify-between p-5 rounded-lg bg-primary-container/20 border-2 border-primary-container text-left group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined">flight_takeoff</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Travel Essentials</p>
+<p class="text-xs text-on-surface-variant">30 words • Review Needed</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary">arrow_forward_ios</span>
+</button>
+<button class="w-full flex items-center justify-between p-5 rounded-lg bg-surface-container-lowest text-left group hover:bg-surface-container-high transition-all">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-container-highest rounded-full flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">work</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Office &amp; Career</p>
+<p class="text-xs text-on-surface-variant">15 words • New</p>
+</div>
+</div>
+</button>
+</div>
+</div>
+<div class="p-6 bg-surface-container-low rounded-lg">
+<h4 class="font-bold mb-2">Daily Goal</h4>
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden mb-3">
+<div class="h-full bg-tertiary w-3/4 rounded-full"></div>
+</div>
+<p class="text-xs text-on-surface-variant">15/20 words reviewed today. Keep it up!</p>
+</div>
+</section>
+<!-- Center: Flashcard Experience (The Focus Area) -->
+<section class="col-span-9 flex flex-col items-center">
+<div class="w-full max-w-2xl relative">
+<!-- Flashcard: Front State -->
+<div class="w-full aspect-[4/3] bg-surface-container-lowest rounded-xl ambient-shadow p-12 flex flex-col items-center justify-center text-center relative overflow-hidden group">
+<!-- Card Decorative Background Element -->
+<div class="absolute -top-24 -right-24 w-64 h-64 bg-primary-container/10 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-24 -left-24 w-64 h-64 bg-tertiary-container/10 rounded-full blur-3xl"></div>
+<div class="z-10">
+<span class="text-sm font-bold uppercase tracking-widest text-primary/60 mb-8 block">Word 14 of 30</span>
+<h2 class="font-headline text-6xl font-black text-on-surface mb-4">La Biblioteca</h2>
+<p class="text-on-surface-variant font-medium text-lg">Noun • Spanish</p>
+</div>
+<!-- Card "Flip" Trigger (Visual Only for UI) -->
+<button class="mt-16 flex flex-col items-center gap-2 text-primary-dim hover:text-primary transition-colors">
+<div class="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center ambient-shadow active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-3xl">cached</span>
+</div>
+<span class="font-bold text-sm">Flip Card</span>
+</button>
+</div>
+<!-- Spaced Repetition Logic Controls -->
+<div class="mt-12 flex justify-center gap-8">
+<button class="flex items-center gap-3 px-8 py-5 bg-secondary-container text-on-secondary-container rounded-xl font-bold ambient-shadow scale-95 active:scale-90 transition-all hover:translate-y-[-2px]">
+<span class="material-symbols-outlined">refresh</span>
+                            Still learning
+                        </button>
+<button class="flex items-center gap-3 px-8 py-5 bg-tertiary text-white rounded-xl font-bold ambient-shadow scale-95 active:scale-90 transition-all hover:translate-y-[-2px]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                            Know it
+                        </button>
+</div>
+<!-- Spaced Repetition Progress -->
+<div class="mt-16 w-full px-8">
+<div class="flex justify-between items-end mb-4">
+<div>
+<h4 class="font-bold text-on-surface">Retention Progress</h4>
+<p class="text-xs text-on-surface-variant">Next review in 4 days</p>
+</div>
+<span class="text-xl font-black text-tertiary">78%</span>
+</div>
+<div class="w-full h-4 bg-surface-container-highest rounded-full p-1">
+<div class="h-full bg-tertiary w-[78%] rounded-full shadow-sm"></div>
+</div>
+</div>
+</div>
+<!-- Secondary Content: Hints & Examples (Bento Style) -->
+<div class="w-full max-w-4xl grid grid-cols-2 gap-6 mt-16">
+<div class="bg-surface-container-low p-8 rounded-lg">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary">translate</span>
+<h5 class="font-bold">Usage Hint</h5>
+</div>
+<p class="text-on-surface-variant leading-relaxed italic">
+                            Used to refer to any collection of books or the physical building. Not to be confused with 'librería' (bookstore).
+                        </p>
+</div>
+<div class="bg-surface-container-low p-8 rounded-lg">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-secondary">record_voice_over</span>
+<h5 class="font-bold">Pronunciation</h5>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-12 h-12 bg-surface-container-lowest rounded-full flex items-center justify-center text-primary shadow-sm hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined">volume_up</span>
+</button>
+<div>
+<p class="font-mono text-sm">/la βi.βljo.ˈte.ka/</p>
+<p class="text-xs text-on-surface-variant">Castilian Spanish</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Background Aesthetic Elements -->
+<div class="absolute top-0 right-0 -z-10 opacity-20 transform translate-x-1/2 -translate-y-1/2">
+<div class="w-[800px] h-[800px] rounded-full bg-gradient-to-br from-primary-container to-transparent blur-[120px]"></div>
+</div>
+<div class="absolute bottom-0 left-0 -z-10 opacity-10 transform -translate-x-1/3 translate-y-1/3">
+<div class="w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-tertiary-container to-transparent blur-[100px]"></div>
+</div>
+</main>
+</body></html>

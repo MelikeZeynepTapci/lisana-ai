@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LinguaTutor - Speaking Scenarios</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed": "#3a2257",
+              "surface-variant": "#e7edb1",
+              "on-background": "#363b10",
+              "inverse-surface": "#0e0f03",
+              "surface-tint": "#725991",
+              "on-secondary-container": "#734900",
+              "on-error-container": "#68001f",
+              "on-tertiary": "#ffffff",
+              "tertiary-fixed-dim": "#93ddc7",
+              "primary-fixed-dim": "#cdafee",
+              "inverse-primary": "#dbbdfd",
+              "surface-container-highest": "#e7edb1",
+              "outline-variant": "#b8be86",
+              "on-error": "#ffffff",
+              "tertiary": "#22705f",
+              "error": "#b3374e",
+              "background": "#fefee5",
+              "secondary-dim": "#7c4f00",
+              "surface-bright": "#fefee5",
+              "primary-container": "#dbbdfd",
+              "surface-container-high": "#eef2bf",
+              "on-primary-container": "#4f376c",
+              "on-tertiary-fixed": "#004437",
+              "on-surface-variant": "#626838",
+              "on-secondary-fixed": "#5a3800",
+              "primary": "#725991",
+              "primary-dim": "#664d84",
+              "tertiary-dim": "#0e6453",
+              "on-tertiary-container": "#005949",
+              "secondary": "#8c5900",
+              "tertiary-container": "#a0ecd5",
+              "outline": "#7f8452",
+              "tertiary-fixed": "#a0ecd5",
+              "surface-container": "#f4f7ce",
+              "surface": "#fefee5",
+              "inverse-on-surface": "#9e9e88",
+              "secondary-fixed": "#ffddb6",
+              "on-secondary-fixed-variant": "#805100",
+              "surface-container-lowest": "#ffffff",
+              "on-surface": "#363b10",
+              "error-container": "#f76a80",
+              "secondary-container": "#ffddb6",
+              "primary-fixed": "#dbbdfd",
+              "secondary-fixed-dim": "#ffcb8b",
+              "on-primary-fixed-variant": "#584076",
+              "on-secondary": "#ffffff",
+              "error-dim": "#770326",
+              "on-tertiary-fixed-variant": "#0d6352",
+              "surface-dim": "#e1e8a2",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#fafcda"
+            },
+            fontFamily: {
+              "headline": ["Lexend"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        background-color: #fefee5;
+        color: #363b10;
+        font-family: 'Manrope', sans-serif;
+      }
+      .glass-effect {
+        backdrop-filter: blur(20px);
+        background-color: rgba(219, 189, 253, 0.6);
+      }
+      .ambient-shadow {
+        box-shadow: 0 20px 40px -10px rgba(54, 59, 16, 0.05);
+      }
+    </style>
+</head>
+<body class="bg-surface font-body">
+<!-- Sidebar Navigation (SideNavBar JSON implementation) -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-4 docked left h-screen w-64 border-r-0 bg-[#fafcda] dark:bg-slate-900 z-40">
+<div class="mb-10 px-4">
+<h1 class="text-2xl font-bold text-[#725991] dark:text-[#967BB6] font-headline">LinguaTutor</h1>
+<p class="text-xs font-medium text-on-surface-variant tracking-wider uppercase opacity-70">Premium Learning</p>
+</div>
+<div class="flex flex-col gap-1 flex-1">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 text-[#363b10] dark:text-slate-400 px-4 py-3 hover:bg-[#e7edb1] dark:hover:bg-slate-800 transition-colors scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<!-- Speaking (Active) -->
+<a class="flex items-center gap-3 bg-[#fefee5] dark:bg-slate-800 text-[#22705f] dark:text-[#22705f] rounded-full px-4 py-3 font-semibold scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="mic_external_on">mic_external_on</span>
+<span class="font-medium">Speaking</span>
+</a>
+<!-- Listening -->
+<a class="flex items-center gap-3 text-[#363b10] dark:text-slate-400 px-4 py-3 hover:bg-[#e7edb1] dark:hover:bg-slate-800 transition-colors scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="headphones">headphones</span>
+<span class="font-medium">Listening</span>
+</a>
+<!-- Vocabulary -->
+<a class="flex items-center gap-3 text-[#363b10] dark:text-slate-400 px-4 py-3 hover:bg-[#e7edb1] dark:hover:bg-slate-800 transition-colors scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-medium">Vocabulary</span>
+</a>
+<!-- Grammar -->
+<a class="flex items-center gap-3 text-[#363b10] dark:text-slate-400 px-4 py-3 hover:bg-[#e7edb1] dark:hover:bg-slate-800 transition-colors scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="spellcheck">spellcheck</span>
+<span class="font-medium">Grammar</span>
+</a>
+<!-- Progress -->
+<a class="flex items-center gap-3 text-[#363b10] dark:text-slate-400 px-4 py-3 hover:bg-[#e7edb1] dark:hover:bg-slate-800 transition-colors scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-medium">Progress</span>
+</a>
+</div>
+<div class="mt-auto p-4 bg-primary-container/30 rounded-lg">
+<p class="text-xs font-bold text-on-primary-container mb-2">Upgrade to Pro</p>
+<button class="w-full py-2 bg-primary text-on-primary rounded-full text-sm font-bold shadow-sm hover:opacity-90 transition-opacity">Unlock All Scenarios</button>
+</div>
+</nav>
+<!-- Top Navigation (TopNavBar JSON implementation) -->
+<header class="sticky top-0 z-50 flex justify-between items-center px-8 py-4 w-full bg-[#fefee5]/60 dark:bg-slate-950/60 backdrop-blur-xl ml-64 max-w-[calc(100%-16rem)]">
+<div class="flex items-center gap-4">
+<span class="text-xl font-black text-[#725991] dark:text-[#967BB6] font-headline">Speaking</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-secondary font-bold bg-secondary-container/20 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-lg" data-icon="local_fire_department">local_fire_department</span>
+<span>12 Day Streak</span>
+</div>
+<span class="material-symbols-outlined text-[#725991] cursor-pointer hover:opacity-80 transition-opacity" data-icon="stars">stars</span>
+<div class="flex items-center gap-3 border-l pl-6 border-outline-variant/20">
+<span class="text-sm font-semibold text-on-surface">Profile</span>
+<img alt="User Profile" class="w-8 h-8 rounded-full object-cover" data-alt="Close-up portrait of a friendly young man with short dark hair in a bright studio setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoYwMpdxACifDoTwaZRtPv0cwi41fZwpNj_pE45kaPCgXbpjDcEAOy-dsuUeh2sr0JHgWz4OtKuNMgvUIIsEI1zihlNjArBI4nGip6tWj560pvCjJaW8YNJDf8GSSNcEFJgpqq4SrGg0GXmafJCCkLth63mJ21oP4Z0wayvqq-EY_Oszo-P2crB0PNjrCN78V5YeKIVt9zJWVe8HkV1vvsei4j-xJVKpcLv0LowUuLW2y_5MEp-gjdjyDvBD-TgfZhqx7FoQ0dC3Gt"/>
+</div>
+</div>
+</header>
+<main class="ml-64 p-10 flex gap-8">
+<!-- Main Content Area -->
+<div class="flex-1">
+<header class="mb-12">
+<h2 class="text-4xl font-headline font-extrabold text-on-surface mb-2">AI Conversation Scenarios</h2>
+<p class="text-on-surface-variant font-medium">Practice speaking in real-world environments with our adaptive AI.</p>
+</header>
+<!-- Scenario Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-8 ambient-shadow flex flex-col group transition-all hover:-translate-y-1">
+<div class="text-5xl mb-6">☕</div>
+<div class="flex justify-between items-start mb-4">
+<h3 class="text-xl font-bold font-headline">Ordering Coffee</h3>
+<span class="px-3 py-1 bg-tertiary-container text-on-tertiary-container text-xs font-black rounded-full uppercase tracking-tighter">A1</span>
+</div>
+<p class="text-sm text-on-surface-variant mb-8 line-clamp-2">Master the art of caffeine acquisition. Learn to order, customize, and pay at a local cafe.</p>
+<button class="mt-auto py-3 px-6 bg-gradient-to-br from-primary to-primary-dim text-on-primary rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg transition-all active:scale-95">
+                        Start Session
+                        <span class="material-symbols-outlined text-sm" data-icon="play_arrow">play_arrow</span>
+</button>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-lg p-8 ambient-shadow flex flex-col group transition-all hover:-translate-y-1">
+<div class="text-5xl mb-6">✈️</div>
+<div class="flex justify-between items-start mb-4">
+<h3 class="text-xl font-bold font-headline">Airport Check-in</h3>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-xs font-black rounded-full uppercase tracking-tighter">B1</span>
+</div>
+<p class="text-sm text-on-surface-variant mb-8 line-clamp-2">Navigate the terminal with confidence. Practice baggage handling and seat selection.</p>
+<button class="mt-auto py-3 px-6 bg-gradient-to-br from-primary to-primary-dim text-on-primary rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg transition-all active:scale-95">
+                        Start Session
+                        <span class="material-symbols-outlined text-sm" data-icon="play_arrow">play_arrow</span>
+</button>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-lg p-8 ambient-shadow flex flex-col group transition-all hover:-translate-y-1">
+<div class="text-5xl mb-6">🏪</div>
+<div class="flex justify-between items-start mb-4">
+<h3 class="text-xl font-bold font-headline">At the Market</h3>
+<span class="px-3 py-1 bg-tertiary-container text-on-tertiary-container text-xs font-black rounded-full uppercase tracking-tighter">A2</span>
+</div>
+<p class="text-sm text-on-surface-variant mb-8 line-clamp-2">Practice negotiating prices and identifying fresh produce at a vibrant outdoor market.</p>
+<button class="mt-auto py-3 px-6 bg-gradient-to-br from-primary to-primary-dim text-on-primary rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg transition-all active:scale-95">
+                        Start Session
+                        <span class="material-symbols-outlined text-sm" data-icon="play_arrow">play_arrow</span>
+</button>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest rounded-lg p-8 ambient-shadow flex flex-col group transition-all hover:-translate-y-1">
+<div class="text-5xl mb-6">👔</div>
+<div class="flex justify-between items-start mb-4">
+<h3 class="text-xl font-bold font-headline">Job Interview</h3>
+<span class="px-3 py-1 bg-error-container text-on-error-container text-xs font-black rounded-full uppercase tracking-tighter">C1</span>
+</div>
+<p class="text-sm text-on-surface-variant mb-8 line-clamp-2">Advanced professional discourse. Describe your experience and answer challenging questions.</p>
+<button class="mt-auto py-3 px-6 bg-gradient-to-br from-primary to-primary-dim text-on-primary rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg transition-all active:scale-95">
+                        Start Session
+                        <span class="material-symbols-outlined text-sm" data-icon="play_arrow">play_arrow</span>
+</button>
+</div>
+<!-- Card 5 -->
+<div class="bg-surface-container-lowest rounded-lg p-8 ambient-shadow flex flex-col group transition-all hover:-translate-y-1">
+<div class="text-5xl mb-6">🚑</div>
+<div class="flex justify-between items-start mb-4">
+<h3 class="text-xl font-bold font-headline">Emergency Room</h3>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-xs font-black rounded-full uppercase tracking-tighter">B2</span>
+</div>
+<p class="text-sm text-on-surface-variant mb-8 line-clamp-2">Crucial vocabulary for health emergencies. Explain symptoms and follow medical instructions.</p>
+<button class="mt-auto py-3 px-6 bg-gradient-to-br from-primary to-primary-dim text-on-primary rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg transition-all active:scale-95">
+                        Start Session
+                        <span class="material-symbols-outlined text-sm" data-icon="play_arrow">play_arrow</span>
+</button>
+</div>
+<!-- Featured Wide Card -->
+<div class="md:col-span-2 lg:col-span-1 bg-surface-container-high rounded-lg p-8 ambient-shadow flex flex-col relative overflow-hidden">
+<div class="z-10">
+<div class="text-5xl mb-6">🎭</div>
+<h3 class="text-xl font-bold font-headline mb-4">Improv Sandbox</h3>
+<p class="text-sm text-on-surface-variant mb-8">No script, no rules. The AI will throw random life situations at you to test your total fluency.</p>
+<button class="mt-auto py-3 px-6 bg-on-surface text-surface rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-all">
+                            Unlock Mastery
+                            <span class="material-symbols-outlined text-sm" data-icon="lock_open">lock_open</span>
+</button>
+</div>
+<div class="absolute -right-10 -bottom-10 opacity-10">
+<span class="material-symbols-outlined text-[160px]" data-icon="record_voice_over">record_voice_over</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: Session History -->
+<aside class="w-80 flex flex-col gap-6">
+<div class="bg-surface-container-low p-6 rounded-lg sticky top-28">
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-lg font-bold font-headline">Recent History</h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer" data-icon="history">history</span>
+</div>
+<div class="space-y-4">
+<!-- History Item 1 -->
+<div class="p-4 bg-surface-container-lowest rounded-xl flex flex-col gap-3 shadow-sm border-l-4 border-tertiary">
+<div class="flex justify-between items-center">
+<span class="text-xs font-bold text-on-surface-variant">Today, 10:24 AM</span>
+<span class="text-tertiary font-black text-sm">92%</span>
+</div>
+<div>
+<p class="font-bold text-sm">Ordering Coffee</p>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full mt-2">
+<div class="bg-tertiary h-full rounded-full" style="width: 92%"></div>
+</div>
+</div>
+<p class="text-[10px] text-on-surface-variant flex items-center gap-1 uppercase tracking-widest font-bold">
+                            Fluency: Excellent
+                        </p>
+</div>
+<!-- History Item 2 -->
+<div class="p-4 bg-surface-container-lowest rounded-xl flex flex-col gap-3 shadow-sm border-l-4 border-secondary">
+<div class="flex justify-between items-center">
+<span class="text-xs font-bold text-on-surface-variant">Yesterday</span>
+<span class="text-secondary font-black text-sm">78%</span>
+</div>
+<div>
+<p class="font-bold text-sm">At the Market</p>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full mt-2">
+<div class="bg-secondary h-full rounded-full" style="width: 78%"></div>
+</div>
+</div>
+<p class="text-[10px] text-on-surface-variant flex items-center gap-1 uppercase tracking-widest font-bold">
+                            Grammar: Improving
+                        </p>
+</div>
+<!-- History Item 3 -->
+<div class="p-4 bg-surface-container-lowest rounded-xl flex flex-col gap-3 shadow-sm border-l-4 border-primary">
+<div class="flex justify-between items-center">
+<span class="text-xs font-bold text-on-surface-variant">2 days ago</span>
+<span class="text-primary font-black text-sm">84%</span>
+</div>
+<div>
+<p class="font-bold text-sm">Daily Greetings</p>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full mt-2">
+<div class="bg-primary h-full rounded-full" style="width: 84%"></div>
+</div>
+</div>
+<p class="text-[10px] text-on-surface-variant flex items-center gap-1 uppercase tracking-widest font-bold">
+                            Vocab: Diverse
+                        </p>
+</div>
+</div>
+<div class="mt-8">
+<div class="bg-primary/5 rounded-2xl p-6 text-center border-2 border-dashed border-primary/20">
+<span class="material-symbols-outlined text-primary text-4xl mb-2" data-icon="graphic_eq">graphic_eq</span>
+<h4 class="text-sm font-bold text-primary mb-1">Weekly Speaking Goal</h4>
+<p class="text-xs text-on-surface-variant mb-4">3/5 sessions completed</p>
+<div class="w-full bg-surface-container-highest h-2 rounded-full mb-4">
+<div class="bg-primary h-full rounded-full" style="width: 60%"></div>
+</div>
+<button class="text-xs font-bold text-primary underline">View detailed analysis</button>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Decorative Bottom Gradient -->
+<div class="fixed bottom-0 left-64 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none"></div>
+</body></html>
