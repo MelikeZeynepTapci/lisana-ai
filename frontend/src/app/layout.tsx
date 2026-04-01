@@ -35,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-background text-on-surface font-manrope antialiased">
         <Sidebar />
-        <main className="md:ml-64 min-h-screen pb-20 md:pb-0">
+        <main className="md:ml-52 min-h-screen pb-20 md:pb-0">
           {children}
         </main>
         <MobileNav />

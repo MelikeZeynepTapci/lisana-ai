@@ -23,7 +23,7 @@ const config: Config = {
           "on-container": "#004d3c",
         },
         surface: {
-          DEFAULT: "#fefee5",
+          DEFAULT: "#FAF6EE",
           low: "#fafcda",
           high: "#eff1c9",
           highest: "#e7edb1",
@@ -38,7 +38,7 @@ const config: Config = {
           container: "#ffdad9",
         },
         "outline-variant": "#b8be86",
-        background: "#fefee5",
+        background: "#FAF6EE",
       },
       fontFamily: {
         lexend: ["var(--font-lexend)", "Lexend", "sans-serif"],

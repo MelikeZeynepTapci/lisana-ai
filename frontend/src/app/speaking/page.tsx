@@ -1,158 +1,186 @@
 import Header from "@/components/layout/Header";
+import Link from "next/link";
 
 const scenarios = [
   {
-    emoji: "☕",
-    title: "Ordering Coffee",
+    emoji: "🛒",
+    title: "At the Supermarket",
     level: "A1",
     levelColor: "bg-tertiary-container text-tertiary-on-container",
-    desc: "Practice ordering drinks and snacks at a café in natural, everyday Spanish.",
-    locked: false,
+    desc: "Navigate the aisles, ask for specific items, and handle the checkout process smoothly.",
   },
   {
-    emoji: "✈️",
-    title: "Airport Check-in",
+    emoji: "💬",
+    title: "Daily Conversation",
+    level: "A1",
+    levelColor: "bg-tertiary-container text-tertiary-on-container",
+    desc: "Practice small talk, introducing yourself, and basic everyday interactions with strangers.",
+  },
+  {
+    emoji: "☕",
+    title: "At a Café",
+    level: "A1",
+    levelColor: "bg-tertiary-container text-tertiary-on-container",
+    desc: "Order drinks, ask about specific ingredients, and pay the bill politely.",
+  },
+  {
+    emoji: "🏥",
+    title: "At the Doctor",
     level: "B1",
     levelColor: "bg-secondary-container text-secondary",
-    desc: "Navigate check-in counters, security, and boarding gate conversations with confidence.",
-    locked: false,
+    desc: "Describe your symptoms, understand medical instructions, and book follow-up appointments.",
   },
   {
-    emoji: "🏪",
-    title: "At the Market",
-    level: "A2",
-    levelColor: "bg-tertiary-container text-tertiary-on-container",
-    desc: "Haggle, ask for prices, and describe what you need in a local market setting.",
-    locked: false,
+    emoji: "🏛️",
+    title: "At the Amt",
+    level: "B1",
+    levelColor: "bg-secondary-container text-secondary",
+    desc: "Register your new address, ask about required documents, and handle bureaucratic hurdles.",
   },
   {
     emoji: "👔",
     title: "Job Interview",
-    level: "C1",
-    levelColor: "bg-error-container text-error",
-    desc: "Master formal vocabulary, answer competency questions, and discuss your experience professionally.",
-    locked: false,
-  },
-  {
-    emoji: "🚑",
-    title: "Emergency Room",
     level: "B2",
     levelColor: "bg-secondary-container text-secondary",
-    desc: "Describe symptoms, understand medical instructions, and communicate in urgent healthcare situations.",
-    locked: false,
+    desc: "Present your professional experience, answer behavioral questions, and negotiate salary.",
   },
   {
-    emoji: "🎭",
-    title: "Improv Sandbox",
-    level: "Free",
-    levelColor: "bg-surface-highest text-on-surface-variant",
-    desc: "Open-ended roleplay — choose any scenario and practice freely with the AI.",
-    locked: true,
+    emoji: "🐛",
+    title: "Reporting a Bug",
+    level: "B2",
+    levelColor: "bg-secondary-container text-secondary",
+    desc: "Explain technical issues to a colleague, describe reproduction steps, and propose a fix.",
   },
-];
-
-const history = [
-  { scenario: "Ordering Coffee", time: "Today, 10:24 AM", score: 92, scoreLabel: "Excellent", color: "text-tertiary", barColor: "bg-tertiary" },
-  { scenario: "At the Market", time: "Yesterday, 3:15 PM", score: 78, scoreLabel: "Improving", color: "text-secondary", barColor: "bg-secondary" },
-  { scenario: "Daily Greetings", time: "2 days ago", score: 84, scoreLabel: "Good", color: "text-primary", barColor: "bg-primary" },
+  {
+    emoji: "🤝",
+    title: "Networking Event",
+    level: "C1",
+    levelColor: "bg-error-container text-error",
+    desc: "Introduce your profession, exchange contacts, and engage in advanced professional small talk.",
+  },
+  {
+    emoji: "🌍",
+    title: "Debating Climate Change",
+    level: "C2",
+    levelColor: "bg-error-container text-error",
+    desc: "Express complex opinions, agree or disagree politely, and provide structured arguments.",
+  },
 ];
 
 export default function SpeakingPage() {
   return (
     <div className="page-transition">
-      <Header title="Speaking" />
+      <Header />
 
       <div className="px-6 py-6">
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Scenarios Grid */}
-          <div className="xl:col-span-2">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-lexend font-semibold text-lg text-on-surface">Choose a Scenario</h2>
-              <span className="font-manrope text-xs text-on-surface-variant">{scenarios.filter((s) => !s.locked).length} available</span>
+        {/* Page heading */}
+        <div className="flex items-start justify-between mb-5">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="material-symbols-outlined ms-filled text-[16px] text-primary">record_voice_over</span>
+              <span className="font-manrope font-semibold text-sm text-primary">Daily speaking practice</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {scenarios.map((sc, i) => (
-                <div
-                  key={i}
-                  className={`group relative bg-surface-lowest rounded-4xl p-6 shadow-ambient-sm transition-all duration-300 ${
-                    sc.locked ? "opacity-60" : "hover:shadow-ambient hover:-translate-y-1 cursor-pointer"
-                  }`}
-                >
-                  {sc.locked && (
-                    <div className="absolute top-4 right-4">
-                      <span className="material-symbols-outlined ms-filled text-[18px] text-on-surface-variant">lock</span>
-                    </div>
-                  )}
-                  <div className="text-5xl mb-4">{sc.emoji}</div>
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <h3 className="font-lexend font-semibold text-sm text-on-surface">{sc.title}</h3>
-                    <span className={`text-[10px] font-manrope font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${sc.levelColor}`}>
-                      {sc.level}
-                    </span>
-                  </div>
-                  <p className="font-manrope text-xs text-on-surface-variant line-clamp-2 leading-relaxed mb-5">{sc.desc}</p>
-                  {!sc.locked && (
-                    <button className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary-dim text-white font-manrope font-bold text-xs py-2.5 rounded-full shadow-ambient-sm hover:shadow-ambient transition-all duration-200 group-hover:scale-[1.02]">
-                      <span className="material-symbols-outlined ms-filled text-[16px]">play_circle</span>
-                      Start Session
-                    </button>
-                  )}
-                  {sc.locked && (
-                    <button className="w-full flex items-center justify-center gap-2 bg-surface-highest text-on-surface-variant font-manrope font-bold text-xs py-2.5 rounded-full">
-                      <span className="material-symbols-outlined text-[16px]">lock</span>
-                      Premium Only
-                    </button>
-                  )}
-                </div>
-              ))}
+            <h1 className="font-lexend font-bold text-3xl text-on-surface">Practice Your Speaking</h1>
+            <p className="font-manrope text-sm text-on-surface-variant mt-1">
+              Choose a real-world scenario and start talking. Maya keeps it conversational, corrects naturally, and helps you build confidence without turning practice into homework.
+            </p>
+          </div>
+          <div className="flex gap-6 flex-shrink-0 mt-1">
+            <div className="text-right">
+              <p className="font-lexend font-bold text-2xl text-on-surface">9</p>
+              <p className="font-manrope text-xs text-on-surface-variant">Fresh scenarios<br />matched to your level</p>
+            </div>
+            <div className="text-right">
+              <p className="font-lexend font-bold text-2xl text-on-surface">10 min</p>
+              <p className="font-manrope text-xs text-on-surface-variant">Ready to speak<br />before work or class</p>
             </div>
           </div>
+        </div>
 
-          {/* History Sidebar */}
-          <div className="space-y-4">
-            <div className="bg-surface-lowest rounded-4xl p-6 shadow-ambient-sm">
-              <div className="flex items-center gap-2 mb-5">
-                <span className="material-symbols-outlined ms-filled text-[20px] text-on-surface-variant">history</span>
-                <h3 className="font-lexend font-semibold text-base text-on-surface">Recent History</h3>
-              </div>
-              <div className="space-y-5">
-                {history.map((h, i) => (
-                  <div key={i} className={`pl-4 border-l-4 ${h.barColor.replace("bg-", "border-")}`}>
-                    <div className="flex items-start justify-between mb-1">
-                      <p className="font-manrope font-semibold text-sm text-on-surface">{h.scenario}</p>
-                      <span className={`font-lexend font-bold text-sm ${h.color}`}>{h.score}%</span>
-                    </div>
-                    <p className="font-manrope text-xs text-on-surface-variant mb-2">{h.time}</p>
-                    <div className="w-full bg-surface-highest rounded-full h-1.5">
-                      <div
-                        className={`${h.barColor} h-1.5 rounded-full transition-all duration-500`}
-                        style={{ width: `${h.score}%` }}
-                      />
-                    </div>
-                    <p className={`font-manrope text-xs font-semibold mt-1.5 ${h.color}`}>
-                      Fluency: {h.scoreLabel}
-                    </p>
-                  </div>
-                ))}
-              </div>
+        {/* Pronunciation Assessment Banner */}
+        <div className="flex items-center gap-5 bg-surface-lowest rounded-3xl p-5 shadow-ambient-sm mb-5">
+          <div className="w-10 h-10 bg-primary-container/60 rounded-2xl flex items-center justify-center flex-shrink-0">
+            <span className="material-symbols-outlined ms-filled text-[22px] text-primary">mic</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="font-lexend font-semibold text-sm text-on-surface">Pronunciation Assessment</h3>
+              <span className="font-manrope font-bold text-[10px] bg-tertiary-container text-tertiary px-2 py-0.5 rounded-full">Coming Soon</span>
+              <span className="font-manrope text-xs text-on-surface-variant">Separate page soon</span>
             </div>
-
-            {/* Weekly Goal */}
-            <div className="bg-surface-low rounded-4xl p-6 border-2 border-dashed border-outline-variant/60">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="material-symbols-outlined ms-filled text-[20px] text-primary">equalizer</span>
-                <h3 className="font-lexend font-semibold text-sm text-on-surface">Weekly Speaking Goal</h3>
-              </div>
-              <p className="font-manrope text-sm font-bold text-on-surface mb-1">3/5 sessions completed</p>
-              <div className="w-full bg-surface-highest rounded-full h-2 mb-3">
-                <div className="bg-tertiary h-2 rounded-full transition-all duration-500" style={{ width: "60%" }} />
-              </div>
-              <button className="font-manrope text-xs text-primary font-semibold hover:underline flex items-center gap-1">
-                View detailed analysis
-                <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </button>
+            <p className="font-manrope text-xs text-on-surface-variant leading-relaxed">
+              Get AI scoring for clarity, rhythm, and sound accuracy by reading short guided sentences aloud. This preview stays compact so your scenario library still fits comfortably on one desktop screen.
+            </p>
+            <div className="flex items-center gap-4 mt-2">
+              <span className="font-manrope text-xs text-on-surface-variant flex items-center gap-1">
+                <span className="material-symbols-outlined text-[14px]">article</span>
+                Read 3 short sentences
+              </span>
+              <span className="font-manrope text-xs text-on-surface-variant flex items-center gap-1">
+                <span className="material-symbols-outlined ms-filled text-[14px] text-primary">auto_awesome</span>
+                AI score + feedback
+              </span>
+              <span className="font-manrope text-xs text-on-surface-variant flex items-center gap-1">
+                <span className="material-symbols-outlined text-[14px]">schedule</span>
+                3 min check-in
+              </span>
             </div>
           </div>
+          <div className="flex items-center gap-4 flex-shrink-0">
+            <div className="text-right">
+              <p className="font-manrope text-xs text-on-surface-variant mb-0.5">Sample score</p>
+              <p className="font-lexend font-bold text-2xl text-on-surface">87<span className="text-base font-manrope text-on-surface-variant">/100</span></p>
+            </div>
+            <button className="bg-primary text-white font-manrope font-bold text-sm px-5 py-2.5 rounded-full hover:bg-primary/90 transition-colors whitespace-nowrap">
+              Try pronunciation preview
+            </button>
+          </div>
+        </div>
+
+        {/* Search + Filters */}
+        <div className="flex items-center gap-3 mb-5">
+          <div className="flex-1 relative">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-on-surface-variant">search</span>
+            <input
+              type="text"
+              placeholder="Search scenarios..."
+              className="w-full bg-surface-lowest border border-outline-variant/40 rounded-2xl pl-10 pr-4 py-2.5 font-manrope text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary/60"
+            />
+          </div>
+          <button className="flex items-center gap-2 bg-surface-lowest border border-outline-variant/40 rounded-2xl px-4 py-2.5 font-manrope text-sm text-on-surface hover:border-primary/40 transition-colors">
+            <span className="material-symbols-outlined text-[18px] text-on-surface-variant">tune</span>
+            Level: All
+          </button>
+          <button className="flex items-center gap-2 bg-surface-lowest border border-outline-variant/40 rounded-2xl px-4 py-2.5 font-manrope text-sm text-on-surface hover:border-primary/40 transition-colors">
+            <span className="material-symbols-outlined text-[18px] text-on-surface-variant">folder</span>
+            Topic: All
+          </button>
+        </div>
+
+        {/* Scenarios Grid */}
+        <div className="grid grid-cols-3 gap-4">
+          {scenarios.map((sc, i) => (
+            <div
+              key={i}
+              className="group relative bg-surface-lowest rounded-3xl p-5 shadow-ambient-sm hover:shadow-ambient hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <span className="text-3xl">{sc.emoji}</span>
+                <span className={`text-[10px] font-manrope font-bold px-2 py-0.5 rounded-full ${sc.levelColor}`}>
+                  {sc.level}
+                </span>
+              </div>
+              <h3 className="font-lexend font-semibold text-sm text-on-surface mb-1.5">{sc.title}</h3>
+              <p className="font-manrope text-xs text-on-surface-variant line-clamp-2 leading-relaxed mb-4">{sc.desc}</p>
+              <Link
+                href={`/conversation?scenario=${encodeURIComponent(sc.title)}&language=German`}
+                className="flex items-center gap-1 font-manrope font-semibold text-xs text-primary hover:gap-2 transition-all duration-200"
+              >
+                Start session
+                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+              </Link>
+            </div>
+          ))}
         </div>
       </div>
     </div>

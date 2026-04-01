@@ -1,7 +1,7 @@
 export default function Loading() {
   return (
-    <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+    <div className="flex items-center justify-center" style={{ height: "calc(100vh)" }}>
+      <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
     </div>
   );
 }

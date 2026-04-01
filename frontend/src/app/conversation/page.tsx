@@ -15,12 +15,12 @@ interface ChatMessage {
 
 function WaveAnimation() {
   return (
-    <div className="flex items-center gap-1 h-8">
-      {[1, 2, 3, 4, 5].map((i) => (
+    <div className="flex items-center gap-0.5 h-5">
+      {[1, 2, 3, 4, 5, 6, 7].map((i) => (
         <div
           key={i}
-          className="wave-bar w-1 h-full bg-green-400 rounded-full origin-center"
-          style={{ animationDelay: `${(i - 1) * 0.15}s` }}
+          className="wave-bar w-0.5 h-full bg-primary rounded-full origin-center"
+          style={{ animationDelay: `${(i - 1) * 0.1}s` }}
         />
       ))}
     </div>
@@ -29,14 +29,14 @@ function WaveAnimation() {
 
 function Spinner() {
   return (
-    <div className="w-7 h-7 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+    <div className="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
   );
 }
 
 export default function ConversationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const language = searchParams.get("language") || "English";
+  const language = searchParams.get("language") || "German";
   const scenario = searchParams.get("scenario") || "Daily conversation";
 
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -168,99 +168,88 @@ export default function ConversationPage() {
     }
   }
 
-  const micButtonClass = () => {
-    const base =
-      "relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg focus:outline-none";
+  const micLabel = () => {
     switch (micState) {
-      case "idle":
-        return `${base} bg-[#242424] hover:bg-[#2e2e2e] border-2 border-[#3a3a3a] hover:border-purple-500/50 hover:scale-105`;
-      case "recording":
-        return `${base} bg-red-600 hover:bg-red-500 border-2 border-red-400 scale-110 animate-pulse`;
-      case "processing":
-        return `${base} bg-[#242424] border-2 border-[#3a3a3a] cursor-not-allowed`;
-      case "playing":
-        return `${base} bg-green-700 hover:bg-green-600 border-2 border-green-500`;
-    }
-  };
-
-  const micIcon = () => {
-    switch (micState) {
-      case "idle":
-        return (
-          <svg className="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 1a4 4 0 0 1 4 4v7a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v7a2 2 0 0 0 4 0V5a2 2 0 0 0-2-2zm-7 9a7 7 0 0 0 14 0h2a9 9 0 0 1-8 8.94V23h-2v-2.06A9 9 0 0 1 3 12h2z" />
-          </svg>
-        );
-      case "recording":
-        return <div className="w-5 h-5 bg-white rounded-sm" />;
-      case "processing":
-        return <Spinner />;
-      case "playing":
-        return <WaveAnimation />;
+      case "idle": return "Tap to speak";
+      case "recording": return "Listening...";
+      case "processing": return "Processing...";
+      case "playing": return "AI is speaking...";
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] flex flex-col">
-      {/* Top bar */}
-      <header className="flex items-center justify-between px-5 py-4 border-b border-[#1e1e1e]">
-        <div className="flex items-center gap-3">
-          <span className="text-white font-semibold">
-            Lingua<span className="text-purple-400">Tutor</span>
-          </span>
-          <span className="text-[#3a3a3a]">·</span>
-          <span className="text-gray-400 text-sm">{language}</span>
-          <span className="text-[#3a3a3a]">·</span>
-          <span className="text-gray-500 text-sm truncate max-w-[180px]">{scenario}</span>
+    <div className="page-transition flex flex-col" style={{ height: "calc(100vh)" }}>
+      {/* Scenario Header */}
+      <div className="flex items-center gap-4 px-6 py-4 border-b border-outline-variant/20 bg-surface/80 backdrop-blur-xl sticky top-0 z-20">
+        <div className="w-10 h-10 bg-surface-highest rounded-2xl flex items-center justify-center flex-shrink-0">
+          <span className="material-symbols-outlined ms-filled text-[22px] text-on-surface-variant">shopping_cart</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <h2 className="font-lexend font-bold text-base text-on-surface">{scenario}</h2>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="font-manrope font-bold text-xs bg-tertiary-container text-tertiary px-2 py-0.5 rounded-full">A1</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+            <span className="font-manrope text-xs text-on-surface-variant">Session Active</span>
+          </div>
         </div>
         <button
-          onClick={() => router.push("/")}
-          className="text-sm text-gray-500 hover:text-gray-300 transition-colors border border-[#2a2a2a] hover:border-[#3a3a3a] px-3 py-1.5 rounded-lg"
+          onClick={() => router.push("/speaking")}
+          className="flex items-center gap-2 border border-outline-variant/40 text-on-surface font-manrope font-semibold text-sm px-4 py-2 rounded-full hover:bg-surface-highest/40 transition-colors"
         >
-          End session
+          <span className="material-symbols-outlined text-[18px]">power_settings_new</span>
+          End Session
         </button>
-      </header>
+      </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
-        {messages.length === 0 && (
-          <div className="text-center text-gray-600 mt-20 text-sm">
-            Hold <kbd className="bg-[#2a2a2a] px-2 py-0.5 rounded text-gray-400 text-xs font-mono">SPACE</kbd> or
-            press the mic to start speaking
+      <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+        {messages.length === 0 && !liveText && (
+          <div className="text-center text-on-surface-variant mt-16 text-sm">
+            Hold <kbd className="bg-surface-highest border border-outline-variant/40 px-2 py-0.5 rounded text-on-surface text-xs font-mono">SPACE</kbd> or press the mic to start speaking
           </div>
         )}
 
         {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div
-              className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                msg.role === "user"
-                  ? "bg-purple-900/50 text-gray-100 border border-purple-800/40"
-                  : "bg-[#1e1e1e] text-gray-200 border border-[#2a2a2a]"
-              }`}
-            >
-              <p>{msg.text}</p>
+          <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end items-end gap-2" : "justify-start items-start gap-2"}`}>
+            {msg.role === "assistant" && (
+              <div className="w-8 h-8 rounded-full bg-primary-container/60 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="material-symbols-outlined ms-filled text-[16px] text-primary">smart_toy</span>
+              </div>
+            )}
+            <div className="max-w-[70%] space-y-2">
+              <div
+                className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                  msg.role === "user"
+                    ? "bg-primary text-white rounded-br-sm"
+                    : "bg-surface-lowest border border-outline-variant/20 text-on-surface rounded-bl-sm shadow-ambient-sm"
+                }`}
+              >
+                <p>{msg.text}</p>
+              </div>
               {msg.role === "assistant" && msg.audioUrl && (
                 <button
                   onClick={() => replayAudio(msg.audioUrl!)}
-                  className="mt-2 flex items-center gap-1.5 text-xs text-gray-500 hover:text-purple-400 transition-colors"
+                  className="flex items-center gap-2 bg-surface-lowest border border-outline-variant/20 rounded-2xl px-3 py-2 hover:bg-surface-highest/40 transition-colors shadow-ambient-sm"
                 >
-                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
-                  </svg>
-                  Replay
+                  <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="material-symbols-outlined ms-filled text-[14px] text-primary">play_arrow</span>
+                  </span>
+                  <WaveAnimation />
+                  <span className="font-manrope text-xs text-on-surface-variant">0:04</span>
                 </button>
               )}
             </div>
+            {msg.role === "user" && (
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-dim flex items-center justify-center flex-shrink-0 mb-0.5">
+                <span className="font-lexend font-bold text-xs text-white">A</span>
+              </div>
+            )}
           </div>
         ))}
 
         {liveText && (
           <div className="flex justify-center">
-            <span className="text-gray-500 text-sm italic animate-pulse">{liveText}</span>
+            <span className="font-manrope text-sm text-on-surface-variant italic animate-pulse">{liveText}</span>
           </div>
         )}
 
@@ -269,38 +258,49 @@ export default function ConversationPage() {
 
       {/* Error */}
       {error && (
-        <div className="mx-4 mb-2 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm text-center">
+        <div className="mx-6 mb-2 px-4 py-3 bg-error-container rounded-2xl text-error text-sm text-center font-manrope">
           {error}
         </div>
       )}
 
-      {/* Bottom controls */}
-      <div className="px-4 pb-8 pt-4 flex flex-col items-center gap-3">
+      {/* Recording Controls */}
+      <div className="px-6 pb-8 pt-3 flex flex-col items-center gap-3 border-t border-outline-variant/10">
+        {micState === "recording" && (
+          <p className="font-manrope font-semibold text-sm text-primary animate-pulse">Listening...</p>
+        )}
         <button
           onClick={handleMicClick}
           disabled={micState === "processing" || !sessionId}
-          className={micButtonClass()}
-          aria-label={
+          aria-label={micLabel()}
+          className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none ${
             micState === "idle"
-              ? "Start recording"
+              ? "bg-primary hover:bg-primary/90 shadow-ambient"
               : micState === "recording"
-              ? "Stop recording"
-              : micState === "playing"
-              ? "Stop playback"
-              : "Processing"
-          }
+              ? "bg-primary shadow-ambient scale-110"
+              : micState === "processing"
+              ? "bg-surface-highest cursor-not-allowed"
+              : "bg-tertiary shadow-ambient"
+          }`}
         >
-          {micIcon()}
+          {micState === "idle" && (
+            <span className="material-symbols-outlined ms-filled text-[28px] text-white">mic</span>
+          )}
           {micState === "recording" && (
-            <span className="absolute -inset-2 rounded-full border-2 border-red-400/40 animate-ping" />
+            <>
+              <span className="material-symbols-outlined ms-filled text-[28px] text-white">mic</span>
+              <span className="absolute -inset-2 rounded-full border-2 border-primary/40 animate-ping" />
+            </>
+          )}
+          {micState === "processing" && <Spinner />}
+          {micState === "playing" && (
+            <span className="material-symbols-outlined ms-filled text-[28px] text-white">stop</span>
           )}
         </button>
-
-        <p className="text-xs text-gray-600">
-          {micState === "idle" && "Click or hold SPACE to speak"}
-          {micState === "recording" && "Recording... release SPACE or click to send"}
+        <p className="font-manrope text-xs text-on-surface-variant">
+          {micState === "idle" && "Release to send"}
+          {micState === "recording" && "Release to send"}
           {micState === "processing" && "Processing your message..."}
-          {micState === "playing" && "AI is speaking... click to stop"}
+          {micState === "playing" && "Tap to stop playback"}
         </p>
       </div>
     </div>
