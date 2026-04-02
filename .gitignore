@@ -21,3 +21,9 @@ frontend/.env.local
 .DS_Store
 *.log
 .claude/
+node_modules/
+
+# Dev scripts
+test_db.py
+seed_data.py
+create_tables.py

@@ -6,12 +6,11 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost/linguatutor"
 
+    # Supabase
+    SUPABASE_JWT_SECRET: str
+
     # OpenAI
     OPENAI_API_KEY: str
-
-    # ElevenLabs
-    ELEVENLABS_API_KEY: str
-    ELEVENLABS_VOICE_ID: str = "21m00Tcm4TlvDq8ikWAM"  # Rachel
 
     # Langfuse
     LANGFUSE_PUBLIC_KEY: Optional[str] = None

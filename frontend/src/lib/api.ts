@@ -1,3 +1,5 @@
+import { createClient } from "@/lib/supabase";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export interface SessionResponse {
@@ -23,14 +25,23 @@ export interface Message {
   created_at: string;
 }
 
+async function getAuthHeader(): Promise<Record<string, string>> {
+  const supabase = createClient();
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error("Oturum bulunamadı. Lütfen giriş yapın.");
+  return { Authorization: `Bearer ${token}` };
+}
+
 export async function createSession(
   language: string,
   scenario: string,
   level = "intermediate"
 ): Promise<SessionResponse> {
+  const auth = await getAuthHeader();
   const res = await fetch(`${API_URL}/api/session/create`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...auth },
     body: JSON.stringify({ language, scenario, level }),
   });
   if (!res.ok) throw new Error("Failed to create session");
@@ -41,12 +52,14 @@ export async function sendTurn(
   sessionId: string,
   audioBlob: Blob
 ): Promise<TurnResponse> {
+  const auth = await getAuthHeader();
   const form = new FormData();
   form.append("session_id", sessionId);
   form.append("audio", audioBlob, "recording.webm");
 
   const res = await fetch(`${API_URL}/api/conversation/turn`, {
     method: "POST",
+    headers: auth,
     body: form,
   });
   if (!res.ok) {
