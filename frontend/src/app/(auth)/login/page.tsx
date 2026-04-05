@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
+import { syncUser } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,6 +28,7 @@ export default function LoginPage() {
       return;
     }
 
+    await syncUser().catch(() => {}); // ensure user exists in DB, ignore errors
     router.push("/");
     router.refresh();
   }

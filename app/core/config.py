@@ -7,7 +7,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost/linguatutor"
 
     # Supabase
-    SUPABASE_JWT_SECRET: str
+    SUPABASE_JWT_SECRET: str = ""
+    SUPABASE_URL: str = ""
 
     # OpenAI
     OPENAI_API_KEY: str

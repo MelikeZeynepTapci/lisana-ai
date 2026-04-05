@@ -33,6 +33,11 @@ async function getAuthHeader(): Promise<Record<string, string>> {
   return { Authorization: `Bearer ${token}` };
 }
 
+export async function syncUser(): Promise<void> {
+  const auth = await getAuthHeader();
+  await fetch(`${API_URL}/api/auth/sync`, { method: "POST", headers: auth });
+}
+
 export async function createSession(
   language: string,
   scenario: string,
@@ -44,7 +49,10 @@ export async function createSession(
     headers: { "Content-Type": "application/json", ...auth },
     body: JSON.stringify({ language, scenario, level }),
   });
-  if (!res.ok) throw new Error("Failed to create session");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `HTTP ${res.status}`);
+  }
   return res.json();
 }
 

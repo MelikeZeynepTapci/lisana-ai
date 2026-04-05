@@ -50,12 +50,26 @@ export default function ConversationPage() {
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const spaceDownRef = useRef(false);
+  const micStateRef = useRef<MicState>("idle");
+  const sessionIdRef = useRef<string | null>(null);
+
+  // Keep refs in sync
+  const setMicStateSync = (s: MicState) => {
+    micStateRef.current = s;
+    setMicState(s);
+  };
 
   // Init session
   useEffect(() => {
     createSession(language, scenario)
-      .then((s) => setSessionId(s.session_id))
-      .catch(() => setError("Failed to start session. Check that the backend is running."));
+      .then((s) => {
+        setSessionId(s.session_id);
+        sessionIdRef.current = s.session_id;
+      })
+      .catch((e: unknown) => {
+        const msg = e instanceof Error ? e.message : "Unknown error";
+        setError(`Session başlatılamadı: ${msg}`);
+      });
   }, [language, scenario]);
 
   // Auto-scroll
@@ -64,7 +78,7 @@ export default function ConversationPage() {
   }, [messages, liveText]);
 
   const startRecording = useCallback(async () => {
-    if (micState !== "idle") return;
+    if (micStateRef.current !== "idle") return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
@@ -74,30 +88,33 @@ export default function ConversationPage() {
       };
       mediaRecorderRef.current = recorder;
       recorder.start(100);
-      setMicState("recording");
+      setMicStateSync("recording");
       setError(null);
     } catch {
       setError("Microphone access denied.");
     }
-  }, [micState]);
+  }, []);
 
   const stopRecording = useCallback(() => {
-    if (micState !== "recording") return;
+    if (micStateRef.current !== "recording") return;
     const recorder = mediaRecorderRef.current;
-    if (!recorder) return;
+    if (!recorder || recorder.state !== "recording") return;
+
+    // Mark as processing immediately to block duplicate calls
+    setMicStateSync("processing");
 
     recorder.stop();
     recorder.stream.getTracks().forEach((t) => t.stop());
 
     recorder.onstop = async () => {
       const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-      if (!sessionId) return;
+      const sid = sessionIdRef.current;
+      if (!sid) return;
 
-      setMicState("processing");
       setLiveText("Transcribing...");
 
       try {
-        const turn = await sendTurn(sessionId, blob);
+        const turn = await sendTurn(sid, blob);
 
         const userMsg: ChatMessage = {
           id: Date.now() + "-u",
@@ -113,22 +130,22 @@ export default function ConversationPage() {
 
         setMessages((prev) => [...prev, userMsg, aiMsg]);
         setLiveText("");
-        setMicState("playing");
+        setMicStateSync("playing");
 
         // Auto-play AI audio
         const audio = new Audio(aiMsg.audioUrl);
         currentAudioRef.current = audio;
         audio.play();
-        audio.onended = () => setMicState("idle");
-        audio.onerror = () => setMicState("idle");
+        audio.onended = () => setMicStateSync("idle");
+        audio.onerror = () => setMicStateSync("idle");
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : "Something went wrong";
         setError(message);
-        setMicState("idle");
+        setMicStateSync("idle");
         setLiveText("");
       }
     };
-  }, [micState, sessionId]);
+  }, []);
 
   // Keyboard shortcut: hold SPACE
   useEffect(() => {
@@ -164,7 +181,7 @@ export default function ConversationPage() {
     else if (micState === "recording") stopRecording();
     else if (micState === "playing") {
       currentAudioRef.current?.pause();
-      setMicState("idle");
+      setMicStateSync("idle");
     }
   }
 

@@ -10,3 +10,5 @@ langfuse==2.57.5
 sentry-sdk[fastapi]==2.19.2
 python-multipart==0.0.19
 aiofiles==24.1.0
+httpx
+cryptography

@@ -28,7 +28,15 @@ async def create_session(
     lang_profile = result.scalar_one_or_none()
 
     if not lang_profile:
-        raise HTTPException(status_code=404, detail="Language profile not found")
+        lang_profile = UserLanguageProfile(
+            user_id=current_user.id,
+            language=body.language,
+            current_level="A1",
+            is_active=True,
+        )
+        db.add(lang_profile)
+        await db.commit()
+        await db.refresh(lang_profile)
 
     session = Session(
         language_profile_id=lang_profile.id,
@@ -43,6 +51,7 @@ async def create_session(
         session_id=str(session.id),
         language=body.language,
         scenario=session.scenario,
+        level=lang_profile.current_level,
         created_at=session.created_at,
     )
 

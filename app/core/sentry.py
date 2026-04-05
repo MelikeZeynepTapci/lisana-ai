@@ -3,7 +3,8 @@ from app.core.config import settings
 
 
 def init_sentry():
-    if settings.SENTRY_DSN:
+    dsn = settings.SENTRY_DSN
+    if dsn and "..." not in dsn and dsn.startswith("https://"):
         sentry_sdk.init(
             dsn=settings.SENTRY_DSN,
             environment=settings.ENVIRONMENT,
