@@ -27,7 +27,7 @@ async def conversation_turn(
     # Load session with messages — verify it belongs to current user
     result = await db.execute(
         select(Session)
-        .options(selectinload(Session.messages))
+        .options(selectinload(Session.messages), selectinload(Session.language_profile))
         .join(Session.language_profile)
         .where(
             Session.id == session_id,

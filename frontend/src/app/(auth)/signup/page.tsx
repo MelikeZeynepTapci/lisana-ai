@@ -5,10 +5,23 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+async function checkAvailability(email: string, username: string) {
+  const res = await fetch(`${API_URL}/api/auth/check`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, username }),
+  });
+  return res.json() as Promise<{ email_taken: boolean; username_taken: boolean }>;
+}
+
 export default function SignupPage() {
   const router = useRouter();
   const supabase = createClient();
 
+  const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -24,15 +37,40 @@ export default function SignupPage() {
       setError("Şifreler eşleşmiyor.");
       return;
     }
-
     if (password.length < 6) {
       setError("Şifre en az 6 karakter olmalı.");
+      return;
+    }
+    if (username.length < 3) {
+      setError("Kullanıcı adı en az 3 karakter olmalı.");
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      setError("Kullanıcı adı sadece harf, rakam ve _ içerebilir.");
       return;
     }
 
     setLoading(true);
 
-    const { error } = await supabase.auth.signUp({ email, password });
+    const availability = await checkAvailability(email, username);
+    if (availability.email_taken) {
+      setError("Bu e-posta adresi zaten kullanılıyor.");
+      setLoading(false);
+      return;
+    }
+    if (availability.username_taken) {
+      setError("Bu kullanıcı adı zaten alınmış.");
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName, username },
+      },
+    });
 
     if (error) {
       setError(error.message);
@@ -66,7 +104,6 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="flex items-center justify-center gap-2.5 mb-8">
           <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center">
             <span className="material-symbols-outlined ms-filled text-[20px] text-white">language</span>
@@ -79,6 +116,37 @@ export default function SignupPage() {
           <p className="font-manrope text-sm text-on-surface-variant mb-6">Ücretsiz başla, istediğin zaman yükselt</p>
 
           <form onSubmit={handleSignup} className="space-y-4">
+            <div>
+              <label className="font-manrope font-semibold text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">
+                İsim <span className="normal-case text-on-surface-variant/60">(gizli)</span>
+              </label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                placeholder="Ada Lovelace"
+                className="w-full bg-surface-low border border-outline-variant/40 rounded-2xl px-4 py-3 font-manrope text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary/60 transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="font-manrope font-semibold text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">
+                Kullanıcı adı <span className="normal-case text-on-surface-variant/60">(herkese açık)</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-manrope text-sm text-on-surface-variant">@</span>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                  required
+                  placeholder="ada_codes"
+                  className="w-full bg-surface-low border border-outline-variant/40 rounded-2xl pl-8 pr-4 py-3 font-manrope text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary/60 transition-colors"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="font-manrope font-semibold text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">
                 E-posta

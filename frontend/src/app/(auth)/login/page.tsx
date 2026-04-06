@@ -6,11 +6,27 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import { syncUser } from "@/lib/api";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+async function resolveEmail(identifier: string): Promise<string> {
+  if (identifier.includes("@")) return identifier;
+
+  // Username → email lookup
+  const res = await fetch(`${API_URL}/api/auth/lookup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: identifier }),
+  });
+  if (!res.ok) throw new Error("Kullanıcı adı bulunamadı.");
+  const data = await res.json();
+  return data.email;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState(""); // email or username
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -20,23 +36,28 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const email = await resolveEmail(identifier.trim());
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      setError(error.message);
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+
+      await syncUser().catch(() => {});
+      router.push("/");
+      router.refresh();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Giriş yapılamadı.");
       setLoading(false);
-      return;
     }
-
-    await syncUser().catch(() => {}); // ensure user exists in DB, ignore errors
-    router.push("/");
-    router.refresh();
   }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="flex items-center justify-center gap-2.5 mb-8">
           <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center">
             <span className="material-symbols-outlined ms-filled text-[20px] text-white">language</span>
@@ -51,14 +72,14 @@ export default function LoginPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="font-manrope font-semibold text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">
-                E-posta
+                E-posta veya kullanıcı adı
               </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 required
-                placeholder="sen@example.com"
+                placeholder="sen@example.com veya @kullanici_adi"
                 className="w-full bg-surface-low border border-outline-variant/40 rounded-2xl px-4 py-3 font-manrope text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary/60 transition-colors"
               />
             </div>

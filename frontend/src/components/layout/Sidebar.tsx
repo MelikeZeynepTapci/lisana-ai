@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase";
 
 const dailyModeItems = [
   { href: "/", label: "Dashboard", icon: "dashboard" },
@@ -21,6 +23,28 @@ const examModeItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [displayName, setDisplayName] = useState<string>("");
+  const [initial, setInitial] = useState<string>("?");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      const user = data.user;
+      if (!user) return;
+      const username = user.user_metadata?.username;
+      const email = user.email ?? "";
+      const name = username ? `@${username}` : email;
+      setDisplayName(name);
+      setInitial((username ?? email)[0]?.toUpperCase() ?? "?");
+    });
+  }, []);
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
 
   return (
     <aside className="hidden md:flex flex-col w-52 min-h-screen bg-background border-r border-outline-variant/30 fixed left-0 top-0 bottom-0 z-40">
@@ -90,14 +114,17 @@ export default function Sidebar() {
       <div className="mt-auto px-3 py-4 border-t border-outline-variant/20">
         <div className="flex items-center gap-3 px-2">
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary-dim flex items-center justify-center text-white font-lexend font-bold text-sm flex-shrink-0">
-            A
+            {initial}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-manrope font-semibold text-sm text-on-surface truncate">Alex Meier</p>
-            <p className="font-manrope text-xs text-on-surface-variant">Pro Plan</p>
+            <p className="font-manrope font-semibold text-sm text-on-surface truncate">{displayName || "..."}</p>
           </div>
-          <button className="text-on-surface-variant hover:text-on-surface transition-colors flex-shrink-0">
-            <span className="material-symbols-outlined text-[20px]">settings</span>
+          <button
+            onClick={handleSignOut}
+            title="Sign out"
+            className="text-on-surface-variant hover:text-error transition-colors flex-shrink-0"
+          >
+            <span className="material-symbols-outlined text-[20px]">logout</span>
           </button>
         </div>
       </div>
