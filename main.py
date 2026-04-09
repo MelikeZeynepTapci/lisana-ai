@@ -5,7 +5,7 @@ from pathlib import Path
 
 from app.core.config import settings
 from app.core.sentry import init_sentry
-from app.api.routes import session, conversation, auth, user
+from app.api.routes import session, conversation, auth, user, onboarding
 
 init_sentry()
 
@@ -32,6 +32,7 @@ app.mount("/audio", StaticFiles(directory=str(audio_dir)), name="audio")
 # Routes
 app.include_router(auth.router)
 app.include_router(user.router)
+app.include_router(onboarding.router)
 app.include_router(session.router)
 app.include_router(conversation.router)
 

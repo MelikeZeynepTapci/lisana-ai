@@ -46,9 +46,8 @@ export default function LoginPage() {
         return;
       }
 
-      await syncUser().catch(() => {});
+      syncUser().catch(() => {}); // fire-and-forget, don't await
       router.push("/");
-      router.refresh();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Giriş yapılamadı.");
       setLoading(false);

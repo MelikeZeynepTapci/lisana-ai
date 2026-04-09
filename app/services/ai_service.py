@@ -57,3 +57,48 @@ async def generate_tutor_response(
     }
 
     return text, usage
+
+
+async def generate_welcome_message(
+    language: str,
+    level: str,
+    reason: str,
+    interests: list[str],
+    intro_sentence: str,
+) -> str:
+    """Generate personalized Maya welcome message for onboarding step 7."""
+    reason_map = {
+        "living_abroad": "yaşadığı ülkede günlük hayat için",
+        "work": "iş hayatında kullanmak için",
+        "travel": "seyahat için",
+        "exam": "sınav (IELTS/TestDAF/DELE) için",
+        "personal": "kişisel ilgi nedeniyle",
+    }
+    reason_text = reason_map.get(reason, reason)
+    interests_text = ", ".join(interests[:3]) if interests else "genel konular"
+    intro_text = f'Kullanıcı kendini şöyle tanıttı: "{intro_sentence}"' if intro_sentence else ""
+
+    prompt = f"""Sen Maya'sın — sıcak, doğal konuşan bir dil öğretmenisin.
+Kullanıcı şimdi sana katıldı. Kişiselleştirilmiş bir karşılama mesajı yaz.
+
+Bilgiler:
+- Öğrenilen dil: {language}
+- Seviye: {level}
+- Neden öğreniyor: {reason_text}
+- İlgi alanları: {interests_text}
+{intro_text}
+
+Kurallar:
+- 2-3 cümle, max 60 kelime
+- Türkçe yaz ama gerçek veriyi doğal şekilde referans al
+- Son cümle {language} dilinde bir soru olsun, hemen altında parantez içinde Türkçe çevirisiyle
+- "Yapay zeka", "yardımcı olmak için buradayım" gibi ifadeler kullanma
+- İnsan gibi, sıcak konuş"""
+
+    response = await client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.9,
+        max_tokens=200,
+    )
+    return response.choices[0].message.content

@@ -27,10 +27,11 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  const isAuthPage = request.nextUrl.pathname.startsWith("/login") ||
-                     request.nextUrl.pathname.startsWith("/signup");
+  const { pathname } = request.nextUrl;
+  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/signup");
+  const isOnboarding = pathname.startsWith("/onboarding");
 
-  // Not logged in → redirect to login (except auth pages)
+  // Not logged in → login
   if (!user && !isAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -39,6 +40,20 @@ export async function middleware(request: NextRequest) {
 
   // Logged in → don't show auth pages
   if (user && isAuthPage) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
+  // Logged in but onboarding not done → onboarding
+  if (user && !isAuthPage && !isOnboarding && !user.user_metadata?.onboarding_completed) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/onboarding";
+    return NextResponse.redirect(url);
+  }
+
+  // Onboarding done → don't show onboarding again
+  if (user && isOnboarding && user.user_metadata?.onboarding_completed) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
