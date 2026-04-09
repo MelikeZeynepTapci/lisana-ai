@@ -30,16 +30,17 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/signup");
   const isOnboarding = pathname.startsWith("/onboarding");
+  const isLanding = pathname === "/landing";
 
-  // Not logged in → login
-  if (!user && !isAuthPage) {
+  // Not logged in → landing page (allow auth pages and landing itself through)
+  if (!user && !isAuthPage && !isLanding) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = "/landing";
     return NextResponse.redirect(url);
   }
 
-  // Logged in → don't show auth pages
-  if (user && isAuthPage) {
+  // Logged in → don't show auth pages or landing
+  if (user && (isAuthPage || isLanding)) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
