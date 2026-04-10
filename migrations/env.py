@@ -1,4 +1,5 @@
 import asyncio
+import ssl
 from logging.config import fileConfig
 
 from sqlalchemy import pool
@@ -38,11 +39,15 @@ def do_run_migrations(connection: Connection) -> None:
 
 
 async def run_async_migrations() -> None:
+    ssl_ctx = ssl.create_default_context()
+    ssl_ctx.check_hostname = False
+    ssl_ctx.verify_mode = ssl.CERT_NONE
+
     connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
-        connect_args={"statement_cache_size": 0},
+        connect_args={"statement_cache_size": 0, "ssl": ssl_ctx},
     )
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
