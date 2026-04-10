@@ -8,9 +8,9 @@
 
 html,
 body {
-  background-color: #FAF6EE;
+  background-color: #fcfdfc;
   color: #363b10;
-  font-family: "Manrope", sans-serif;
+  font-family: "Inter", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Lexend, Manrope } from "next/font/google";
+import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const lexend = Lexend({
-  subsets: ["latin"],
+const canela = localFont({
+  src: "../../public/fonts/Canela-Regular-Trial.otf",
   variable: "--font-lexend",
-  weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-const manrope = Manrope({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-manrope",
   weight: ["300", "400", "500", "600", "700", "800"],
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${lexend.variable} ${manrope.variable}`}>
+    <html lang="en" className={`${canela.variable} ${inter.variable}`}>
       <head>
         <link
           rel="stylesheet"

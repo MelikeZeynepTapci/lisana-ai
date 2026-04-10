@@ -23,7 +23,7 @@ const config: Config = {
           "on-container": "#004d3c",
         },
         surface: {
-          DEFAULT: "#FAF6EE",
+          DEFAULT: "#fcfdfc",
           low: "#fafcda",
           high: "#eff1c9",
           highest: "#e7edb1",
@@ -38,11 +38,11 @@ const config: Config = {
           container: "#ffdad9",
         },
         "outline-variant": "#b8be86",
-        background: "#FAF6EE",
+        background: "#fcfdfc",
       },
       fontFamily: {
-        lexend: ["var(--font-lexend)", "Lexend", "sans-serif"],
-        manrope: ["var(--font-manrope)", "Manrope", "sans-serif"],
+        lexend: ["var(--font-lexend)", "Georgia", "serif"],
+        manrope: ["var(--font-manrope)", "Inter", "sans-serif"],
       },
       borderRadius: {
         "2xl": "1rem",
