@@ -1,21 +1,21 @@
+from typing import AsyncGenerator
+
 from openai import AsyncOpenAI
 from app.core.config import settings
 
 client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
-SYSTEM_PROMPT_TEMPLATE = """You are a friendly, natural {language} language tutor.
+SYSTEM_PROMPT_TEMPLATE = """You are a friendly, natural {language} language tutor having a real conversation.
 
 Current scenario: {scenario}
 User level: {level}
 
 Guidelines:
-- Speak naturally and conversationally in {language}
-- Correct mistakes naturally within the conversation, never harshly
-- Never sound robotic or textbook-like
-- Keep responses conversational — maximum 3 sentences
-- After each response, add brief feedback in brackets like: [Feedback: Good use of past tense! Try "hatte" instead of "hat" here.]
+- Speak naturally and conversationally in {language} — like a native speaker, not a textbook
+- Keep responses short: 2-3 sentences max
+- If the user makes a grammar or vocabulary mistake, correct it naturally within your reply — weave it in as a native speaker would (e.g. "Oh, and 'hatte' sounds more natural there" or just model the correct form in your response). Never use brackets, labels like [Feedback:], or separate correction sections.
 - If the user speaks in English, gently guide them back to {language}
-- Be encouraging and patient
+- Be warm, encouraging, and patient
 """
 
 
@@ -57,6 +57,36 @@ async def generate_tutor_response(
     }
 
     return text, usage
+
+
+async def stream_tutor_response(
+    language: str,
+    scenario: str,
+    level: str,
+    conversation_history: list[dict],
+    user_message: str,
+) -> AsyncGenerator[str, None]:
+    """Stream GPT response token by token."""
+    system_prompt = SYSTEM_PROMPT_TEMPLATE.format(
+        language=language,
+        scenario=scenario,
+        level=level,
+    )
+    messages = [{"role": "system", "content": system_prompt}]
+    messages.extend(conversation_history)
+    messages.append({"role": "user", "content": user_message})
+
+    stream = await client.chat.completions.create(
+        model="gpt-4o",
+        messages=messages,
+        temperature=0.8,
+        max_tokens=300,
+        stream=True,
+    )
+    async for chunk in stream:
+        delta = chunk.choices[0].delta.content
+        if delta:
+            yield delta
 
 
 async def generate_welcome_message(

@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:3000"
     RAILWAY_STATIC_URL: Optional[str] = None
 
+    # ElevenLabs
+    ELEVENLABS_API_KEY: Optional[str] = None
+    ELEVENLABS_VOICE_ID: str = "vmVmHDKBkkCgbLVIOJRb"  # Laura
+
     # Audio storage (local for dev, can be S3/etc for prod)
     AUDIO_DIR: str = "audio_files"
 

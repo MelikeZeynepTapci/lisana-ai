@@ -81,3 +81,63 @@ export function getAudioUrl(path: string): string {
   if (path.startsWith("http")) return path;
   return `${API_URL}${path}`;
 }
+
+export interface StreamEvent {
+  type: "transcript" | "ai_chunk" | "audio" | "done" | "error";
+  data: Record<string, unknown>;
+}
+
+export async function* sendTurnStream(
+  sessionId: string,
+  audioBlob: Blob,
+  signal?: AbortSignal
+): AsyncGenerator<StreamEvent> {
+  const auth = await getAuthHeader();
+  const form = new FormData();
+  form.append("session_id", sessionId);
+  form.append("audio", audioBlob, "recording.webm");
+
+  const res = await fetch(`${API_URL}/api/conversation/turn/stream`, {
+    method: "POST",
+    headers: auth,
+    body: form,
+    signal,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || "Stream failed");
+  }
+
+  const reader = res.body!.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split("\n\n");
+      buffer = parts.pop() ?? "";
+      for (const part of parts) {
+        if (!part.trim()) continue;
+        let type = "";
+        let dataStr = "";
+        for (const line of part.split("\n")) {
+          if (line.startsWith("event: ")) type = line.slice(7).trim();
+          else if (line.startsWith("data: ")) dataStr = line.slice(6);
+        }
+        if (type && dataStr) {
+          try {
+            yield { type: type as StreamEvent["type"], data: JSON.parse(dataStr) };
+          } catch {
+            // skip malformed event
+          }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}

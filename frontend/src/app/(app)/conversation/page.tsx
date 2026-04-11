@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createSession, sendTurn, getAudioUrl } from "@/lib/api";
+import { createSession, sendTurnStream, getAudioUrl } from "@/lib/api";
 
 type MicState = "idle" | "recording" | "processing" | "playing";
 
@@ -33,6 +33,8 @@ function Spinner() {
   );
 }
 
+const SAMPLE_RATE = 24000;
+
 export default function ConversationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -47,17 +49,70 @@ export default function ConversationPage() {
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const spaceDownRef = useRef(false);
   const micStateRef = useRef<MicState>("idle");
   const sessionIdRef = useRef<string | null>(null);
 
-  // Keep refs in sync
+  // Web Audio API refs
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const nextPlayTimeRef = useRef(0);
+  const scheduledSourcesRef = useRef<AudioBufferSourceNode[]>([]);
+  const abortRef = useRef<AbortController | null>(null);
+
   const setMicStateSync = (s: MicState) => {
     micStateRef.current = s;
     setMicState(s);
   };
+
+  const getAudioCtx = useCallback((): AudioContext => {
+    if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
+      audioCtxRef.current = new AudioContext({ sampleRate: SAMPLE_RATE });
+      nextPlayTimeRef.current = 0;
+    }
+    return audioCtxRef.current;
+  }, []);
+
+  const schedulePCMChunk = useCallback(
+    (base64pcm: string, rate: number) => {
+      const ctx = getAudioCtx();
+      if (ctx.sampleRate !== rate) return; // mismatched rate — skip
+
+      const raw = atob(base64pcm);
+      const bytes = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+
+      const int16 = new Int16Array(bytes.buffer);
+      const float32 = new Float32Array(int16.length);
+      for (let i = 0; i < int16.length; i++) float32[i] = int16[i] / 32768;
+
+      const buffer = ctx.createBuffer(1, float32.length, rate);
+      buffer.copyToChannel(float32, 0);
+
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+
+      const startTime = Math.max(ctx.currentTime, nextPlayTimeRef.current);
+      source.start(startTime);
+      nextPlayTimeRef.current = startTime + buffer.duration;
+
+      scheduledSourcesRef.current.push(source);
+      source.onended = () => {
+        scheduledSourcesRef.current = scheduledSourcesRef.current.filter((s) => s !== source);
+      };
+    },
+    [getAudioCtx]
+  );
+
+  const stopAllAudio = useCallback(() => {
+    scheduledSourcesRef.current.forEach((s) => {
+      try { s.stop(0); } catch {}
+    });
+    scheduledSourcesRef.current = [];
+    nextPlayTimeRef.current = 0;
+    abortRef.current?.abort();
+  }, []);
 
   // Init session
   useEffect(() => {
@@ -100,9 +155,7 @@ export default function ConversationPage() {
     const recorder = mediaRecorderRef.current;
     if (!recorder || recorder.state !== "recording") return;
 
-    // Mark as processing immediately to block duplicate calls
     setMicStateSync("processing");
-
     recorder.stop();
     recorder.stream.getTracks().forEach((t) => t.stop());
 
@@ -113,39 +166,71 @@ export default function ConversationPage() {
 
       setLiveText("Transcribing...");
 
+      const abort = new AbortController();
+      abortRef.current = abort;
+
+      const userMsgId = `${Date.now()}-u`;
+      const aiMsgId = `${Date.now()}-a`;
+      let aiTextAccum = "";
+
       try {
-        const turn = await sendTurn(sid, blob);
+        for await (const event of sendTurnStream(sid, blob, abort.signal)) {
+          if (abort.signal.aborted) break;
 
-        const userMsg: ChatMessage = {
-          id: Date.now() + "-u",
-          role: "user",
-          text: turn.user_transcript,
-        };
-        const aiMsg: ChatMessage = {
-          id: Date.now() + "-a",
-          role: "assistant",
-          text: turn.ai_text,
-          audioUrl: getAudioUrl(turn.audio_url),
-        };
-
-        setMessages((prev) => [...prev, userMsg, aiMsg]);
-        setLiveText("");
-        setMicStateSync("playing");
-
-        // Auto-play AI audio
-        const audio = new Audio(aiMsg.audioUrl);
-        currentAudioRef.current = audio;
-        audio.play();
-        audio.onended = () => setMicStateSync("idle");
-        audio.onerror = () => setMicStateSync("idle");
+          switch (event.type) {
+            case "transcript": {
+              setMessages((prev) => [
+                ...prev,
+                { id: userMsgId, role: "user", text: event.data.text as string },
+              ]);
+              setLiveText("");
+              break;
+            }
+            case "ai_chunk": {
+              const chunk = event.data.text as string;
+              aiTextAccum += (aiTextAccum ? " " : "") + chunk;
+              const captured = aiTextAccum;
+              setMessages((prev) => {
+                const exists = prev.find((m) => m.id === aiMsgId);
+                if (exists) {
+                  return prev.map((m) =>
+                    m.id === aiMsgId ? { ...m, text: captured } : m
+                  );
+                }
+                setMicStateSync("playing");
+                return [...prev, { id: aiMsgId, role: "assistant", text: captured }];
+              });
+              break;
+            }
+            case "audio": {
+              schedulePCMChunk(event.data.pcm as string, event.data.rate as number);
+              break;
+            }
+            case "done": {
+              const ctx = audioCtxRef.current;
+              const remaining = ctx
+                ? Math.max(0, nextPlayTimeRef.current - ctx.currentTime)
+                : 0;
+              setTimeout(() => setMicStateSync("idle"), remaining * 1000 + 300);
+              break;
+            }
+            case "error": {
+              setError(event.data.message as string);
+              setMicStateSync("idle");
+              setLiveText("");
+              break;
+            }
+          }
+        }
       } catch (err: unknown) {
+        if ((err as { name?: string }).name === "AbortError") return;
         const message = err instanceof Error ? err.message : "Something went wrong";
         setError(message);
         setMicStateSync("idle");
         setLiveText("");
       }
     };
-  }, []);
+  }, [schedulePCMChunk]);
 
   // Keyboard shortcut: hold SPACE
   useEffect(() => {
@@ -170,9 +255,8 @@ export default function ConversationPage() {
   }, [startRecording, stopRecording]);
 
   function replayAudio(url: string) {
-    currentAudioRef.current?.pause();
+    stopAllAudio();
     const audio = new Audio(url);
-    currentAudioRef.current = audio;
     audio.play();
   }
 
@@ -180,7 +264,7 @@ export default function ConversationPage() {
     if (micState === "idle") startRecording();
     else if (micState === "recording") stopRecording();
     else if (micState === "playing") {
-      currentAudioRef.current?.pause();
+      stopAllAudio();
       setMicStateSync("idle");
     }
   }
