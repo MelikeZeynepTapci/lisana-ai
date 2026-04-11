@@ -6,19 +6,17 @@ LinguaTutor helps expats, immigrants, and international students build genuine s
 
 ---
 
-## What Makes LinguaTutor Different
+## What Makes LinguaTutor Different?
 
 Most language apps teach vocabulary. LinguaTutor teaches you to **speak**.
 
-| | LinguaTutor | Duolingo | TalkPal | Langua |
-|---|---|---|---|---|
-| No credit card to start | ✓ (Test Drive) | ✓ | ✗ | ✗ |
-| AI coach with long-term memory | ✓ | ✗ | ✗ | ✗ |
-| Live peer chat rooms | ✓ | ✗ | ✗ | ✗ |
-| Pronunciation assessment | ✓ | ✗ | ✗ | ✗ |
-| Personalised PDF study plans | ✓ | ✗ | ✗ | ✗ |
-| Level-matched community | ✓ | ✗ | ✗ | ✗ |
-
+| Feature                                             | LinguaTutor | Competitors |
+|-----------------------------------------------------|-------------|-------------|
+| AI coach with long-term memory                      | ✓           | ✗           |
+| Live peer chat rooms                                | ✓           | ✗           |
+| Pronunciation assessment                            | ✓           | ✗           |
+| Personalised reports and study plans (PDF/PNG)      | ✓           | ✗           |
+| Level-matched community                             | ✓           | ✗           |
 ---
 
 ## Core Features
@@ -28,7 +26,6 @@ Practice real-life scenarios with Maya, your personal AI language coach. Maya re
 
 ### 👥 LinguaRooms
 10-minute live group chat sessions with 2–3 other learners matched by language level and shared interests. AI initiates the topic and fills any missing seats so the feature works from day one. At the end of each session, every participant receives individual performance feedback and XP.
-
 
 
 ### 📰 Daily Content
@@ -89,8 +86,8 @@ Generate a personalised weekly or monthly PDF study plan and report of the user'
 ### AI & Speech
 - **LLM:** OpenAI GPT-4o (Maya tutor conversation)
 - **LLM (lightweight):** OpenAI GPT-4o Mini (onboarding welcome message)
-- **Speech-to-Text:** OpenAI Whisper-1
-- **Text-to-Speech:** OpenAI TTS-1 (nova voice)
+- **Speech-to-Text:** GPT-4o Mini Transcribe 
+- **Text-to-Speech:** ElevenLabs API
 - **Audio Processing:** ffmpeg (speed control for beginner pacing)
 
 ### Observability & Payments
@@ -118,17 +115,17 @@ Generate a personalised weekly or monthly PDF study plan and report of the user'
 │  │  (Supabase  │  │  /api/user      (me)                     │  │
 │  │   ES256 JWT │  │  /api/onboarding (welcome, complete)     │  │
 │  │   + JWKS)   │  │  /api/sessions  (create, list)           │  │
-│  └─────────────┘  │  /api/conversation (turn)               │  │
+│  └─────────────┘  │  /api/conversation (turn)                │  │
 │                   └──────────────────────────────────────────┘  │
-└────────┬──────────────┬──────────────────────────────────────────┘
+└────────┬──────────────┬─────────────────────────────────────────┘
          │              │
-┌────────▼───┐  ┌───────▼──────────────────────────────────────┐
+┌────────▼───┐  ┌───────▼───────────────────────────────────────┐
 │ Supabase   │  │  OpenAI API                                   │
 │ PostgreSQL │  │  - GPT-4o (conversation)                      │
 │ Auth       │  │  - GPT-4o Mini (onboarding welcome)           │
-└────────────┘  │  - Whisper-1 (transcription)                 │
-                │  - TTS-1/nova (speech synthesis)              │
-                └──────────────────────────────────────────────┘
+└────────────┘  │  - GPT-4o Mini Transcribe (transcription)     │
+                │  - ElevenLabs API (speech synthesis)          │
+                └───────────────────────────────────────────────┘
                                   ┌──────────────────────────────┐
                                   │  Langfuse (LLM Observability)│
                                   │  Sentry (Error Tracking)     │
@@ -181,8 +178,8 @@ subscriptions             — Stripe subscription state
 |---|---|---|
 | Maya conversation | GPT-4o | Quality for real-time dialogue |
 | Onboarding welcome | GPT-4o Mini | Short generation, cost efficient |
-| Transcription | Whisper-1 | OpenAI speech-to-text |
-| Text-to-Speech | TTS-1 (nova) | Low latency voice synthesis |
+| Transcription | GPT-4o Mini Transcribe  | OpenAI speech-to-text |
+| Text-to-Speech | Elevenlabs API | Low latency voice synthesis |
 
 ---
 
