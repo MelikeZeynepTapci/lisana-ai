@@ -60,6 +60,11 @@ export default function ConversationPage() {
   const scheduledSourcesRef = useRef<AudioBufferSourceNode[]>([]);
   const abortRef = useRef<AbortController | null>(null);
 
+  // Typewriter refs
+  const typeQueueRef = useRef<Array<{ msgId: string; char: string }>>([]);
+  const typeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const aiMsgCreatedRef = useRef(false);
+
   const setMicStateSync = (s: MicState) => {
     micStateRef.current = s;
     setMicState(s);
@@ -112,6 +117,11 @@ export default function ConversationPage() {
     scheduledSourcesRef.current = [];
     nextPlayTimeRef.current = 0;
     abortRef.current?.abort();
+    if (typeIntervalRef.current) {
+      clearInterval(typeIntervalRef.current);
+      typeIntervalRef.current = null;
+    }
+    typeQueueRef.current = [];
   }, []);
 
   // Init session
@@ -171,7 +181,28 @@ export default function ConversationPage() {
 
       const userMsgId = `${Date.now()}-u`;
       const aiMsgId = `${Date.now()}-a`;
-      let aiTextAccum = "";
+      aiMsgCreatedRef.current = false;
+      typeQueueRef.current = [];
+
+      function startTypeInterval() {
+        if (typeIntervalRef.current) return;
+        typeIntervalRef.current = setInterval(() => {
+          const item = typeQueueRef.current.shift();
+          if (!item) {
+            clearInterval(typeIntervalRef.current!);
+            typeIntervalRef.current = null;
+            return;
+          }
+          setMessages((prev) =>
+            prev.map((m) => m.id === item.msgId ? { ...m, text: m.text + item.char } : m)
+          );
+        }, 18);
+      }
+
+      function enqueueText(msgId: string, text: string) {
+        for (const char of text) typeQueueRef.current.push({ msgId, char });
+        startTypeInterval();
+      }
 
       try {
         for await (const event of sendTurnStream(sid, blob, abort.signal)) {
@@ -179,27 +210,19 @@ export default function ConversationPage() {
 
           switch (event.type) {
             case "transcript": {
-              setMessages((prev) => [
-                ...prev,
-                { id: userMsgId, role: "user", text: event.data.text as string },
-              ]);
+              setMessages((prev) => [...prev, { id: userMsgId, role: "user", text: "" }]);
               setLiveText("");
+              enqueueText(userMsgId, event.data.text as string);
               break;
             }
             case "ai_chunk": {
               const chunk = event.data.text as string;
-              aiTextAccum += (aiTextAccum ? " " : "") + chunk;
-              const captured = aiTextAccum;
-              setMessages((prev) => {
-                const exists = prev.find((m) => m.id === aiMsgId);
-                if (exists) {
-                  return prev.map((m) =>
-                    m.id === aiMsgId ? { ...m, text: captured } : m
-                  );
-                }
+              if (!aiMsgCreatedRef.current) {
+                aiMsgCreatedRef.current = true;
                 setMicStateSync("playing");
-                return [...prev, { id: aiMsgId, role: "assistant", text: captured }];
-              });
+                setMessages((prev) => [...prev, { id: aiMsgId, role: "assistant", text: "" }]);
+              }
+              enqueueText(aiMsgId, chunk);
               break;
             }
             case "audio": {
