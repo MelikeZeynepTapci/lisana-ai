@@ -14,12 +14,6 @@ const dailyModeItems = [
   { href: "/progress", label: "Progress", icon: "bar_chart" },
 ];
 
-const examModeItems = [
-  { href: "/ielts", label: "IELTS", icon: "school" },
-  { href: "/toefl", label: "TOEFL", icon: "school" },
-  { href: "/testdaf", label: "TestDAF", icon: "school" },
-  { href: "/goethe", label: "Goethe-Zertifikat", icon: "school" },
-];
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -84,31 +78,6 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      {/* Exam Mode */}
-      <div className="px-3 mt-3">
-        <p className="font-manrope font-semibold text-[10px] text-on-surface-variant uppercase tracking-widest px-2 mb-1.5">Exam Mode</p>
-        <nav className="space-y-0.5">
-          {examModeItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl font-manrope font-medium text-sm transition-all duration-200 ${
-                  isActive
-                    ? "bg-surface-lowest text-primary shadow-ambient-sm"
-                    : "text-on-surface-variant hover:bg-surface-highest/60 hover:text-on-surface"
-                }`}
-              >
-                <span className={`material-symbols-outlined text-[20px] ${isActive ? "ms-filled text-primary" : ""}`}>
-                  {item.icon}
-                </span>
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
 
       {/* User Profile */}
       <div className="mt-auto px-3 py-4 border-t border-outline-variant/20">

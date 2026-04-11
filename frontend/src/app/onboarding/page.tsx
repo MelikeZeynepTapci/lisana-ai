@@ -26,7 +26,6 @@ const REASONS = [
   { code: "living_abroad", label: "Living in the country", emoji: "🏙" },
   { code: "work", label: "Work", emoji: "💼" },
   { code: "travel", label: "Travel", emoji: "✈️" },
-  { code: "exam", label: "Exam prep", emoji: "🎓" },
   { code: "personal", label: "Personal interest", emoji: "❤️" },
 ];
 
