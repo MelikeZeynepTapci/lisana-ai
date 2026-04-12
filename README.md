@@ -1,16 +1,16 @@
-# LinguaTutor
+# Lisana AI
 
 **AI-powered language learning platform for real conversational fluency.**
 
-LinguaTutor helps expats, immigrants, and international students build genuine spoken fluency through natural AI conversation, live peer practice rooms, and intelligent progress tracking, available 24/7 at a fraction of the cost of a private tutor.
+Lisana AI helps expats, immigrants, and international students build genuine spoken fluency through natural AI conversation, live peer practice rooms, and intelligent progress tracking, available 24/7 at a fraction of the cost of a private tutor.
 
 ---
 
-## What Makes LinguaTutor Different?
+## What Makes Lisana AI Different?
 
-Most language apps teach vocabulary. LinguaTutor teaches you to **speak**.
+Most language apps teach vocabulary. Lisana AI teaches you to **speak**.
 
-| Feature                                             | LinguaTutor | Competitors |
+| Feature                                             | Lisana AI | Competitors |
 |-----------------------------------------------------|-------------|-------------|
 | AI coach with long-term memory                      | ✓           | ✗           |
 | Live peer chat rooms                                | ✓           | ✗           |
@@ -310,4 +310,4 @@ Built by [Melike Zeynep Tapcı](https://linkedin.com/in/mztapci) — Prompt Engi
 
 ---
 
-*LinguaTutor is currently in active development.*
+*Lisana AI is currently in active development.*
