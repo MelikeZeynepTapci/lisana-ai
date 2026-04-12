@@ -48,7 +48,7 @@ export default function Sidebar() {
           <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center">
             <span className="material-symbols-outlined ms-filled text-[18px] text-white">language</span>
           </div>
-          <span className="font-lexend font-bold text-base text-on-surface">LinguaTutor</span>
+          <span className="font-lexend font-bold text-base text-on-surface">Lisana <span className="text-primary">AI</span></span>
         </Link>
       </div>
 

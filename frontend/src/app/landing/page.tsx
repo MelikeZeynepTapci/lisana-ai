@@ -47,7 +47,7 @@ const features = [
     iconColor: "text-on-surface",
     image: null, // TODO: replace with printables screenshot
     title: "A study plan built from your actual progress.",
-    body: "Every two weeks, LinguaTutor generates a personalised PDF study plan based on your real session history, vocabulary gaps, and recurring mistakes. Download it, print it, follow it. No generic plans — only what you actually need.",
+    body: "Every two weeks, Lisana generates a personalised PDF study plan based on your real session history, vocabulary gaps, and recurring mistakes. Download it, print it, follow it. No generic plans — only what you actually need.",
     details: [
       "Generated from your real data — not a template",
       "Weekly and monthly formats available",
@@ -99,7 +99,7 @@ const testimonials = [
     role: "Turkish expat living in Berlin",
   },
   {
-    quote: "I had a 300-day Duolingo streak and still couldn't hold a real conversation. Three weeks with LinguaTutor and I gave my first full presentation in German at work.",
+    quote: "I had a 300-day Duolingo streak and still couldn't hold a real conversation. Three weeks with Lisana and I gave my first full presentation in German at work.",
     name: "Priya S.",
     role: "Expat in London",
   },
@@ -121,7 +121,7 @@ const faqs = [
     a: "Correct. The Test Drive is completely free — no account, no card, no form. You have one real conversation with Maya before committing to anything.",
   },
   {
-    q: "How is LinguaTutor different from just using ChatGPT?",
+    q: "How is Lisana different from just using ChatGPT?",
     a: "ChatGPT has no memory of your learning history, doesn't evaluate your language performance, and isn't designed around conversation practice. Maya remembers every session, tracks your mistakes, adapts to your level, and gives you structured feedback. It's built for learning, not just chatting.",
   },
   {
@@ -134,10 +134,10 @@ const faqs = [
   },
   {
     q: "Is my conversation data private?",
-    a: "Yes. Your conversations with Maya are used only to personalise your learning experience. We don't share your data with third parties. LinguaTutor is built and hosted in the EU, compliant with GDPR.",
+    a: "Yes. Your conversations with Maya are used only to personalise your learning experience. We don't share your data with third parties. Lisana is built and hosted in the EU, compliant with GDPR.",
   },
   {
-    q: "I'm a complete beginner. Can I still use LinguaTutor?",
+    q: "I'm a complete beginner. Can I still use Lisana?",
     a: "Yes. Maya adapts to A1 level — she speaks slowly, uses simple vocabulary, and guides you step by step. The onboarding will set your starting level and Maya will calibrate from there.",
   },
 ];
@@ -151,7 +151,7 @@ const segments = [
   {
     icon: "🎓",
     title: "International and ERASMUS students",
-    body: "You're dropped into a new country with a new language and very little time. LinguaTutor gets you conversational fast — and LinguaRooms connects you with students in the same situation.",
+    body: "You're dropped into a new country with a new language and very little time. Lisana gets you conversational fast — and LinguaRooms connects you with students in the same situation.",
   },
   {
     icon: "💼",
@@ -176,7 +176,7 @@ export default function LandingPage() {
             <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center">
               <span className="material-symbols-outlined ms-filled text-[18px] text-white">language</span>
             </div>
-            <span className="font-lexend font-bold text-base text-on-surface">LinguaTutor</span>
+            <span className="font-lexend font-bold text-base text-on-surface">Lisana <span className="text-primary">AI</span></span>
           </Link>
           <div className="flex items-center gap-3">
             <Link
@@ -288,10 +288,10 @@ export default function LandingPage() {
       {/* SOLUTION INTRO */}
       <section className="bg-primary-container/20 border-y border-primary-container py-16 text-center px-6">
         <h2 className="font-lexend font-bold text-3xl md:text-4xl text-on-surface mb-3">
-          LinguaTutor is built differently.
+          Lisana is built differently.
         </h2>
         <p className="font-manrope text-base text-on-surface-variant max-w-xl mx-auto">
-          Real conversation practice, a coach who knows you, and a community to practice with — all in one place.
+          Real conversation practice, a coach who knows you, and a community to practice with all in one place.
         </p>
       </section>
 
@@ -356,14 +356,14 @@ export default function LandingPage() {
       {/* COMPARISON */}
       <section className="max-w-6xl mx-auto px-6 py-20">
         <div className="text-center mb-12">
-          <h2 className="font-lexend font-bold text-3xl md:text-4xl text-on-surface">How LinguaTutor compares.</h2>
+          <h2 className="font-lexend font-bold text-3xl md:text-4xl text-on-surface">How Lisana compares.</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full bg-surface-lowest rounded-4xl shadow-ambient-sm overflow-hidden">
             <thead>
               <tr className="border-b border-outline-variant/20">
                 <th className="text-left font-manrope font-semibold text-sm text-on-surface-variant px-6 py-4">Feature</th>
-                <th className="font-lexend font-bold text-sm text-primary px-6 py-4">LinguaTutor</th>
+                <th className="font-lexend font-bold text-sm text-primary px-6 py-4">Lisana AI</th>
                 <th className="font-manrope font-semibold text-sm text-on-surface-variant px-6 py-4">X</th>
                 <th className="font-manrope font-semibold text-sm text-on-surface-variant px-6 py-4">Y</th>
                 <th className="font-manrope font-semibold text-sm text-on-surface-variant px-6 py-4">Z</th>
@@ -435,7 +435,7 @@ export default function LandingPage() {
           Practice more. Pay less. Improve faster. 
           </h2>
           <p className="font-manrope text-sm text-on-surface-variant max-w-xl mx-auto">
-            One private tutor session costs €50. LinguaTutor Pro costs €15 per month — with unlimited practice, a coach who never forgets you, and a community to practice with.
+            One private tutor session costs €50. Lisana Pro costs €15 per month — with unlimited practice, a coach who never forgets you, and a community to practice with.
           </p>
         </div>
         <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mt-10">
@@ -603,7 +603,7 @@ export default function LandingPage() {
                 <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
                   <span className="material-symbols-outlined ms-filled text-[15px] text-white">language</span>
                 </div>
-                <span className="font-lexend font-bold text-sm text-on-surface">LinguaTutor</span>
+                <span className="font-lexend font-bold text-sm text-on-surface">Lisana <span className="text-primary">AI</span></span>
               </Link>
               <p className="font-manrope text-xs text-on-surface-variant max-w-xs">
                 Real conversations, real progress.
@@ -641,7 +641,7 @@ export default function LandingPage() {
           </div>
           <div className="border-t border-outline-variant/20 pt-6">
             <p className="font-manrope text-xs text-on-surface-variant text-center">
-              © 2026 LinguaTutor · Vienna, Austria
+              © 2026 Lisana · Vienna, Austria
             </p>
           </div>
         </div>

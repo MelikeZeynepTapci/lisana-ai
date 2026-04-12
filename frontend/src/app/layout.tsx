@@ -17,7 +17,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "LinguaTutor — AI Language Tutor for Expats and International Students",
+  title: "Lisana — AI Language Tutor for Expats and International Students",
   description: "Practice real conversations with Maya, your personal AI language coach. No credit card needed. 5 languages, all levels.",
 };
 

@@ -61,7 +61,7 @@ export default function LoginPage() {
           <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center">
             <span className="material-symbols-outlined ms-filled text-[20px] text-white">language</span>
           </div>
-          <span className="font-lexend font-bold text-xl text-on-surface">LinguaTutor</span>
+          <span className="font-lexend font-bold text-xl text-on-surface">Lisana <span className="text-primary">AI</span></span>
         </div>
 
         <div className="bg-surface-lowest rounded-4xl p-8 shadow-ambient-sm">
