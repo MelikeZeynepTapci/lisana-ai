@@ -84,7 +84,7 @@ export function getAudioUrl(path: string): string {
 
 export interface StreamEvent {
   type: "transcript" | "ai_chunk" | "audio" | "done" | "error"
-    | "session_created" | "turn_update" | "session_ended";
+    | "session_created" | "turn_update" | "session_ended" | "demo_ended";
   data: Record<string, unknown>;
 }
 
