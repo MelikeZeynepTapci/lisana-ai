@@ -48,6 +48,11 @@ interface Feedback {
   };
 }
 
+interface TranscriptTurn {
+  role: "user" | "assistant";
+  text: string;
+}
+
 const SAMPLE_RATE = 24000;
 
 // ─── Mock data for ?preview=1 ─────────────────────────────────────────────────
@@ -99,6 +104,16 @@ const MOCK_FEEDBACK: Feedback = {
   next_session: "Practice the Perfekt tense — try a scenario where you describe what you did yesterday.",
 };
 
+
+const MOCK_TRANSCRIPT: TranscriptTurn[] = [
+  { role: "assistant", text: "Hallo! Schön dich kennenzulernen. Was machst du gerne in deiner Freizeit?" },
+  { role: "user",      text: "Ich spiele Videospiele gerne und ich spazieren gegangen, gehe mit meinen Freunden." },
+  { role: "assistant", text: "Oh interessant! Spielst du lieber online oder mit Freunden zusammen?" },
+  { role: "user",      text: "Ich interessiere mich für Sprachen und ich viele gegessen heute nach dem Spielen." },
+  { role: "assistant", text: "Oh, was hast du gegessen? Kochst du gerne?" },
+  { role: "user",      text: "Ja, ich koche manchmal. Ich mag italienisches Essen sehr. Das klingt interessant!" },
+  { role: "assistant", text: "Das klingt lecker! Hast du ein Lieblingsrezept?" },
+];
 
 // ─── Maya Avatar (active session) ─────────────────────────────────────────────
 
@@ -165,7 +180,7 @@ function WatchOutCard({ item, defaultOpen = true }: { item: WatchOutItem; defaul
           <p className="font-manrope text-sm text-on-surface-variant leading-relaxed mt-3">{item.note}</p>
           {item.said && item.better && (
             <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
-              <span className="font-manrope text-xs text-on-surface-variant line-through">&ldquo;{item.said}&rdquo;</span>
+              <span className="font-manrope text-xs text-on-surface-variant">&ldquo;{item.said}&rdquo;</span>
               <span className="text-on-surface-variant text-xs">→</span>
               <span className="font-manrope text-xs font-semibold text-on-surface">&ldquo;{item.better}&rdquo;</span>
             </div>
@@ -227,17 +242,74 @@ function QuizSection({ quiz }: { quiz: NonNullable<Feedback["quiz"]> }) {
   );
 }
 
+// ─── TranscriptSection ────────────────────────────────────────────────────────
+
+function TranscriptSection({ transcript }: { transcript: TranscriptTurn[] }) {
+  const [open, setOpen] = useState(false);
+
+  if (transcript.length === 0) return null;
+
+  return (
+    <div className="bg-white border border-outline-variant/20 rounded-2xl overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-5 py-4 hover:bg-surface-highest/20 transition-colors text-left"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-base">📄</span>
+          <div>
+            <p className="font-lexend font-semibold text-base text-on-surface">Session transcript</p>
+            <p className="font-manrope text-xs text-on-surface-variant mt-0.5">
+              {transcript.length} turns · tap to {open ? "hide" : "show"} full conversation
+            </p>
+          </div>
+        </div>
+        <span
+          className="material-symbols-outlined text-[18px] text-on-surface-variant transition-transform duration-200 flex-shrink-0"
+          style={{ transform: open ? "rotate(0deg)" : "rotate(-90deg)" }}
+        >
+          expand_more
+        </span>
+      </button>
+
+      {open && (
+        <div className="border-t border-outline-variant/10 px-5 py-4 space-y-4">
+          {transcript.map((turn, i) => (
+            <div key={i} className="flex gap-3">
+              <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5 text-[11px] font-bold ${
+                turn.role === "assistant"
+                  ? "bg-primary/15 text-primary"
+                  : "bg-surface-highest text-on-surface-variant"
+              }`}>
+                {turn.role === "assistant" ? "M" : "Y"}
+              </div>
+              <div className="min-w-0">
+                <p className="font-manrope text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide mb-1">
+                  {turn.role === "assistant" ? "Maya" : "You"}
+                </p>
+                <p className="font-manrope text-sm text-on-surface leading-relaxed">{turn.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Feedback Card ────────────────────────────────────────────────────────────
 
 function FeedbackCard({
   feedback,
   turnCount,
   softCap,
+  transcript,
   onNext,
 }: {
   feedback: Feedback;
   turnCount: number;
   softCap: number;
+  transcript: TranscriptTurn[];
   onNext: () => void;
 }) {
   const errors       = feedback.watch_out_for ?? [];
@@ -283,86 +355,61 @@ function FeedbackCard({
 
       {/* ── Scrollable body ── */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-4 py-8 space-y-5">
+        <div className="max-w-6xl mx-auto px-4 lg:px-10 py-6 lg:py-8">
 
-          {/* Hero + Metrics */}
-          <div className="flex gap-4 items-start">
-            <div className="flex-1 min-w-0">
-              <span className="inline-flex items-center gap-1.5 font-manrope text-xs font-semibold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full mb-3">
-                🏆 Session complete
-              </span>
-              <h1 className="font-lexend font-bold text-2xl text-on-surface leading-snug mb-2">
-                Conversation feedback
-              </h1>
-              <p className="font-manrope text-sm text-on-surface-variant leading-relaxed">
-                Here are the most important moments from your session — the highlights, the corrections, and what to try next.
-              </p>
-            </div>
-
-            {/* Metrics card */}
-            <div className="flex-shrink-0 bg-white border border-outline-variant/20 rounded-2xl p-4 min-w-[148px] space-y-1">
-              <div className="flex items-center justify-between py-1.5 border-b border-outline-variant/10">
-                <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[14px] text-on-surface-variant">timer</span>
-                  <span className="font-manrope text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">Turns</span>
-                </div>
-                <span className="font-lexend font-bold text-lg text-on-surface">{turnCount}<span className="text-sm font-normal text-on-surface-variant">/{softCap}</span></span>
-              </div>
-              <div className="flex items-center justify-between py-1.5 border-b border-outline-variant/10">
-                <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[14px] text-on-surface-variant">error_outline</span>
-                  <span className="font-manrope text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">Errors</span>
-                </div>
-                <span className={`font-lexend font-bold text-lg ${errors.length > 2 ? "text-amber-500" : "text-on-surface"}`}>{errors.length}</span>
-              </div>
-              <div className="flex items-center justify-between py-1.5">
-                <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[14px] text-on-surface-variant">star</span>
-                  <span className="font-manrope text-[11px] font-semibold text-on-surface-variant uppercase tracking-wide">XP</span>
-                </div>
-                <span className="font-lexend font-bold text-lg text-primary">+{xpEarned}</span>
-              </div>
-            </div>
+          {/* Hero — full width */}
+          <div className="mb-6">
+            <span className="inline-flex items-center gap-1.5 font-manrope text-xs font-semibold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full mb-3">
+              🏆 Session complete
+            </span>
+            <h1 className="font-lexend font-bold text-2xl lg:text-3xl text-on-surface leading-snug mb-1">
+              Conversation feedback
+            </h1>
+            <p className="font-manrope text-sm text-on-surface-variant">
+              The highlights, corrections, and what to try next.
+            </p>
           </div>
 
-          {/* Maya's Summary */}
-          {(feedback.maya_summary || feedback.what_went_well?.length > 0) && (
-            <div className="bg-white border border-outline-variant/20 rounded-2xl p-5">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center"
-                  style={{ background: "linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)" }}>
-                  <span className="material-symbols-outlined ms-filled text-[22px] text-white">smart_toy</span>
-                </div>
-                <div className="min-w-0">
-                  <p className="font-manrope text-[11px] font-semibold text-on-surface-variant uppercase tracking-widest mb-1">Maya&apos;s Summary</p>
-                  <p className="font-lexend font-semibold text-lg text-on-surface leading-snug mb-2">
-                    {mayaHeadline} ✨
-                  </p>
-                  {mayaBody && (
-                    <p className="font-manrope text-sm text-on-surface-variant leading-relaxed">
-                      {renderRichText(mayaBody)}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Responsive grid: single column mobile → 2-col desktop */}
+          <div className="lg:grid lg:grid-cols-[1fr_300px] lg:gap-6 lg:items-start">
 
-          {/* Watch out for + Quiz (2-col) */}
-          {(hasWatchOut || hasQuiz) && (
-            <div className={`grid gap-4 ${hasWatchOut && hasQuiz ? "grid-cols-2" : "grid-cols-1"}`}>
+            {/* ── Left / main column ── */}
+            <div className="space-y-4">
+
+              {/* Maya's Summary */}
+              {(feedback.maya_summary || feedback.what_went_well?.length > 0) && (
+                <div className="bg-white border border-outline-variant/20 rounded-2xl p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center"
+                      style={{ background: "linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)" }}>
+                      <span className="material-symbols-outlined ms-filled text-[20px] text-white">smart_toy</span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-manrope text-[11px] font-semibold text-on-surface-variant uppercase tracking-widest mb-1">Maya&apos;s Summary</p>
+                      <p className="font-lexend font-semibold text-lg text-on-surface leading-snug mb-2">
+                        {mayaHeadline} ✨
+                      </p>
+                      {mayaBody && (
+                        <p className="font-manrope text-sm text-on-surface-variant leading-relaxed">
+                          {renderRichText(mayaBody)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Watch out for */}
               {hasWatchOut && (
-                <div className="bg-white border border-outline-variant/20 rounded-2xl p-4 space-y-3">
+                <div className="bg-white border border-outline-variant/20 rounded-2xl p-5 space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="material-symbols-outlined text-[16px] text-amber-500">warning</span>
                         <h3 className="font-lexend font-semibold text-base text-on-surface">Watch out for 🔍</h3>
                       </div>
-                      <p className="font-manrope text-xs text-on-surface-variant leading-relaxed">
-                        Only the most valuable corrections, shown like expandable notes.
+                      <p className="font-manrope text-xs text-on-surface-variant">
+                        The most valuable corrections, shown as expandable notes.
                       </p>
                     </div>
                     <span className="font-manrope text-xs text-on-surface-variant bg-surface-highest/60 px-2 py-0.5 rounded-full flex-shrink-0">
@@ -377,12 +424,91 @@ function FeedbackCard({
                 </div>
               )}
 
+              {/* You could have said */}
+              {hasAlts && (
+                <div className="bg-white border border-outline-variant/20 rounded-2xl p-5">
+                  <div className="flex items-start justify-between gap-2 mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span className="material-symbols-outlined text-[16px] text-primary">lightbulb</span>
+                      </div>
+                      <div>
+                        <h3 className="font-lexend font-semibold text-base text-on-surface">You could have said 💬</h3>
+                        <p className="font-manrope text-xs text-on-surface-variant mt-0.5">
+                          A few natural alternatives worth remembering.
+                        </p>
+                      </div>
+                    </div>
+                    <span className="font-manrope text-xs text-on-surface-variant bg-surface-highest/60 px-2 py-0.5 rounded-full flex-shrink-0">
+                      {alternatives.length} {alternatives.length === 1 ? "idea" : "ideas"}
+                    </span>
+                  </div>
+                  <div className="space-y-4">
+                    {alternatives.map((alt, i) => (
+                      <div key={i} className={i > 0 ? "pt-4 border-t border-outline-variant/10" : ""}>
+                        <p className="font-manrope text-xs text-on-surface-variant mb-2">
+                          Instead of <span className="font-medium text-on-surface">&ldquo;{alt.instead}&rdquo;</span>
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {alt.try.map((t, j) => (
+                            <span key={j} className="font-manrope text-sm text-on-surface bg-surface-highest/40 border border-outline-variant/20 px-3 py-1.5 rounded-lg">
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Transcript */}
+              <TranscriptSection transcript={transcript} />
+
+              <div className="pb-4 lg:pb-8" />
+            </div>
+
+            {/* ── Right / sidebar ── */}
+            <div className="space-y-4 mt-4 lg:mt-0 lg:sticky lg:top-4">
+
+              {/* Metrics card */}
+              <div className="bg-white border border-outline-variant/20 rounded-2xl p-4">
+                <p className="font-manrope text-[11px] font-semibold text-on-surface-variant uppercase tracking-widest mb-3">This session</p>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between py-2 border-b border-outline-variant/10">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[15px] text-on-surface-variant">timer</span>
+                      <span className="font-manrope text-sm text-on-surface-variant">Turns</span>
+                    </div>
+                    <span className="font-lexend font-bold text-xl text-on-surface">
+                      {turnCount}<span className="text-sm font-normal text-on-surface-variant">/{softCap}</span>
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-outline-variant/10">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[15px] text-on-surface-variant">error_outline</span>
+                      <span className="font-manrope text-sm text-on-surface-variant">Errors</span>
+                    </div>
+                    <span className={`font-lexend font-bold text-xl ${errors.length > 2 ? "text-amber-500" : "text-on-surface"}`}>
+                      {errors.length}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[15px] text-on-surface-variant">star</span>
+                      <span className="font-manrope text-sm text-on-surface-variant">XP earned</span>
+                    </div>
+                    <span className="font-lexend font-bold text-xl text-primary">+{xpEarned}</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Quiz */}
               {hasQuiz && (
                 <div className="bg-white border border-outline-variant/20 rounded-2xl p-4">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="material-symbols-outlined text-[16px] text-primary">timer</span>
-                    <h3 className="font-lexend font-semibold text-base text-on-surface">Quick check quiz 🧩</h3>
+                    <span className="material-symbols-outlined text-[16px] text-primary">quiz</span>
+                    <h3 className="font-lexend font-semibold text-base text-on-surface">Quick check 🧩</h3>
                   </div>
                   <p className="font-manrope text-xs text-on-surface-variant mb-4">
                     Short and optional — just one quick reinforcement.
@@ -390,51 +516,9 @@ function FeedbackCard({
                   <QuizSection quiz={feedback.quiz!} />
                 </div>
               )}
-            </div>
-          )}
 
-          {/* You could have said */}
-          {hasAlts && (
-            <div className="bg-white border border-outline-variant/20 rounded-2xl p-5">
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="material-symbols-outlined text-[16px] text-primary">lightbulb</span>
-                  </div>
-                  <div>
-                    <h3 className="font-lexend font-semibold text-base text-on-surface">You could have said 💬</h3>
-                    <p className="font-manrope text-xs text-on-surface-variant mt-0.5">
-                      Only a few replacements, so it stays easy to remember.
-                    </p>
-                  </div>
-                </div>
-                <span className="font-manrope text-xs text-on-surface-variant bg-surface-highest/60 px-2 py-0.5 rounded-full flex-shrink-0">
-                  {alternatives.length} {alternatives.length === 1 ? "idea" : "ideas"}
-                </span>
-              </div>
-              <div className="mt-4 space-y-4">
-                {alternatives.map((alt, i) => (
-                  <div key={i} className={i > 0 ? "pt-4 border-t border-outline-variant/10" : ""}>
-                    <p className="font-manrope text-xs text-on-surface-variant mb-2">
-                      Instead of <span className="font-medium text-on-surface">&ldquo;{alt.instead}&rdquo;</span>
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {alt.try.map((t, j) => (
-                        <span
-                          key={j}
-                          className="font-manrope text-sm text-on-surface bg-surface-highest/40 border border-outline-variant/20 px-3 py-1.5 rounded-lg"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
-          )}
-
-          <div className="pb-2" />
+          </div>
         </div>
       </div>
 
@@ -497,7 +581,8 @@ export default function ConversationPage() {
   const chunksRef          = useRef<Blob[]>([]);
   const spaceDownRef       = useRef(false);
   const abortRef           = useRef<AbortController | null>(null);
-  const transcriptRef      = useRef<{role: "user"|"assistant"; text: string}[]>([]);
+  const [sessionTranscript, setSessionTranscript] = useState<TranscriptTurn[]>([]);
+  const transcriptRef      = useRef<TranscriptTurn[]>([]);
 
   // Web Audio API
   const audioCtxRef          = useRef<AudioContext | null>(null);
@@ -714,6 +799,7 @@ export default function ConversationPage() {
                 setMicStateSync("idle");
                 setPageState("ended");
                 if (event.data.feedback) setFeedback(event.data.feedback as Feedback);
+                setSessionTranscript([...transcriptRef.current]);
               }, rem * 1000 + 500);
               break;
             }
@@ -762,6 +848,7 @@ export default function ConversationPage() {
         feedback={MOCK_FEEDBACK}
         turnCount={7}
         softCap={10}
+        transcript={MOCK_TRANSCRIPT}
         onNext={() => router.push("/speaking")}
       />
     );
@@ -812,6 +899,7 @@ export default function ConversationPage() {
         feedback={feedback}
         turnCount={turnCount}
         softCap={softCap}
+        transcript={sessionTranscript}
         onNext={() => router.push("/speaking")}
       />
     ) : (
@@ -914,6 +1002,7 @@ export default function ConversationPage() {
                 const result = await endSpeakingSession(sessionInfo.sessionId);
                 setFeedback(result.feedback as Feedback);
               } catch {}
+              setSessionTranscript([...transcriptRef.current]);
               setPageState("ended");
             }}
             className="mt-2 font-manrope text-xs text-on-surface-variant underline underline-offset-2 hover:text-error transition-colors"
