@@ -16,6 +16,10 @@ Full transcript:
 
 Generate feedback in this exact JSON structure:
 {{
+  "maya_summary": {{
+    "headline": "You stayed engaged and sounded natural",
+    "body": "When you said **\"Ich interessiere mich für Sprachen\"**, that's a native-level phrase — most learners just say 'Ich mag Sprachen'. You also used **\"Das klingt interessant!\"** as a natural reaction — that kind of response keeps a conversation flowing without sounding scripted."
+  }},
   "what_went_well": ["...", "..."],
   "watch_out_for": [
     {{
@@ -75,6 +79,11 @@ Rules:
   - "explanation": one sentence saying why the correct answer is right
 - useful_phrases: 3-4 phrases from this session the user used well or should remember
 - next_session: recommend a specific grammar topic or scenario to practice next. Be concrete.
+- maya_summary: a warm, specific summary from Maya's perspective
+  - "headline": one short punchy sentence (max 10 words), positive tone
+  - "body": 2-3 sentences. Quote EXACT phrases the user said, wrapped in **"double asterisks"** around the quoted text. Explain specifically WHY each example is good (or where it could improve). Be concrete — never say "you did well" generically. Instead: "When you said **\"phrase here\"**, that works because..."
+  - Only quote things the user actually said in the transcript
+- what_went_well: 2-3 items, each quoting a specific moment from the transcript
 - Return only valid JSON, no other text\
 """
 
