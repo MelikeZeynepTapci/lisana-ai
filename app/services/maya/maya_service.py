@@ -70,9 +70,9 @@ def _build_system_prompt(
     return prompt
 
 
-def _build_opening_prompt(scenario: dict, level: str, language: str) -> str:
+def _build_opening_prompt(scenario: dict, level: str, language: str, user_name: str | None = None) -> str:
     persona = scenario["maya_persona"]
-    return OPENING_PROMPT_TEMPLATE.format(
+    prompt = OPENING_PROMPT_TEMPLATE.format(
         scenario_id=scenario["id"],
         persona_name=persona["name"],
         persona_role=persona["role"],
@@ -81,14 +81,18 @@ def _build_opening_prompt(scenario: dict, level: str, language: str) -> str:
         language=language,
         vocab_level=VOCAB_LEVELS.get(level, VOCAB_LEVELS["B1"]),
     )
+    if user_name:
+        prompt += f"\nThe user's name is {user_name}. Greet them by name in your opening line."
+    return prompt
 
 
 async def stream_maya_opening(
     scenario: dict,
     level: str,
     language: str,
+    user_name: str | None = None,
 ) -> AsyncGenerator[str, None]:
-    system_prompt = _build_opening_prompt(scenario, level, language)
+    system_prompt = _build_opening_prompt(scenario, level, language, user_name)
     stream = await client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "system", "content": system_prompt}],

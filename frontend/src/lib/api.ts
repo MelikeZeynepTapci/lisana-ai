@@ -174,6 +174,44 @@ export async function* sendSpeakingTurn(
   yield* _parseSSEStream(res);
 }
 
+// ─── Demo (no auth) ───────────────────────────────────────────────────────────
+
+export async function* startDemoSession(
+  name: string,
+  level: string,
+): AsyncGenerator<StreamEvent> {
+  const res = await fetch(`${API_URL}/api/demo/session/start`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, level }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || "Failed to start demo session");
+  }
+  yield* _parseSSEStream(res);
+}
+
+export async function* sendDemoTurn(
+  sessionId: string,
+  audioBlob: Blob,
+  signal?: AbortSignal
+): AsyncGenerator<StreamEvent> {
+  const form = new FormData();
+  form.append("session_id", sessionId);
+  form.append("audio", audioBlob, "recording.webm");
+  const res = await fetch(`${API_URL}/api/demo/turn/stream`, {
+    method: "POST",
+    body: form,
+    signal,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || "Demo stream failed");
+  }
+  yield* _parseSSEStream(res);
+}
+
 export async function* sendTurnStream(
   sessionId: string,
   audioBlob: Blob,

@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     # ElevenLabs
     ELEVENLABS_API_KEY: Optional[str] = None
-    ELEVENLABS_VOICE_ID: str = "vmVmHDKBkkCgbLVIOJRb"  # Laura
+    ELEVENLABS_VOICE_ID: str = "zKHQdbB8oaQ7roNTiDTK"  # Laura
 
     # Audio storage (local for dev, can be S3/etc for prod)
     AUDIO_DIR: str = "audio_files"

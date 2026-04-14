@@ -8,7 +8,7 @@ const features = [
     iconColor: "text-primary",
     image: "/Innovation-pana.png", 
     title: "A coach who actually knows you.",
-    body: "Maya remembers every session. She tracks your recurring mistakes, adapts to your level, and brings up your interests naturally in conversation. Whether you're preparing for a job interview or practicing small talk, she adjusts. It feels like a private tutor — available 24 hours a day, 7 days a week.",
+    body: "Maya remembers every session. She tracks your recurring mistakes, adapts to your level, and brings up your interests naturally in conversation. Whether you're preparing for a job interview or practicing small talk, she adjusts. It feels like a private tutor, available 24 hours a day, 7 days a week.",
     details: [
       "Real-life scenario categories: office, shopping, travel, restaurant, job interview and more",
       "Instant feedback on grammar and vocabulary. Naturally, without interrupting the flow",
@@ -34,7 +34,7 @@ const features = [
     iconColor: "text-secondary",
     image: null, // TODO: replace with pronunciation exercise screenshot
     title: "Sound like you belong there.",
-    body: "Every day, five curated sentences at your level — the same ones for everyone at your stage. Read them out loud, get an instant pronunciation score, and earn your daily XP. It takes five minutes and it keeps your streak alive.",
+    body: "Every day, five curated sentences at your level, the same ones for everyone at your stage. Read them out loud, get an instant pronunciation score, and earn your daily XP. It takes five minutes and it keeps your streak alive.",
     details: [
       "Powered by Azure Pronunciation Assessment",
       "New sentences every day, calibrated to your CEFR level",
@@ -47,7 +47,7 @@ const features = [
     iconColor: "text-on-surface",
     image: null, // TODO: replace with printables screenshot
     title: "A study plan built from your actual progress.",
-    body: "Every two weeks, Lisana generates a personalised PDF study plan based on your real session history, vocabulary gaps, and recurring mistakes. Download it, print it, follow it. No generic plans — only what you actually need.",
+    body: "Every two weeks, Lisana generates a personalised PDF study plan based on your real session history, vocabulary gaps, and recurring mistakes. Download it, print it, follow it. No generic plans, only what you actually need.",
     details: [
       "Generated from your real data — not a template",
       "Weekly and monthly formats available",
@@ -60,12 +60,12 @@ const problems = [
   {
     icon: "sports_esports",
     title: "It feels like a game.",
-    body: "You collect streaks, earn hearts, and memorize vocabulary. But when a real conversation happens, your mind goes blank. Duolingo doesn't prepare you to speak — it prepares you to play.",
+    body: "You collect streaks, earn hearts, and memorize vocabulary. But when a real conversation happens, your mind goes blank. Duolingo doesn't prepare you to speak, it prepares you to play.",
   },
   {
     icon: "smart_toy",
     title: "The AI sounds like a robot.",
-    body: "Existing AI apps give you stiff, scripted conversations with no memory of who you are. Every session starts from zero. There's no real coach — just a chatbot with a language learning skin.",
+    body: "Existing AI apps give you stiff, scripted conversations with no memory of who you are. Every session starts from zero. There's no real coach, just a chatbot with a language learning skin.",
   },
   {
     icon: "payments",
@@ -202,7 +202,7 @@ export default function LandingPage() {
           No credit card required
         </div>
         <h1 className="font-lexend font-bold text-5xl md:text-6xl text-on-surface leading-tight mb-6 max-w-3xl mx-auto">
-          Speak a new language.<br />For real this time.
+          Your first real conversation<br />starts here.
         </h1>
         <p className="font-manrope text-lg text-on-surface-variant leading-relaxed mb-10 max-w-2xl mx-auto">
           Maya is your personal AI language coach.
@@ -214,6 +214,13 @@ export default function LandingPage() {
             className="font-manrope font-bold text-base bg-primary text-white px-8 py-4 rounded-full hover:bg-primary/90 transition-colors shadow-ambient"
           >
             Talk to Maya now — It&apos;s Free →
+          </Link>
+          <Link
+            href="/demo"
+            className="font-manrope font-semibold text-base text-on-surface border border-outline-variant/40 px-8 py-4 rounded-full hover:bg-surface-low transition-colors flex items-center gap-2"
+          >
+            <span className="material-symbols-outlined ms-filled text-[18px] text-primary">play_circle</span>
+            Try Maya first
           </Link>
         </div>
         <p className="font-manrope text-xs text-on-surface-variant">
@@ -247,10 +254,6 @@ export default function LandingPage() {
       {/* SOCIAL PROOF */}
       <section className="bg-surface-low border-y border-outline-variant/20 py-5">
         <div className="max-w-4xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 text-center">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined ms-filled text-[18px] text-secondary">group</span>
-            <span className="font-manrope font-semibold text-sm text-on-surface">500+ active learners</span>
-          </div>
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined ms-filled text-[18px] text-secondary">language</span>
             <span className="font-manrope font-semibold text-sm text-on-surface">5 languages</span>
