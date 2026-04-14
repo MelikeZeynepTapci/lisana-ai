@@ -1,0 +1,67 @@
+{
+  "id": "daily_conversation_v1",
+  "title": "Daily Conversation",
+  "description": "Practice small talk, introducing yourself, and basic everyday interactions.",
+  "communication_goal": "Introduce yourself, find common ground, and exchange contact details.",
+  "domain": "social",
+  "languages": ["de", "en", "es", "fr", "it"],
+  "waypoints": [
+    {
+      "id": "greeting",
+      "name": "greeting",
+      "description": "User greets and introduces themselves",
+      "detection_prompt": "Has the user greeted the other person or started introducing themselves?",
+      "required_for_completion": true,
+      "unlocks_twist": []
+    },
+    {
+      "id": "background_shared",
+      "name": "background_shared",
+      "description": "User shares something about their background or reason for being there",
+      "detection_prompt": "Has the user shared something personal — where they're from, what they do, or why they're here?",
+      "required_for_completion": true,
+      "unlocks_twist": ["misunderstanding"]
+    },
+    {
+      "id": "common_ground",
+      "name": "common_ground",
+      "description": "User finds a shared interest or topic",
+      "detection_prompt": "Has a shared interest, topic, or connection been established between the user and Maya?",
+      "required_for_completion": false,
+      "unlocks_twist": []
+    },
+    {
+      "id": "contact_exchange",
+      "name": "contact_exchange",
+      "description": "User suggests meeting again or exchanging contact",
+      "detection_prompt": "Has the user suggested meeting again, exchanging numbers, or staying in touch?",
+      "required_for_completion": true,
+      "unlocks_twist": []
+    }
+  ],
+  "difficulty_profiles": {
+    "A1": { "maya_vocab": "simple", "complications": 0, "expected_turns": 8 },
+    "A2": { "maya_vocab": "simple", "complications": 1, "expected_turns": 9 },
+    "B1": { "maya_vocab": "natural", "complications": 1, "expected_turns": 11 },
+    "B2": { "maya_vocab": "natural", "complications": 2, "expected_turns": 12 },
+    "C1": { "maya_vocab": "idiomatic", "complications": 2, "expected_turns": 13 }
+  },
+  "possible_twists": [
+    {
+      "id": "misunderstanding",
+      "description": "Maya misunderstands something the user said",
+      "example": "Oh wait, did you say you're from Berlin or Vienna? I thought I heard Berlin!",
+      "min_level": "A1",
+      "fires_after_waypoint": "background_shared",
+      "fires_before_waypoint": "contact_exchange",
+      "resolution_expected": "User clarifies the misunderstanding"
+    }
+  ],
+  "wrap_conditions": ["all_waypoints_complete", "soft_cap_reached"],
+  "visual_aid": null,
+  "maya_persona": {
+    "name": "Lena",
+    "role": "friendly local you just met at a language exchange event",
+    "location": "a language exchange meetup in the city"
+  }
+}

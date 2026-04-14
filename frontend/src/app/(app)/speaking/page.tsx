@@ -3,14 +3,8 @@ import Link from "next/link";
 
 const scenarios = [
   {
-    emoji: "🛒",
-    title: "At the Supermarket",
-    level: "A1",
-    levelColor: "bg-tertiary-container text-tertiary-on-container",
-    desc: "Navigate the aisles, ask for specific items, and handle the checkout process smoothly.",
-  },
-  {
     emoji: "💬",
+    scenarioId: "daily_conversation_v1",
     title: "Daily Conversation",
     level: "A1",
     levelColor: "bg-tertiary-container text-tertiary-on-container",
@@ -18,13 +12,23 @@ const scenarios = [
   },
   {
     emoji: "☕",
+    scenarioId: "cafe_order_v1",
     title: "At a Café",
     level: "A1",
     levelColor: "bg-tertiary-container text-tertiary-on-container",
     desc: "Order drinks, ask about specific ingredients, and pay the bill politely.",
   },
   {
+    emoji: "🛒",
+    scenarioId: "daily_conversation_v1",
+    title: "At the Supermarket",
+    level: "A1",
+    levelColor: "bg-tertiary-container text-tertiary-on-container",
+    desc: "Navigate the aisles, ask for specific items, and handle the checkout process smoothly.",
+  },
+  {
     emoji: "🏥",
+    scenarioId: "daily_conversation_v1",
     title: "At the Doctor",
     level: "B1",
     levelColor: "bg-secondary-container text-secondary",
@@ -32,6 +36,7 @@ const scenarios = [
   },
   {
     emoji: "🏛️",
+    scenarioId: "daily_conversation_v1",
     title: "At the Amt",
     level: "B1",
     levelColor: "bg-secondary-container text-secondary",
@@ -39,6 +44,7 @@ const scenarios = [
   },
   {
     emoji: "👔",
+    scenarioId: "daily_conversation_v1",
     title: "Job Interview",
     level: "B2",
     levelColor: "bg-secondary-container text-secondary",
@@ -46,6 +52,7 @@ const scenarios = [
   },
   {
     emoji: "🐛",
+    scenarioId: "daily_conversation_v1",
     title: "Reporting a Bug",
     level: "B2",
     levelColor: "bg-secondary-container text-secondary",
@@ -53,6 +60,7 @@ const scenarios = [
   },
   {
     emoji: "🤝",
+    scenarioId: "daily_conversation_v1",
     title: "Networking Event",
     level: "C1",
     levelColor: "bg-error-container text-error",
@@ -60,6 +68,7 @@ const scenarios = [
   },
   {
     emoji: "🌍",
+    scenarioId: "daily_conversation_v1",
     title: "Debating Climate Change",
     level: "C2",
     levelColor: "bg-error-container text-error",
@@ -173,7 +182,7 @@ export default function SpeakingPage() {
               <h3 className="font-lexend font-semibold text-sm text-on-surface mb-1.5">{sc.title}</h3>
               <p className="font-manrope text-xs text-on-surface-variant line-clamp-2 leading-relaxed mb-4">{sc.desc}</p>
               <Link
-                href={`/conversation?scenario=${encodeURIComponent(sc.title)}&language=German`}
+                href={`/conversation?scenario_id=${sc.scenarioId}&scenario=${encodeURIComponent(sc.title)}&language=German`}
                 className="flex items-center gap-1 font-manrope font-semibold text-xs text-primary hover:gap-2 transition-all duration-200"
               >
                 Start session

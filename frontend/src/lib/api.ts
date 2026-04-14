@@ -83,36 +83,15 @@ export function getAudioUrl(path: string): string {
 }
 
 export interface StreamEvent {
-  type: "transcript" | "ai_chunk" | "audio" | "done" | "error";
+  type: "transcript" | "ai_chunk" | "audio" | "done" | "error"
+    | "session_created" | "turn_update" | "session_ended";
   data: Record<string, unknown>;
 }
 
-export async function* sendTurnStream(
-  sessionId: string,
-  audioBlob: Blob,
-  signal?: AbortSignal
-): AsyncGenerator<StreamEvent> {
-  const auth = await getAuthHeader();
-  const form = new FormData();
-  form.append("session_id", sessionId);
-  form.append("audio", audioBlob, "recording.webm");
-
-  const res = await fetch(`${API_URL}/api/conversation/turn/stream`, {
-    method: "POST",
-    headers: auth,
-    body: form,
-    signal,
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error((err as { detail?: string }).detail || "Stream failed");
-  }
-
+async function* _parseSSEStream(res: Response): AsyncGenerator<StreamEvent> {
   const reader = res.body!.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
-
   try {
     while (true) {
       const { done, value } = await reader.read();
@@ -131,13 +110,88 @@ export async function* sendTurnStream(
         if (type && dataStr) {
           try {
             yield { type: type as StreamEvent["type"], data: JSON.parse(dataStr) };
-          } catch {
-            // skip malformed event
-          }
+          } catch { /* skip malformed */ }
         }
       }
     }
   } finally {
     reader.releaseLock();
   }
+}
+
+export async function endSpeakingSession(sessionId: string): Promise<{ feedback: unknown }> {
+  const auth = await getAuthHeader();
+  const res = await fetch(`${API_URL}/api/speaking/session/end`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...auth },
+    body: JSON.stringify({ session_id: sessionId }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || "Failed to end session");
+  }
+  return res.json();
+}
+
+export async function* startSpeakingSession(
+  scenarioId: string,
+  language: string,
+  signal?: AbortSignal
+): AsyncGenerator<StreamEvent> {
+  const auth = await getAuthHeader();
+  const res = await fetch(`${API_URL}/api/speaking/session/start`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...auth },
+    body: JSON.stringify({ scenario_id: scenarioId, language }),
+    signal,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || "Failed to start session");
+  }
+  yield* _parseSSEStream(res);
+}
+
+export async function* sendSpeakingTurn(
+  sessionId: string,
+  audioBlob: Blob,
+  signal?: AbortSignal
+): AsyncGenerator<StreamEvent> {
+  const auth = await getAuthHeader();
+  const form = new FormData();
+  form.append("session_id", sessionId);
+  form.append("audio", audioBlob, "recording.webm");
+  const res = await fetch(`${API_URL}/api/speaking/turn/stream`, {
+    method: "POST",
+    headers: auth,
+    body: form,
+    signal,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || "Stream failed");
+  }
+  yield* _parseSSEStream(res);
+}
+
+export async function* sendTurnStream(
+  sessionId: string,
+  audioBlob: Blob,
+  signal?: AbortSignal
+): AsyncGenerator<StreamEvent> {
+  const auth = await getAuthHeader();
+  const form = new FormData();
+  form.append("session_id", sessionId);
+  form.append("audio", audioBlob, "recording.webm");
+  const res = await fetch(`${API_URL}/api/conversation/turn/stream`, {
+    method: "POST",
+    headers: auth,
+    body: form,
+    signal,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || "Stream failed");
+  }
+  yield* _parseSSEStream(res);
 }

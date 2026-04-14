@@ -1,0 +1,93 @@
+{
+  "id": "cafe_order_v1",
+  "title": "Ordering at a Café",
+  "description": "Practice ordering a drink, handling a small issue, and paying.",
+  "communication_goal": "Order a drink, handle one complication, and pay politely.",
+  "domain": "café",
+  "languages": ["de", "en", "es", "fr", "it"],
+  "waypoints": [
+    {
+      "id": "greeting",
+      "name": "greeting",
+      "description": "User greets Maya or responds to her greeting",
+      "detection_prompt": "Has the user greeted the barista or responded to her greeting?",
+      "required_for_completion": false,
+      "unlocks_twist": []
+    },
+    {
+      "id": "order_placed",
+      "name": "order_placed",
+      "description": "User has placed a specific drink order",
+      "detection_prompt": "Has the user placed a specific drink or food order?",
+      "required_for_completion": true,
+      "unlocks_twist": ["item_unavailable", "order_misheard"]
+    },
+    {
+      "id": "complication_handled",
+      "name": "complication_handled",
+      "description": "User has handled a complication or confirmed their order",
+      "detection_prompt": "Has the user responded to a complication, confirmed their order, or clarified something with the barista?",
+      "required_for_completion": false,
+      "unlocks_twist": ["payment_issue"]
+    },
+    {
+      "id": "payment",
+      "name": "payment",
+      "description": "User initiates or completes payment",
+      "detection_prompt": "Has the user paid, offered to pay, or discussed payment method?",
+      "required_for_completion": true,
+      "unlocks_twist": []
+    },
+    {
+      "id": "farewell",
+      "name": "farewell",
+      "description": "User says goodbye or the interaction concludes",
+      "detection_prompt": "Has the user said goodbye or completed the interaction?",
+      "required_for_completion": false,
+      "unlocks_twist": []
+    }
+  ],
+  "difficulty_profiles": {
+    "A1": { "maya_vocab": "simple", "complications": 0, "expected_turns": 8 },
+    "A2": { "maya_vocab": "simple", "complications": 1, "expected_turns": 9 },
+    "B1": { "maya_vocab": "natural", "complications": 1, "expected_turns": 11 },
+    "B2": { "maya_vocab": "natural", "complications": 2, "expected_turns": 12 },
+    "C1": { "maya_vocab": "idiomatic", "complications": 2, "expected_turns": 13 }
+  },
+  "possible_twists": [
+    {
+      "id": "item_unavailable",
+      "description": "The item the user ordered is not available today",
+      "example": "Sorry, we're out of oat milk today — we have regular or soy. Would either work?",
+      "min_level": "A2",
+      "fires_after_waypoint": "order_placed",
+      "fires_before_waypoint": "payment",
+      "resolution_expected": "User changes order or asks for alternative"
+    },
+    {
+      "id": "order_misheard",
+      "description": "Maya mishears the order and asks for clarification",
+      "example": "Sorry, did you say a large latte or a small one?",
+      "min_level": "A1",
+      "fires_after_waypoint": "order_placed",
+      "fires_before_waypoint": "payment",
+      "resolution_expected": "User clarifies their order"
+    },
+    {
+      "id": "payment_issue",
+      "description": "The card machine is not working",
+      "example": "Oh, I'm sorry — our card machine isn't working right now. Do you have cash?",
+      "min_level": "A2",
+      "fires_after_waypoint": "complication_handled",
+      "fires_before_waypoint": "farewell",
+      "resolution_expected": "User offers alternative payment or asks what to do"
+    }
+  ],
+  "wrap_conditions": ["all_waypoints_complete", "soft_cap_reached"],
+  "visual_aid": null,
+  "maya_persona": {
+    "name": "Sofia",
+    "role": "friendly barista",
+    "location": "Café Mozart, Vienna"
+  }
+}

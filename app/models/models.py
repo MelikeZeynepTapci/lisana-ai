@@ -95,14 +95,23 @@ class UserLanguageProfile(Base):
 class Session(Base):
     """
     One conversation session. Scoped to a language profile.
-    mode: "daily" | "exam"
+    state: IDLE | ENTRY | CORE | WRAP_UP_SIGNAL | WRAP_UP | ENDED
     """
     __tablename__ = "sessions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     language_profile_id = Column(UUID(as_uuid=True), ForeignKey("user_language_profiles.id", ondelete="CASCADE"), nullable=False)
-    scenario = Column(String, nullable=False)         # "At the supermarket"
+    scenario = Column(String, nullable=False)         # human-readable title
+    scenario_id = Column(String, nullable=True)       # JSON scenario file ID e.g. "cafe_order_v1"
     mode = Column(String, default="daily")            # daily | exam
+    state = Column(String, default="IDLE")            # session state machine
+    turn_count = Column(Integer, default=0)           # user turns completed
+    started_at = Column(DateTime, nullable=True)      # when session voice started
+    voice_seconds = Column(Float, default=0.0)        # accumulated voice time
+    waypoints_state = Column(JSONB, default={})       # {waypoint_id: bool}
+    twists_fired = Column(Integer, default=0)
+    wrap_up_turns = Column(Integer, default=0)        # turns spent in WRAP_UP
+    session_feedback = Column(JSONB, nullable=True)   # generated feedback card
     created_at = Column(DateTime, default=datetime.utcnow)
 
     language_profile = relationship("UserLanguageProfile", back_populates="sessions")
