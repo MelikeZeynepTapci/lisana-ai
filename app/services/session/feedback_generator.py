@@ -19,12 +19,33 @@ Generate feedback in this exact JSON structure:
   "what_went_well": ["...", "..."],
   "watch_out_for": [
     {{
-      "topic": "Future Tense",
-      "said": "I go to school tomorrow",
-      "better": "I will go to school tomorrow",
-      "note": "Use 'will' or 'going to' for future events."
+      "topic": "Perfekt Tense",
+      "said": "Ich viele gegessen heute.",
+      "better": "Ich habe heute viel gegessen.",
+      "note": "Perfekt needs a helper verb — haben or sein — in position 2. The past participle goes to the end.",
+      "examples": [
+        {{"correct": true,  "text": "Ich habe Kaffee getrunken."}},
+        {{"correct": true,  "text": "Sie sind nach Hause gegangen."}},
+        {{"correct": false, "text": "Ich Kaffee getrunken heute."}}
+      ]
     }}
   ],
+  "alternatives": [
+    {{
+      "instead": "Das ist gut.",
+      "try": ["Das klingt super!", "Das freut mich!"]
+    }}
+  ],
+  "quiz": {{
+    "topic": "Perfekt Tense",
+    "question": "Which sentence is correct?",
+    "options": [
+      {{"id": 1, "text": "Ich gegessen viel heute.", "correct": false}},
+      {{"id": 2, "text": "Ich habe heute viel gegessen.", "correct": true}},
+      {{"id": 3, "text": "Ich viel habe gegessen heute.", "correct": false}}
+    ],
+    "explanation": "Correct! Haben/sein goes to position 2, past participle to the end — that's the Perfekt pattern."
+  }},
   "useful_phrases": ["...", "...", "..."],
   "one_tip": "...",
   "next_session": "..."
@@ -38,12 +59,22 @@ Rules:
 - Keep each item to 1-2 sentences max
 - what_went_well: 2-3 items
 - watch_out_for: 1-2 items max (omit entirely if no notable errors)
-  - "topic": the grammar or vocabulary topic name (e.g. "Future Tense", "Dative Case", "Modal Verbs", "Word Order", "Article Gender")
-  - "said": the exact incorrect phrase the user said
-  - "better": the corrected version
-  - "note": one short sentence explaining the rule
+  - "topic": the grammar/vocabulary topic name (e.g. "Perfekt Tense", "Word Order", "Dative Case")
+  - "said": exact incorrect phrase the user said
+  - "better": corrected version
+  - "note": one sentence explaining the rule
+  - "examples": 2-3 short example sentences — mix of correct:true and correct:false, short and clear
+- alternatives: 1-2 items where user used a very basic phrase and a richer native-speaker version exists.
+  Omit entirely if nothing notable. Each item:
+  - "instead": the simple phrase user actually said
+  - "try": 2-3 natural alternatives a native speaker would use
+- quiz: one quick question based on the FIRST item in watch_out_for.
+  Omit entirely if watch_out_for is empty.
+  - Use the actual "said" text as one wrong option and "better" as the correct option
+  - Add one more plausible-but-wrong option
+  - "explanation": one sentence saying why the correct answer is right
 - useful_phrases: 3-4 phrases from this session the user used well or should remember
-- next_session: recommend a specific grammar topic or scenario to practice next, based on the errors found in watch_out_for. Be concrete — e.g. "Practice the dative case — try a scenario where you describe locations or give directions."
+- next_session: recommend a specific grammar topic or scenario to practice next. Be concrete.
 - Return only valid JSON, no other text\
 """
 
@@ -71,7 +102,7 @@ async def generate_feedback(
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.3,
-        max_tokens=800,
+        max_tokens=1200,
         response_format={"type": "json_object"},
     )
 

@@ -23,6 +23,13 @@ interface WatchOutItem {
   said: string;
   better: string;
   note: string;
+  examples?: { correct: boolean; text: string }[];
+}
+
+interface QuizOption {
+  id: number;
+  text: string;
+  correct: boolean;
 }
 
 interface Feedback {
@@ -31,9 +38,84 @@ interface Feedback {
   useful_phrases: string[];
   one_tip: string;
   next_session: string;
+  alternatives?: { instead: string; try: string[] }[];
+  quiz?: {
+    topic: string;
+    question: string;
+    options: QuizOption[];
+    explanation: string;
+  };
+}
+
+interface TranscriptTurn {
+  role: "user" | "assistant";
+  text: string;
 }
 
 const SAMPLE_RATE = 24000;
+
+// ─── Mock data for preview ────────────────────────────────────────────────────
+
+const MOCK_FEEDBACK: Feedback = {
+  what_went_well: [
+    "You expressed your interests clearly — mentioning specific places like 'natürlichen Wegen in Wien' made the conversation feel real.",
+    "You used 'Entschuldigung' naturally when you needed to clarify, which is great conversational instinct.",
+  ],
+  watch_out_for: [
+    {
+      topic: "Perfekt Tense",
+      said: "Ich viele gegessen heute.",
+      better: "Ich habe heute viel gegessen.",
+      note: "Perfekt needs a helper verb — haben or sein — in position 2. The past participle goes to the end.",
+      examples: [
+        { correct: true,  text: "Ich habe Kaffee getrunken." },
+        { correct: true,  text: "Sie sind nach Hause gegangen." },
+        { correct: false, text: "Ich Kaffee getrunken heute." },
+      ],
+    },
+    {
+      topic: "Word Order",
+      said: "Ich spiele Videospiele gerne und ich spazieren gegangen.",
+      better: "Ich spiele gerne Videospiele und gehe spazieren.",
+      note: "In German, the verb stays in position 2. With 'und', the second verb moves to the end of its clause.",
+      examples: [
+        { correct: true,  text: "Ich gehe gerne spazieren." },
+        { correct: false, text: "Ich gerne gehe spazieren." },
+      ],
+    },
+  ],
+  alternatives: [
+    { instead: "Das ist gut.", try: ["Das klingt super!", "Das freut mich!", "Wunderbar!"] },
+    { instead: "Ich verstehe nicht.", try: ["Wie bitte?", "Könnten Sie das wiederholen?"] },
+  ],
+  quiz: {
+    topic: "Perfekt Tense",
+    question: "Which sentence is correct?",
+    options: [
+      { id: 1, text: "Ich gegessen viel heute.",        correct: false },
+      { id: 2, text: "Ich habe heute viel gegessen.",   correct: true  },
+      { id: 3, text: "Ich viel habe gegessen heute.",   correct: false },
+    ],
+    explanation: "Correct! Haben goes to position 2, past participle to the end — that's the Perfekt pattern.",
+  },
+  useful_phrases: [
+    "Ich interessiere mich für Sprachen.",
+    "Ich gehe gerne in Wien spazieren.",
+    "Das klingt interessant!",
+  ],
+  one_tip: "Next time, pause briefly before answering to give yourself time to form the full sentence — especially with Perfekt tense.",
+  next_session: "Practice the Perfekt tense — try a scenario where you describe what you did yesterday or last weekend.",
+};
+
+const MOCK_TRANSCRIPT: TranscriptTurn[] = [
+  { role: "assistant", text: "Hallo! Schön dich kennenzulernen. Was machst du gerne in deiner Freizeit?" },
+  { role: "user",      text: "Ich spiele Videospiele gerne und ich spazieren gegangen, gehe mit meinen Freunden." },
+  { role: "assistant", text: "Oh interessant! Spielst du lieber online oder mit Freunden zusammen?" },
+  { role: "user",      text: "Ich viele gegessen heute nach dem Spielen." },
+  { role: "assistant", text: "Oh, was hast du gegessen? Kochst du gerne?" },
+  { role: "user",      text: "Ja, ich koche manchmal. Ich mag italienisches Essen sehr." },
+  { role: "assistant", text: "Das klingt lecker! Hast du ein Lieblingsrezept?" },
+];
 
 // ─── Maya Avatar ─────────────────────────────────────────────────────────────
 
@@ -65,101 +147,458 @@ function MayaAvatar({ micState }: { micState: MicState }) {
   );
 }
 
+// ─── Error category helpers ───────────────────────────────────────────────────
+
+type ErrorCategory = "grammar" | "vocabulary" | "word-order" | "fluency";
+
+const categoryConfig: Record<ErrorCategory, { bg: string; text: string }> = {
+  grammar:      { bg: "bg-red-50",    text: "text-red-700" },
+  vocabulary:   { bg: "bg-blue-50",   text: "text-blue-700" },
+  "word-order": { bg: "bg-amber-50",  text: "text-amber-700" },
+  fluency:      { bg: "bg-purple-50", text: "text-purple-700" },
+};
+
+function detectCategory(topic: string): ErrorCategory {
+  const t = topic.toLowerCase();
+  if (t.includes("order") || t.includes("structure") || t.includes("position")) return "word-order";
+  if (t.includes("vocab") || t.includes("word choice") || t.includes("expression") || t.includes("phrase")) return "vocabulary";
+  if (t.includes("fluency") || t.includes("filler") || t.includes("pause") || t.includes("hesitation")) return "fluency";
+  return "grammar";
+}
+
+// ─── ErrorCard ────────────────────────────────────────────────────────────────
+
+function ErrorCard({ item, defaultOpen }: { item: WatchOutItem; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen ?? false);
+  const [saved, setSaved] = useState(false);
+  const cfg = categoryConfig[detectCategory(item.topic)];
+
+  return (
+    <div className="border border-outline-variant/20 rounded-xl overflow-hidden bg-surface-lowest">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-highest/30 transition-colors text-left"
+      >
+        <span className={`font-manrope text-xs font-semibold px-2.5 py-1 rounded-md ${cfg.bg} ${cfg.text}`}>
+          {item.topic}
+        </span>
+        <span className="ml-auto text-on-surface-variant/50">
+          <span className="material-symbols-outlined text-[18px]">{open ? "expand_less" : "expand_more"}</span>
+        </span>
+      </button>
+
+      {open && (
+        <div className="px-4 pb-4 border-t border-outline-variant/10 pt-3 space-y-3">
+          {/* You said / correction */}
+          <div className="space-y-1.5">
+            <p className="font-manrope text-xs text-on-surface-variant font-medium">You said</p>
+            <p className="font-manrope text-sm text-on-surface-variant line-through leading-relaxed">&ldquo;{item.said}&rdquo;</p>
+            <div className="flex items-start gap-2">
+              <span className="text-on-surface-variant text-xs mt-0.5">→</span>
+              <p className="font-manrope text-sm font-semibold text-on-surface leading-relaxed">&ldquo;{item.better}&rdquo;</p>
+            </div>
+          </div>
+
+          {/* Rule */}
+          {item.note && (
+            <div className="bg-surface-highest/40 rounded-lg px-3 py-2.5">
+              <p className="font-manrope text-xs text-on-surface-variant leading-relaxed">{item.note}</p>
+            </div>
+          )}
+
+          {/* Examples */}
+          {item.examples && item.examples.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="font-manrope text-xs font-medium text-on-surface-variant uppercase tracking-wide">More examples</p>
+              {item.examples.map((ex, i) => (
+                <div key={i} className="flex gap-2 items-start">
+                  <span className={`text-xs mt-0.5 font-bold flex-shrink-0 ${ex.correct ? "text-emerald-500" : "text-red-400"}`}>
+                    {ex.correct ? "✓" : "✗"}
+                  </span>
+                  <p className="font-manrope text-sm text-on-surface-variant">{ex.text}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Action buttons */}
+          <div className="flex gap-2 pt-1">
+            <button
+              onClick={() => setSaved(!saved)}
+              className={`font-manrope text-xs px-3 py-1.5 border rounded-lg transition-colors flex items-center gap-1.5 ${
+                saved
+                  ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                  : "border-outline-variant/30 text-on-surface-variant hover:bg-surface-highest/40 hover:text-on-surface"
+              }`}
+            >
+              <span className="material-symbols-outlined text-[13px]">{saved ? "bookmark" : "bookmark_border"}</span>
+              {saved ? "Saved" : "Save to notes"}
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="font-manrope text-xs px-3 py-1.5 border border-outline-variant/30 rounded-lg text-on-surface-variant hover:bg-surface-highest/40 hover:text-on-surface transition-colors flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-[13px]">open_in_new</span>
+              Practice this
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── QuizSection ──────────────────────────────────────────────────────────────
+
+function QuizSection({ quiz }: { quiz: NonNullable<Feedback["quiz"]> }) {
+  const [selected, setSelected] = useState<number | null>(null);
+  const answered = selected !== null;
+
+  return (
+    <div className="border border-outline-variant/20 rounded-xl overflow-hidden bg-surface-lowest">
+      <div className="px-4 py-3 border-b border-outline-variant/10 flex items-center gap-2">
+        <span className="material-symbols-outlined ms-filled text-[16px] text-secondary">quiz</span>
+        <p className="font-manrope text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
+          Quick check — {quiz.topic}
+        </p>
+      </div>
+      <div className="p-4 space-y-3">
+        <p className="font-manrope text-sm font-medium text-on-surface">{quiz.question}</p>
+        <div className="space-y-2">
+          {quiz.options.map((opt) => {
+            const isSelected = selected === opt.id;
+            const showResult = answered && isSelected;
+            return (
+              <button
+                key={opt.id}
+                disabled={answered}
+                onClick={() => setSelected(opt.id)}
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl border text-left text-sm transition-all font-manrope ${
+                  !answered
+                    ? "border-outline-variant/20 hover:border-outline-variant/40 hover:bg-surface-highest/30 text-on-surface"
+                    : showResult && opt.correct
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    : showResult && !opt.correct
+                    ? "border-red-200 bg-red-50 text-red-700"
+                    : "border-outline-variant/10 text-on-surface-variant"
+                }`}
+              >
+                <div className={`w-3.5 h-3.5 rounded-full border-2 flex-shrink-0 transition-all ${
+                  showResult && opt.correct ? "bg-emerald-500 border-emerald-500" :
+                  showResult && !opt.correct ? "bg-red-400 border-red-400" :
+                  "border-outline-variant/40"
+                }`} />
+                {opt.text}
+              </button>
+            );
+          })}
+        </div>
+        {answered && (
+          <div className={`font-manrope text-xs px-3 py-2.5 rounded-lg leading-relaxed ${
+            quiz.options.find(o => o.id === selected)?.correct
+              ? "bg-emerald-50 text-emerald-700"
+              : "bg-red-50 text-red-600"
+          }`}>
+            {quiz.explanation}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── TranscriptSection ────────────────────────────────────────────────────────
+
+function TranscriptSection({
+  transcript,
+  errors,
+}: {
+  transcript: TranscriptTurn[];
+  errors: WatchOutItem[];
+}) {
+  const [open, setOpen] = useState(false);
+  const [activeError, setActiveError] = useState<string | null>(null);
+
+  function findErrorForTurn(turn: TranscriptTurn): WatchOutItem | null {
+    if (turn.role !== "user") return null;
+    return errors.find(e => turn.text.toLowerCase().includes(e.said.toLowerCase().slice(0, 10))) ?? null;
+  }
+
+  return (
+    <div>
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between font-manrope text-sm text-on-surface-variant bg-surface-highest/30 border border-outline-variant/20 rounded-xl px-4 py-2.5 hover:bg-surface-highest/50 transition-colors"
+      >
+        <span className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-[16px]">description</span>
+          {open ? "Hide conversation" : "Show full conversation"}
+        </span>
+        <span className="material-symbols-outlined text-[16px]">{open ? "expand_less" : "expand_more"}</span>
+      </button>
+
+      {open && (
+        <div className="mt-2 bg-surface-lowest border border-outline-variant/20 rounded-xl p-4 space-y-4">
+          {transcript.map((turn, i) => {
+            const err = findErrorForTurn(turn);
+            const isActive = err && activeError === `${i}`;
+            return (
+              <div key={i}>
+                <p className="font-manrope text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-1">
+                  {turn.role === "assistant" ? "Maya" : "You"}
+                </p>
+                <p className="font-manrope text-sm text-on-surface leading-relaxed">
+                  {err ? (
+                    <span
+                      className="border-b-2 border-dashed border-red-300 cursor-pointer hover:bg-red-50 rounded px-0.5 transition-colors"
+                      onClick={() => setActiveError(isActive ? null : `${i}`)}
+                    >
+                      {turn.text}
+                    </span>
+                  ) : (
+                    turn.text
+                  )}
+                </p>
+                {err && !isActive && (
+                  <p className="font-manrope text-xs text-on-surface-variant mt-1 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[12px] text-amber-500">arrow_upward</span>
+                    {err.topic} — tap to see correction
+                  </p>
+                )}
+                {err && isActive && (
+                  <div className="mt-2 font-manrope text-xs bg-red-50 text-red-700 rounded-lg px-3 py-2 leading-relaxed">
+                    <span className="line-through">&ldquo;{err.said}&rdquo;</span>
+                    <span className="mx-1.5">→</span>
+                    <span className="font-semibold">&ldquo;{err.better}&rdquo;</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Feedback Card ────────────────────────────────────────────────────────────
 
-function FeedbackCard({ feedback, onNext }: { feedback: Feedback; onNext: () => void }) {
+function FeedbackCard({
+  feedback,
+  turnCount,
+  softCap,
+  transcript,
+  onNext,
+}: {
+  feedback: Feedback;
+  turnCount: number;
+  softCap: number;
+  transcript: TranscriptTurn[];
+  onNext: () => void;
+}) {
+  const [showAll, setShowAll] = useState(false);
+
+  const errors = feedback.watch_out_for ?? [];
+  const visibleErrors = showAll ? errors : errors.slice(0, 2);
+  const hiddenCount = errors.length - 2;
+  const xpEarned = Math.max(10, turnCount * 4);
+
   return (
-    <div className="flex flex-col h-full overflow-y-auto px-6 py-6 space-y-4">
+    <div className="max-w-2xl mx-auto w-full px-4 py-8 space-y-6 overflow-y-auto" style={{ height: "100vh" }}>
+
+      {/* Header */}
       <div>
-        <h2 className="font-lexend font-bold text-xl text-on-surface">Session complete</h2>
-        <p className="font-manrope text-sm text-on-surface-variant mt-1">Here&apos;s how it went</p>
+        <h1 className="font-lexend font-semibold text-2xl text-on-surface">Session complete</h1>
+        <p className="font-manrope text-sm text-on-surface-variant mt-0.5">Here&apos;s how it went</p>
       </div>
 
-      <div className="bg-surface-lowest border border-outline-variant/20 rounded-2xl p-4 shadow-ambient-sm">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="material-symbols-outlined ms-filled text-[18px] text-tertiary">check_circle</span>
-          <h3 className="font-lexend font-semibold text-sm text-on-surface">What went well</h3>
+      {/* Metrics */}
+      <div className="grid grid-cols-3 gap-2">
+        <div className="bg-surface-highest/40 rounded-xl p-3">
+          <p className="font-manrope text-xs text-on-surface-variant mb-1 font-medium tracking-wide uppercase">Turns</p>
+          <p className="font-lexend text-xl font-semibold text-emerald-600">
+            {turnCount}<span className="text-sm font-normal text-on-surface-variant">/{softCap}</span>
+          </p>
         </div>
-        <ul className="space-y-2">
+        <div className="bg-surface-highest/40 rounded-xl p-3">
+          <p className="font-manrope text-xs text-on-surface-variant mb-1 font-medium tracking-wide uppercase">Errors</p>
+          <p className={`font-lexend text-xl font-semibold ${errors.length > 2 ? "text-amber-600" : "text-on-surface"}`}>
+            {errors.length}
+          </p>
+        </div>
+        <div className="bg-surface-highest/40 rounded-xl p-3">
+          <p className="font-manrope text-xs text-on-surface-variant mb-1 font-medium tracking-wide uppercase">Phrases</p>
+          <p className="font-lexend text-xl font-semibold text-on-surface">{feedback.useful_phrases?.length ?? 0}</p>
+        </div>
+      </div>
+
+      {/* What went well */}
+      <div>
+        <p className="font-manrope text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-3">What went well</p>
+        <div className="bg-surface-lowest border border-outline-variant/20 rounded-xl p-4 border-l-4 border-l-emerald-400 space-y-2.5">
           {feedback.what_went_well.map((item, i) => (
-            <li key={i} className="font-manrope text-sm text-on-surface leading-relaxed flex gap-2">
-              <span className="text-tertiary mt-0.5">·</span>{item}
-            </li>
+            <div key={i} className="flex gap-2.5 items-start">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0" />
+              <p className="font-manrope text-sm text-on-surface leading-relaxed">{item}</p>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
 
-      {feedback.watch_out_for?.length > 0 && (
-        <div className="bg-surface-lowest border border-outline-variant/20 rounded-2xl p-4 shadow-ambient-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="material-symbols-outlined text-[18px] text-secondary">lightbulb</span>
-            <h3 className="font-lexend font-semibold text-sm text-on-surface">Watch out for</h3>
-          </div>
-          <ul className="space-y-4">
-            {feedback.watch_out_for.map((item, i) => (
-              <li key={i} className="space-y-2">
-                <span className="inline-block font-manrope font-bold text-[11px] uppercase tracking-wider text-secondary bg-secondary-container px-2 py-0.5 rounded-full">
-                  {item.topic}
-                </span>
-                <div className="font-manrope text-sm space-y-1">
-                  <span className="block line-through text-on-surface-variant">&ldquo;{item.said}&rdquo;</span>
-                  <span className="block text-on-surface font-medium">→ &ldquo;{item.better}&rdquo;</span>
-                  {item.note && (
-                    <span className="block text-xs text-on-surface-variant mt-1">{item.note}</span>
-                  )}
-                </div>
-              </li>
+      {/* Watch out for */}
+      {errors.length > 0 && (
+        <div>
+          <p className="font-manrope text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-3">Watch out for</p>
+          <div className="space-y-2">
+            {visibleErrors.map((item, i) => (
+              <ErrorCard key={i} item={item} defaultOpen={i === 0} />
             ))}
-          </ul>
-        </div>
-      )}
-
-      <div className="bg-surface-lowest border border-outline-variant/20 rounded-2xl p-4 shadow-ambient-sm">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="material-symbols-outlined text-[18px] text-primary">format_quote</span>
-          <h3 className="font-lexend font-semibold text-sm text-on-surface">Useful phrases</h3>
-        </div>
-        <ul className="space-y-2">
-          {feedback.useful_phrases.map((phrase, i) => (
-            <li key={i} className="font-manrope text-sm text-on-surface bg-primary/5 rounded-xl px-3 py-2 italic">
-              &ldquo;{phrase}&rdquo;
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="bg-primary/5 border border-primary/15 rounded-2xl p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="material-symbols-outlined ms-filled text-[18px] text-primary">tips_and_updates</span>
-          <h3 className="font-lexend font-semibold text-sm text-primary">One tip for next time</h3>
-        </div>
-        <p className="font-manrope text-sm text-on-surface leading-relaxed">{feedback.one_tip}</p>
-      </div>
-
-      {feedback.next_session && (
-        <div className="bg-surface-lowest border border-outline-variant/20 rounded-2xl p-4 shadow-ambient-sm">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="material-symbols-outlined text-[18px] text-on-surface-variant">arrow_forward</span>
-            <h3 className="font-lexend font-semibold text-sm text-on-surface">Try next</h3>
+            {hiddenCount > 0 && !showAll && (
+              <button
+                onClick={() => setShowAll(true)}
+                className="w-full font-manrope text-sm text-on-surface-variant bg-surface-highest/30 border border-outline-variant/20 rounded-xl py-2.5 hover:bg-surface-highest/50 transition-colors flex items-center justify-center gap-1"
+              >
+                +{hiddenCount} more
+                <span className="material-symbols-outlined text-[14px]">expand_more</span>
+              </button>
+            )}
+            {showAll && hiddenCount > 0 && (
+              <button
+                onClick={() => setShowAll(false)}
+                className="w-full font-manrope text-sm text-on-surface-variant bg-surface-highest/30 border border-outline-variant/20 rounded-xl py-2.5 hover:bg-surface-highest/50 transition-colors"
+              >
+                Show less
+              </button>
+            )}
           </div>
-          <p className="font-manrope text-sm text-on-surface-variant">{feedback.next_session}</p>
         </div>
       )}
 
-      <div className="flex gap-3 pt-2 pb-6">
-        <button
-          onClick={onNext}
-          className="flex-1 bg-primary text-white font-manrope font-bold text-sm py-3 rounded-full hover:bg-primary/90 transition-colors"
-        >
-          Start another session
-        </button>
-        <button
-          onClick={() => { window.location.href = "/"; }}
-          className="flex-1 border border-outline-variant/40 text-on-surface font-manrope font-semibold text-sm py-3 rounded-full hover:bg-surface-highest/40 transition-colors"
-        >
-          Dashboard
-        </button>
+      {/* You could have said */}
+      {(feedback.alternatives?.length ?? 0) > 0 && (
+        <div>
+          <p className="font-manrope text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-3">You could have said</p>
+          <div className="bg-surface-lowest border border-outline-variant/20 rounded-xl p-4 space-y-4">
+            {feedback.alternatives!.map((alt, i) => (
+              <div key={i} className={i > 0 ? "pt-4 border-t border-outline-variant/10" : ""}>
+                <p className="font-manrope text-xs text-on-surface-variant mb-2">
+                  Instead of <span className="font-medium text-on-surface">&ldquo;{alt.instead}&rdquo;</span>
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {alt.try.map((t, j) => (
+                    <span key={j} className="font-manrope text-sm text-on-surface bg-surface-highest/40 border border-outline-variant/20 px-2.5 py-1 rounded-lg">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Useful phrases */}
+      {(feedback.useful_phrases?.length ?? 0) > 0 && (
+        <div>
+          <p className="font-manrope text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-3">Phrases from this session</p>
+          <div className="space-y-2">
+            {feedback.useful_phrases.map((phrase, i) => (
+              <div key={i} className="border border-outline-variant/20 rounded-xl px-4 py-3 bg-surface-lowest">
+                <p className="font-manrope text-sm text-on-surface italic">&ldquo;{phrase}&rdquo;</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Grammar mini-quiz */}
+      {feedback.quiz && (
+        <div>
+          <p className="font-manrope text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-3">Quick check</p>
+          <QuizSection quiz={feedback.quiz} />
+        </div>
+      )}
+
+      {/* One tip */}
+      {feedback.one_tip && (
+        <div>
+          <p className="font-manrope text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-3">One tip for next time</p>
+          <div className="bg-primary/5 border border-primary/15 rounded-xl p-4 flex gap-3">
+            <span className="material-symbols-outlined ms-filled text-[20px] text-primary flex-shrink-0 mt-0.5">tips_and_updates</span>
+            <p className="font-manrope text-sm text-on-surface leading-relaxed">{feedback.one_tip}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Next session */}
+      {feedback.next_session && (
+        <div>
+          <p className="font-manrope text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-3">What to practice next</p>
+          <div className="bg-surface-lowest border border-outline-variant/20 rounded-xl p-4 flex gap-3">
+            <span className="material-symbols-outlined text-[20px] text-on-surface-variant flex-shrink-0 mt-0.5">arrow_forward</span>
+            <p className="font-manrope text-sm text-on-surface-variant leading-relaxed">{feedback.next_session}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Session transcript */}
+      {transcript.length > 0 && (
+        <div>
+          <p className="font-manrope text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-3">Session transcript</p>
+          <TranscriptSection transcript={transcript} errors={errors} />
+        </div>
+      )}
+
+      {/* What to do next */}
+      <div>
+        <p className="font-manrope text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-3">What to do next</p>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => window.location.reload()}
+            className="text-left bg-surface-lowest border border-outline-variant/20 rounded-xl p-3.5 hover:border-outline-variant/40 hover:bg-surface-highest/30 transition-all"
+          >
+            <p className="font-manrope text-xs text-on-surface-variant mb-1.5 flex items-center gap-1">
+              <span className="material-symbols-outlined text-[12px]">replay</span> Replay
+            </p>
+            <p className="font-lexend font-semibold text-sm text-on-surface mb-1">Same scenario</p>
+            <p className="font-manrope text-xs text-on-surface-variant leading-relaxed">Practice what you learned today</p>
+          </button>
+          <button
+            onClick={onNext}
+            className="text-left bg-surface-lowest border border-outline-variant/20 rounded-xl p-3.5 hover:border-outline-variant/40 hover:bg-surface-highest/30 transition-all"
+          >
+            <p className="font-manrope text-xs text-on-surface-variant mb-1.5 flex items-center gap-1">
+              <span className="material-symbols-outlined text-[12px]">arrow_forward</span> Next
+            </p>
+            <p className="font-lexend font-semibold text-sm text-on-surface mb-1">Try another scenario</p>
+            <p className="font-manrope text-xs text-on-surface-variant leading-relaxed">Explore new conversations</p>
+          </button>
+        </div>
       </div>
+
+      {/* XP + streak — gamification footer */}
+      <div className="bg-surface-highest/40 border border-outline-variant/20 rounded-xl p-4 flex items-center gap-4">
+        <div className="flex-1">
+          <div className="flex items-baseline gap-2 mb-1.5">
+            <span className="font-lexend text-2xl font-semibold text-on-surface">+{xpEarned}</span>
+            <span className="font-manrope text-sm text-on-surface-variant">XP earned</span>
+          </div>
+          <div className="h-1.5 bg-outline-variant/20 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary rounded-full transition-all duration-700"
+              style={{ width: `${Math.min((xpEarned / 200) * 100, 100)}%` }}
+            />
+          </div>
+          <p className="font-manrope text-xs text-on-surface-variant mt-1">Keep going to level up</p>
+        </div>
+        <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-100 px-3 py-2 rounded-xl">
+          <span className="text-base">🔥</span>
+          <span className="font-lexend text-sm font-semibold text-amber-700">1</span>
+          <span className="font-manrope text-xs text-amber-500">day streak</span>
+        </div>
+      </div>
+
+      <div className="pb-8" />
     </div>
   );
 }
@@ -173,6 +612,8 @@ export default function ConversationPage() {
   const scenarioTitle = searchParams.get("scenario") || "Daily Conversation";
   const language = searchParams.get("language") || "German";
 
+  const preview = searchParams.get("preview") === "1";
+
   const [pageState, setPageState] = useState<PageState>("pre_session");
   const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
   const [micState, setMicState] = useState<MicState>("idle");
@@ -181,6 +622,7 @@ export default function ConversationPage() {
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mayaText, setMayaText] = useState("");
+  const [sessionTranscript, setSessionTranscript] = useState<TranscriptTurn[]>([]);
 
   const micStateRef = useRef<MicState>("idle");
   const sessionIdRef = useRef<string | null>(null);
@@ -188,6 +630,9 @@ export default function ConversationPage() {
   const chunksRef = useRef<Blob[]>([]);
   const spaceDownRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Transcript accumulation
+  const transcriptRef = useRef<TranscriptTurn[]>([]);
 
   // Web Audio API
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -280,9 +725,12 @@ export default function ConversationPage() {
     setMicStateSync("processing");
     resetMayaText();
     setError(null);
+    transcriptRef.current = [];
 
     const abort = new AbortController();
     abortRef.current = abort;
+
+    let openingText = "";
 
     try {
       for await (const event of startSpeakingSession(scenarioId, language, abort.signal)) {
@@ -305,12 +753,16 @@ export default function ConversationPage() {
             break;
           }
           case "ai_chunk":
+            openingText += (event.data.text as string) + " ";
             enqueueText(event.data.text as string);
             break;
           case "audio":
             schedulePCMChunk(event.data.pcm as string, event.data.rate as number);
             break;
           case "done": {
+            if (openingText.trim()) {
+              transcriptRef.current.push({ role: "assistant", text: openingText.trim() });
+            }
             const ctx = audioCtxRef.current;
             const remaining = ctx ? Math.max(0, nextPlayTimeRef.current - ctx.currentTime) : 0;
             setTimeout(() => setMicStateSync("idle"), remaining * 1000 + 300);
@@ -368,14 +820,18 @@ export default function ConversationPage() {
       const abort = new AbortController();
       abortRef.current = abort;
 
+      let turnUserText = "";
+      let turnMayaText = "";
+
       try {
         for await (const event of sendSpeakingTurn(sid, blob, abort.signal)) {
           if (abort.signal.aborted) break;
           switch (event.type) {
             case "transcript":
-              // No transcript shown during session (per UX spec)
+              turnUserText = event.data.text as string;
               break;
             case "ai_chunk":
+              turnMayaText += (event.data.text as string) + " ";
               if (micStateRef.current !== "playing") setMicStateSync("playing");
               enqueueText(event.data.text as string);
               break;
@@ -387,18 +843,23 @@ export default function ConversationPage() {
               setSoftCap(event.data.soft_cap as number);
               break;
             case "done": {
+              if (turnUserText) transcriptRef.current.push({ role: "user", text: turnUserText });
+              if (turnMayaText.trim()) transcriptRef.current.push({ role: "assistant", text: turnMayaText.trim() });
               const ctx = audioCtxRef.current;
               const remaining = ctx ? Math.max(0, nextPlayTimeRef.current - ctx.currentTime) : 0;
               setTimeout(() => setMicStateSync("idle"), remaining * 1000 + 300);
               break;
             }
             case "session_ended": {
+              if (turnUserText) transcriptRef.current.push({ role: "user", text: turnUserText });
+              if (turnMayaText.trim()) transcriptRef.current.push({ role: "assistant", text: turnMayaText.trim() });
               const ctx = audioCtxRef.current;
               const remaining = ctx ? Math.max(0, nextPlayTimeRef.current - ctx.currentTime) : 0;
               setTimeout(() => {
                 setMicStateSync("idle");
                 setPageState("ended");
                 if (event.data.feedback) setFeedback(event.data.feedback as Feedback);
+                setSessionTranscript([...transcriptRef.current]);
               }, remaining * 1000 + 500);
               break;
             }
@@ -437,6 +898,22 @@ export default function ConversationPage() {
     if (micState === "idle") startRecording();
     else if (micState === "recording") stopRecording();
     else if (micState === "playing") { stopAllAudio(); setMicStateSync("idle"); }
+  }
+
+  // ─── Preview mode ─────────────────────────────────────────────────────────
+
+  if (preview) {
+    return (
+      <div className="page-transition flex flex-col" style={{ height: "100vh" }}>
+        <FeedbackCard
+          feedback={MOCK_FEEDBACK}
+          turnCount={7}
+          softCap={10}
+          transcript={MOCK_TRANSCRIPT}
+          onNext={() => router.push("/speaking")}
+        />
+      </div>
+    );
   }
 
   // ─── Pre-session card ─────────────────────────────────────────────────────
@@ -482,7 +959,13 @@ export default function ConversationPage() {
     return (
       <div className="page-transition flex flex-col" style={{ height: "100vh" }}>
         {feedback ? (
-          <FeedbackCard feedback={feedback} onNext={() => router.push("/speaking")} />
+          <FeedbackCard
+            feedback={feedback}
+            turnCount={turnCount}
+            softCap={softCap}
+            transcript={sessionTranscript}
+            onNext={() => router.push("/speaking")}
+          />
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center space-y-4">
@@ -585,6 +1068,7 @@ export default function ConversationPage() {
                 const result = await endSpeakingSession(sessionInfo.sessionId);
                 setFeedback(result.feedback as Feedback);
               } catch {}
+              setSessionTranscript([...transcriptRef.current]);
               setPageState("ended");
             }}
             className="mt-2 font-manrope text-xs text-on-surface-variant underline underline-offset-2 hover:text-error transition-colors"
