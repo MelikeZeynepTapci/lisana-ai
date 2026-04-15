@@ -70,6 +70,7 @@ async def _elevenlabs_pcm_stream(text: str) -> AsyncGenerator[bytes, None]:
             "stability": 0.3,
             "similarity_boost": 0.75,
             "style": 0.7,
+            "speed": 0.85,
         },
     }
 
@@ -181,6 +182,7 @@ async def _synthesize_with_elevenlabs_mp3(text: str) -> bytes:
             "stability": 0.3,
             "similarity_boost": 0.75,
             "style": 0.7,
+            "speed": 0.85,
         },
     }
 

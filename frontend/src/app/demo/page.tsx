@@ -159,7 +159,7 @@ export default function DemoPage() {
       if (!item) { clearInterval(typeIntervalRef.current!); typeIntervalRef.current = null; return; }
       currentMayaTextRef.current += item.char;
       setMayaText(currentMayaTextRef.current);
-    }, 18);
+    }, 35);
   }
 
   function enqueueText(text: string) {
@@ -486,9 +486,9 @@ export default function DemoPage() {
 
             {/* Scenario hint */}
             <div className="flex items-center gap-3 bg-surface-low border border-outline-variant/20 rounded-xl px-4 py-3 mb-6">
-              <span className="text-lg">☕</span>
+              <span className="text-lg">🏙️</span>
               <p className="font-manrope text-xs text-on-surface-variant leading-relaxed">
-                You&apos;re at a German café — Maya plays the barista. Order something and chat.
+                You&apos;re at a language exchange meetup in Berlin — Maya just walked up to say hi.
               </p>
             </div>
 

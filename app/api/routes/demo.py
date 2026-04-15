@@ -26,7 +26,7 @@ _demo_sessions: dict[str, dict] = {}
 
 DEMO_SESSIONS_PER_DAY = 3  # per IP
 DEMO_MAX_TURNS = 3
-DEMO_SCENARIO_ID = "cafe_order_v1"
+DEMO_SCENARIO_ID = "daily_conversation_v1"
 DEMO_LANGUAGE = "German"
 
 VALID_LEVELS = {"A1", "A2", "B1", "B2", "C1"}

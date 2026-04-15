@@ -196,58 +196,67 @@ export default function LandingPage() {
       </nav>
 
       {/* HERO */}
-      <section className="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center">
-        <div className="animate-fade-up delay-100 inline-flex items-center gap-2 bg-primary-container/40 text-primary font-manrope font-semibold text-xs px-4 py-2 rounded-full mb-6">
-          <span className="material-symbols-outlined ms-filled text-[14px]">auto_awesome</span>
-          No credit card required
-        </div>
-        <h1 className="animate-fade-up delay-200 font-lexend font-bold text-4xl md:text-5xl text-on-surface leading-tight mb-6 max-w-3xl mx-auto" style={{ textShadow: "1px 2px 0px rgba(114,89,145,0.12), 0 8px 24px rgba(114,89,145,0.10)" }}>
-          Your first real conversation<br />starts here.
-        </h1>
-        <p className="animate-fade-up delay-300 font-manrope text-lg text-on-surface-variant leading-relaxed mb-10 max-w-2xl mx-auto">
-          Lisana is an AI-powered language learning platform built around real conversation.
-          At its core is Maya, your personal AI coach who remembers your mistakes, adapts to your goals, and helps you speak naturally.
-        </p>
-        <div className="animate-fade-up delay-400 flex flex-col items-center gap-1.5 mb-4">
-          <Link
-            href="/demo"
-            className="animate-float font-manrope font-bold text-base bg-tertiary-container text-on-surface px-8 py-4 rounded-full hover:bg-tertiary-container/80 transition-colors flex items-center gap-2" style={{ boxShadow: "0 8px 24px rgba(34,112,95,0.20)" }}
-          >
-            <span className="material-symbols-outlined ms-filled text-[18px]">play_circle</span>
-            Try Maya first
-          </Link>
-          <p className="font-manrope text-xs text-on-surface-variant text-center mt-2">Try a free conversation and<br />receive instant feedback from Maya.</p>
-        </div>
+      <section className="max-w-6xl mx-auto px-6 pt-20 pb-16">
+        <div className="flex flex-col md:flex-row items-center gap-12">
 
-        {/* Conversation preview */}
-        <div className="animate-fade-up delay-500 mt-14 max-w-lg mx-auto bg-surface-lowest rounded-4xl shadow-ambient-lg p-6 text-left">
-          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-outline-variant/20">
-            <span className="material-symbols-outlined ms-filled text-[14px] text-on-surface-variant">location_on</span>
-            <span className="font-manrope text-xs text-on-surface-variant">Scenario: Language exchange meetup in Berlin</span>
-            <span className="ml-auto font-manrope font-semibold text-xs text-tertiary bg-tertiary-container/40 px-2.5 py-1 rounded-full">Daily Conversation</span>
-          </div>
-          <div className="flex items-start gap-3 mb-4">
-            <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="material-symbols-outlined ms-filled text-[18px] text-white">auto_awesome</span>
+          {/* Left column */}
+          <div className="flex-1 text-left">
+            <div className="animate-fade-up delay-100 inline-flex items-center gap-2 bg-primary-container/40 text-primary font-manrope font-semibold text-xs px-4 py-2 rounded-full mb-6">
+              <span className="material-symbols-outlined ms-filled text-[14px]">auto_awesome</span>
+              No credit card required
             </div>
-            <div className="flex-1">
-              <p className="font-manrope font-semibold text-xs text-primary mb-1">Lena · Maya</p>
-              <div className="bg-primary-container/30 rounded-2xl rounded-tl-sm px-4 py-3">
-                <p className="font-manrope text-sm text-on-surface leading-relaxed">
-                  Hey, ich bin Maya! Schön, dich kennenzulernen. Bist du das erste Mal bei so einem Sprachaustausch?
-                </p>
-                <p className="font-manrope text-xs text-on-surface-variant/70 italic mt-1.5">
-                  Hey, I&apos;m Maya! Nice to meet you. Is this your first time at a language exchange?
-                </p>
+            <h1 className="animate-fade-up delay-200 font-lexend font-bold text-4xl md:text-5xl text-on-surface leading-tight mb-6" style={{ textShadow: "1px 2px 0px rgba(114,89,145,0.12), 0 8px 24px rgba(114,89,145,0.10)" }}>
+              Your first real conversation<br />starts here.
+            </h1>
+            <p className="animate-fade-up delay-300 font-manrope text-lg text-on-surface-variant leading-relaxed mb-10">
+              Lisana is an AI-powered language learning platform built around real conversation.
+              At its core is Maya, your personal AI coach who remembers your mistakes, adapts to your goals, and helps you speak naturally.
+            </p>
+            <div className="animate-fade-up delay-400 flex flex-col items-start gap-1.5">
+              <Link
+                href="/demo"
+                className="animate-float font-manrope font-bold text-base bg-tertiary-container text-on-surface px-8 py-4 rounded-full hover:bg-tertiary-container/80 transition-colors flex items-center gap-2" style={{ boxShadow: "0 8px 24px rgba(34,112,95,0.20)" }}
+              >
+                <span className="material-symbols-outlined ms-filled text-[18px]">play_circle</span>
+                Try Maya first
+              </Link>
+              <p className="font-manrope text-xs text-on-surface-variant mt-2">Try a free conversation and<br />receive instant feedback from Maya.</p>
+            </div>
+          </div>
+
+          {/* Right column — Conversation preview */}
+          <div className="animate-fade-up delay-500 flex-1 w-full max-w-md">
+            <div className="bg-surface-lowest rounded-4xl shadow-ambient-lg p-6 text-left">
+              <div className="flex items-center gap-2 mb-4 pb-4 border-b border-outline-variant/20">
+                <span className="material-symbols-outlined ms-filled text-[14px] text-on-surface-variant">location_on</span>
+                <span className="font-manrope text-xs text-on-surface-variant">Language exchange meetup in Berlin</span>
+                <span className="ml-auto font-manrope font-semibold text-xs text-tertiary bg-tertiary-container/40 px-2.5 py-1 rounded-full">Daily Conversation</span>
+              </div>
+              <div className="flex items-start gap-3 mb-4">
+                <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="material-symbols-outlined ms-filled text-[18px] text-white">auto_awesome</span>
+                </div>
+                <div className="flex-1">
+                  <p className="font-manrope font-semibold text-xs text-primary mb-1">Maya</p>
+                  <div className="bg-primary-container/30 rounded-2xl rounded-tl-sm px-4 py-3">
+                    <p className="font-manrope text-sm text-on-surface leading-relaxed">
+                      Hey, ich bin Maya! Schön, dich kennenzulernen. Bist du das erste Mal bei so einem Sprachaustausch?
+                    </p>
+                    <p className="font-manrope text-xs text-on-surface-variant/70 italic mt-1.5">
+                      Hey, I&apos;m Maya! Nice to meet you. Is this your first time at a language exchange?
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-end">
+                <div className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-full">
+                  <span className="material-symbols-outlined ms-filled text-[18px]">mic</span>
+                  <span className="font-manrope font-bold text-sm">Speak</span>
+                </div>
               </div>
             </div>
           </div>
-          <div className="flex items-center justify-end">
-            <div className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-full">
-              <span className="material-symbols-outlined ms-filled text-[18px]">mic</span>
-              <span className="font-manrope font-bold text-sm">Speak</span>
-            </div>
-          </div>
+
         </div>
       </section>
 

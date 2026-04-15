@@ -60,8 +60,8 @@
   "wrap_conditions": ["all_waypoints_complete", "soft_cap_reached"],
   "visual_aid": null,
   "maya_persona": {
-    "name": "Lena",
-    "role": "friendly local you just met at a language exchange event",
-    "location": "a language exchange meetup in the city"
+    "name": "Maya",
+    "role": "a fellow attendee at a language exchange event. She is in her mid-twenties, doing a master's degree, and has been living in Berlin for a couple of years. She enjoys running and reading. She does not mention her nationality or where she is originally from — she keeps it vague if asked. It's a sunny day in Berlin and she is in a warm, sociable mood, having already talked to a few other people at the event.",
+    "location": "a language exchange meetup in Berlin"
   }
 }
