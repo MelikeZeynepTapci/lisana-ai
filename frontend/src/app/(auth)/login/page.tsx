@@ -11,13 +11,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 async function resolveEmail(identifier: string): Promise<string> {
   if (identifier.includes("@")) return identifier;
 
-  // Username → email lookup
   const res = await fetch(`${API_URL}/api/auth/lookup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username: identifier }),
   });
-  if (!res.ok) throw new Error("Kullanıcı adı bulunamadı.");
+  if (!res.ok) throw new Error("Username not found.");
   const data = await res.json();
   return data.email;
 }
@@ -26,7 +25,7 @@ export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [identifier, setIdentifier] = useState(""); // email or username
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -46,10 +45,10 @@ export default function LoginPage() {
         return;
       }
 
-      syncUser().catch(() => {}); // fire-and-forget, don't await
+      syncUser().catch(() => {});
       router.push("/");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Giriş yapılamadı.");
+      setError(err instanceof Error ? err.message : "Login failed.");
       setLoading(false);
     }
   }
@@ -65,27 +64,27 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-surface-lowest rounded-4xl p-8 shadow-ambient-sm">
-          <h1 className="font-lexend font-bold text-2xl text-on-surface mb-1">Hoş geldin</h1>
-          <p className="font-manrope text-sm text-on-surface-variant mb-6">Hesabına giriş yap</p>
+          <h1 className="font-lexend font-bold text-2xl text-on-surface mb-1">Welcome back</h1>
+          <p className="font-manrope text-sm text-on-surface-variant mb-6">Sign in to your account</p>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="font-manrope font-semibold text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">
-                E-posta veya kullanıcı adı
+                Email or username
               </label>
               <input
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 required
-                placeholder="sen@example.com veya @kullanici_adi"
+                placeholder="you@example.com or @username"
                 className="w-full bg-surface-low border border-outline-variant/40 rounded-2xl px-4 py-3 font-manrope text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary/60 transition-colors"
               />
             </div>
 
             <div>
               <label className="font-manrope font-semibold text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">
-                Şifre
+                Password
               </label>
               <input
                 type="password"
@@ -108,14 +107,14 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-primary text-white font-manrope font-bold text-sm py-3.5 rounded-full hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
+              {loading ? "Signing in…" : "Sign In"}
             </button>
           </form>
 
           <p className="font-manrope text-sm text-on-surface-variant text-center mt-5">
-            Hesabın yok mu?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-primary font-semibold hover:underline">
-              Kayıt ol
+              Sign up
             </Link>
           </p>
         </div>

@@ -34,19 +34,19 @@ export default function SignupPage() {
     setError(null);
 
     if (password !== confirm) {
-      setError("Şifreler eşleşmiyor.");
+      setError("Passwords do not match.");
       return;
     }
     if (password.length < 6) {
-      setError("Şifre en az 6 karakter olmalı.");
+      setError("Password must be at least 6 characters.");
       return;
     }
     if (username.length < 3) {
-      setError("Kullanıcı adı en az 3 karakter olmalı.");
+      setError("Username must be at least 3 characters.");
       return;
     }
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      setError("Kullanıcı adı sadece harf, rakam ve _ içerebilir.");
+      setError("Username can only contain letters, numbers, and underscores.");
       return;
     }
 
@@ -54,12 +54,12 @@ export default function SignupPage() {
 
     const availability = await checkAvailability(email, username);
     if (availability.email_taken) {
-      setError("Bu e-posta adresi zaten kullanılıyor.");
+      setError("This email address is already in use.");
       setLoading(false);
       return;
     }
     if (availability.username_taken) {
-      setError("Bu kullanıcı adı zaten alınmış.");
+      setError("This username is already taken.");
       setLoading(false);
       return;
     }
@@ -89,12 +89,12 @@ export default function SignupPage() {
           <div className="w-14 h-14 bg-tertiary-container rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="material-symbols-outlined ms-filled text-[28px] text-tertiary">mark_email_read</span>
           </div>
-          <h2 className="font-lexend font-bold text-xl text-on-surface mb-2">E-postanı kontrol et</h2>
+          <h2 className="font-lexend font-bold text-xl text-on-surface mb-2">Check your email</h2>
           <p className="font-manrope text-sm text-on-surface-variant mb-6">
-            <span className="font-semibold text-on-surface">{email}</span> adresine doğrulama linki gönderdik.
+            We sent a confirmation link to <span className="font-semibold text-on-surface">{email}</span>.
           </p>
           <Link href="/login" className="font-manrope font-semibold text-sm text-primary hover:underline">
-            Giriş sayfasına dön
+            Back to login
           </Link>
         </div>
       </div>
@@ -112,13 +112,13 @@ export default function SignupPage() {
         </div>
 
         <div className="bg-surface-lowest rounded-4xl p-8 shadow-ambient-sm">
-          <h1 className="font-lexend font-bold text-2xl text-on-surface mb-1">Hesap oluştur</h1>
-          <p className="font-manrope text-sm text-on-surface-variant mb-6">Ücretsiz başla, istediğin zaman yükselt</p>
+          <h1 className="font-lexend font-bold text-2xl text-on-surface mb-1">Create account</h1>
+          <p className="font-manrope text-sm text-on-surface-variant mb-6">Start free, upgrade anytime</p>
 
           <form onSubmit={handleSignup} className="space-y-4">
             <div>
               <label className="font-manrope font-semibold text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">
-                İsim <span className="normal-case text-on-surface-variant/60">(gizli)</span>
+                Full name <span className="normal-case text-on-surface-variant/60">(private)</span>
               </label>
               <input
                 type="text"
@@ -132,7 +132,7 @@ export default function SignupPage() {
 
             <div>
               <label className="font-manrope font-semibold text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">
-                Kullanıcı adı <span className="normal-case text-on-surface-variant/60">(herkese açık)</span>
+                Username <span className="normal-case text-on-surface-variant/60">(public)</span>
               </label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 font-manrope text-sm text-on-surface-variant">@</span>
@@ -149,21 +149,21 @@ export default function SignupPage() {
 
             <div>
               <label className="font-manrope font-semibold text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">
-                E-posta
+                Email
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="sen@example.com"
+                placeholder="you@example.com"
                 className="w-full bg-surface-low border border-outline-variant/40 rounded-2xl px-4 py-3 font-manrope text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary/60 transition-colors"
               />
             </div>
 
             <div>
               <label className="font-manrope font-semibold text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">
-                Şifre
+                Password
               </label>
               <input
                 type="password"
@@ -177,7 +177,7 @@ export default function SignupPage() {
 
             <div>
               <label className="font-manrope font-semibold text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">
-                Şifre Tekrar
+                Confirm password
               </label>
               <input
                 type="password"
@@ -200,14 +200,14 @@ export default function SignupPage() {
               disabled={loading}
               className="w-full bg-primary text-white font-manrope font-bold text-sm py-3.5 rounded-full hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Hesap oluşturuluyor..." : "Kayıt Ol"}
+              {loading ? "Creating account…" : "Sign Up"}
             </button>
           </form>
 
           <p className="font-manrope text-sm text-on-surface-variant text-center mt-5">
-            Zaten hesabın var mı?{" "}
+            Already have an account?{" "}
             <Link href="/login" className="text-primary font-semibold hover:underline">
-              Giriş yap
+              Sign in
             </Link>
           </p>
         </div>
