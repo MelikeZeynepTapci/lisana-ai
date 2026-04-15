@@ -206,38 +206,38 @@ export default function LandingPage() {
         </h1>
         <p className="font-manrope text-lg text-on-surface-variant leading-relaxed mb-10 max-w-2xl mx-auto">
           Maya is your personal AI language coach.
-          She remembers your mistakes, adapts to your goals, and practices real conversations with you. No account. No credit card. Just start talking.
+          She remembers your mistakes, adapts to your goals, and practices real conversations with you. Free to try. No account required. 
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-          <Link
-            href="/signup"
-            className="font-manrope font-bold text-base bg-primary text-white px-8 py-4 rounded-full hover:bg-primary/90 transition-colors shadow-ambient"
-          >
-            Talk to Maya now — It&apos;s Free →
-          </Link>
+        <div className="flex flex-col items-center gap-1.5 mb-4">
           <Link
             href="/demo"
-            className="font-manrope font-semibold text-base text-on-surface border border-outline-variant/40 px-8 py-4 rounded-full hover:bg-surface-low transition-colors flex items-center gap-2"
+            className="font-manrope font-bold text-base bg-tertiary-container text-on-surface px-8 py-4 rounded-full hover:bg-tertiary-container/80 transition-colors shadow-ambient flex items-center gap-2"
           >
-            <span className="material-symbols-outlined ms-filled text-[18px] text-primary">play_circle</span>
+            <span className="material-symbols-outlined ms-filled text-[18px]">play_circle</span>
             Try Maya first
           </Link>
+          <p className="font-manrope text-xs text-on-surface-variant text-center mt-2">Try a free conversation and<br />receive instant feedback from Maya.</p>
         </div>
-        <p className="font-manrope text-xs text-on-surface-variant">
-          No credit card required · Start in 2 minutes · Cancel anytime
-        </p>
 
         {/* Conversation preview */}
         <div className="mt-14 max-w-lg mx-auto bg-surface-lowest rounded-4xl shadow-ambient-lg p-6 text-left">
+          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-outline-variant/20">
+            <span className="material-symbols-outlined ms-filled text-[14px] text-on-surface-variant">location_on</span>
+            <span className="font-manrope text-xs text-on-surface-variant">Scenario: Language exchange meetup in Berlin</span>
+            <span className="ml-auto font-manrope font-semibold text-xs text-tertiary bg-tertiary-container/40 px-2.5 py-1 rounded-full">Daily Conversation</span>
+          </div>
           <div className="flex items-start gap-3 mb-4">
             <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
               <span className="material-symbols-outlined ms-filled text-[18px] text-white">auto_awesome</span>
             </div>
             <div className="flex-1">
-              <p className="font-manrope font-semibold text-xs text-primary mb-1">Maya</p>
+              <p className="font-manrope font-semibold text-xs text-primary mb-1">Lena · Maya</p>
               <div className="bg-primary-container/30 rounded-2xl rounded-tl-sm px-4 py-3">
                 <p className="font-manrope text-sm text-on-surface leading-relaxed">
-                  Hey! What would you like to practice today? A job interview, shopping, or just a chat?
+                  Hey, ich bin Maya! Schön, dich kennenzulernen. Bist du das erste Mal bei so einem Sprachaustausch?
+                </p>
+                <p className="font-manrope text-xs text-on-surface-variant/70 italic mt-1.5">
+                  Hey, I&apos;m Maya! Nice to meet you. Is this your first time at a language exchange?
                 </p>
               </div>
             </div>
