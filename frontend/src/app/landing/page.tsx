@@ -197,21 +197,21 @@ export default function LandingPage() {
 
       {/* HERO */}
       <section className="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center">
-        <div className="inline-flex items-center gap-2 bg-primary-container/40 text-primary font-manrope font-semibold text-xs px-4 py-2 rounded-full mb-6">
+        <div className="animate-fade-up delay-100 inline-flex items-center gap-2 bg-primary-container/40 text-primary font-manrope font-semibold text-xs px-4 py-2 rounded-full mb-6">
           <span className="material-symbols-outlined ms-filled text-[14px]">auto_awesome</span>
           No credit card required
         </div>
-        <h1 className="font-lexend font-bold text-5xl md:text-6xl text-on-surface leading-tight mb-6 max-w-3xl mx-auto">
+        <h1 className="animate-fade-up delay-200 font-lexend font-bold text-4xl md:text-5xl text-on-surface leading-tight mb-6 max-w-3xl mx-auto" style={{ textShadow: "1px 2px 0px rgba(114,89,145,0.12), 0 8px 24px rgba(114,89,145,0.10)" }}>
           Your first real conversation<br />starts here.
         </h1>
-        <p className="font-manrope text-lg text-on-surface-variant leading-relaxed mb-10 max-w-2xl mx-auto">
-          Maya is your personal AI language coach.
-          She remembers your mistakes, adapts to your goals, and practices real conversations with you. Free to try. No account required. 
+        <p className="animate-fade-up delay-300 font-manrope text-lg text-on-surface-variant leading-relaxed mb-10 max-w-2xl mx-auto">
+          Lisana is an AI-powered language learning platform built around real conversation.
+          At its core is Maya, your personal AI coach who remembers your mistakes, adapts to your goals, and helps you speak naturally.
         </p>
-        <div className="flex flex-col items-center gap-1.5 mb-4">
+        <div className="animate-fade-up delay-400 flex flex-col items-center gap-1.5 mb-4">
           <Link
             href="/demo"
-            className="font-manrope font-bold text-base bg-tertiary-container text-on-surface px-8 py-4 rounded-full hover:bg-tertiary-container/80 transition-colors shadow-ambient flex items-center gap-2"
+            className="animate-float font-manrope font-bold text-base bg-tertiary-container text-on-surface px-8 py-4 rounded-full hover:bg-tertiary-container/80 transition-colors flex items-center gap-2" style={{ boxShadow: "0 8px 24px rgba(34,112,95,0.20)" }}
           >
             <span className="material-symbols-outlined ms-filled text-[18px]">play_circle</span>
             Try Maya first
@@ -220,7 +220,7 @@ export default function LandingPage() {
         </div>
 
         {/* Conversation preview */}
-        <div className="mt-14 max-w-lg mx-auto bg-surface-lowest rounded-4xl shadow-ambient-lg p-6 text-left">
+        <div className="animate-fade-up delay-500 mt-14 max-w-lg mx-auto bg-surface-lowest rounded-4xl shadow-ambient-lg p-6 text-left">
           <div className="flex items-center gap-2 mb-4 pb-4 border-b border-outline-variant/20">
             <span className="material-symbols-outlined ms-filled text-[14px] text-on-surface-variant">location_on</span>
             <span className="font-manrope text-xs text-on-surface-variant">Scenario: Language exchange meetup in Berlin</span>
