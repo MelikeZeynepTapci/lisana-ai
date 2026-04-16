@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { startSpeakingSession, sendSpeakingTurn, endSpeakingSession } from "@/lib/api";
+import { startSpeakingSession, sendSpeakingTurn, sendSpeakingTurnText, endSpeakingSession } from "@/lib/api";
 import { FeedbackCard, FeedbackLoader, type Feedback, type TranscriptTurn } from "@/components/session/FeedbackCard";
+import { SuggestionChips } from "@/components/session/SuggestionChips";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -131,9 +132,14 @@ export default function ConversationPage() {
   const [generatingFeedback, setGeneratingFeedback] = useState(false);
   const [error,            setError]             = useState<string | null>(null);
   const [mayaText,         setMayaText]          = useState("");
+  const [chips,            setChips]             = useState<string[]>([]);
+  const [chipsVisible,     setChipsVisible]      = useState(false);
 
   const micStateRef        = useRef<MicState>("idle");
   const sessionIdRef       = useRef<string | null>(null);
+  const chipsTimerRef      = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingChipsRef    = useRef<string[]>([]);
+  const turnCountRef       = useRef(0);
   const mediaRecorderRef   = useRef<MediaRecorder | null>(null);
   const chunksRef          = useRef<Blob[]>([]);
   const spaceDownRef       = useRef(false);
@@ -152,6 +158,19 @@ export default function ConversationPage() {
   const currentMayaTextRef = useRef("");
 
   const setMicStateSync = (s: MicState) => { micStateRef.current = s; setMicState(s); };
+
+  function hideChips() {
+    if (chipsTimerRef.current) { clearTimeout(chipsTimerRef.current); chipsTimerRef.current = null; }
+    setChipsVisible(false);
+  }
+
+  function showChipsAfterDelay(chipsArr: string[], delayMs: number) {
+    if (chipsTimerRef.current) clearTimeout(chipsTimerRef.current);
+    chipsTimerRef.current = setTimeout(() => {
+      setChips(chipsArr);
+      setChipsVisible(true);
+    }, delayMs);
+  }
 
   // ── Audio ──────────────────────────────────────────────────────────────────
 
@@ -259,11 +278,21 @@ export default function ConversationPage() {
           case "audio":
             schedulePCMChunk(event.data.pcm as string, event.data.rate as number);
             break;
+          case "chips":
+            pendingChipsRef.current = event.data.chips as string[];
+            break;
           case "done": {
             if (openingText.trim()) transcriptRef.current.push({ role: "assistant", text: openingText.trim() });
             const ctx = audioCtxRef.current;
             const rem = ctx ? Math.max(0, nextPlayTimeRef.current - ctx.currentTime) : 0;
-            setTimeout(() => setMicStateSync("idle"), rem * 1000 + 300);
+            setTimeout(() => {
+              setMicStateSync("idle");
+              // Turn 1 (opening): show chips 1.5s after audio ends
+              if (pendingChipsRef.current.length > 0) {
+                showChipsAfterDelay(pendingChipsRef.current, 1500);
+                pendingChipsRef.current = [];
+              }
+            }, rem * 1000 + 300);
             break;
           }
           case "error":
@@ -293,9 +322,11 @@ export default function ConversationPage() {
       mediaRecorderRef.current = recorder;
       recorder.start(100);
       setMicStateSync("recording");
+      hideChips();
       setError(null);
-    } catch {
-      setError("Microphone access denied.");
+    } catch (err) {
+      const msg = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+      setError(msg);
     }
   }, []);
 
@@ -335,7 +366,11 @@ export default function ConversationPage() {
             case "audio":
               schedulePCMChunk(event.data.pcm as string, event.data.rate as number);
               break;
+            case "chips":
+              pendingChipsRef.current = event.data.chips as string[];
+              break;
             case "turn_update":
+              turnCountRef.current = event.data.turn_count as number;
               setTurnCount(event.data.turn_count as number);
               setSoftCap(event.data.soft_cap as number);
               if ((event.data.state as string) === "ENDED") {
@@ -349,7 +384,15 @@ export default function ConversationPage() {
               if (turnMayaText.trim()) transcriptRef.current.push({ role: "assistant", text: turnMayaText.trim() });
               const ctx = audioCtxRef.current;
               const rem = ctx ? Math.max(0, nextPlayTimeRef.current - ctx.currentTime) : 0;
-              setTimeout(() => setMicStateSync("idle"), rem * 1000 + 300);
+              setTimeout(() => {
+                setMicStateSync("idle");
+                if (pendingChipsRef.current.length > 0) {
+                  // Turn 2+: show chips after 4s of inactivity; turn 1 after 1.5s
+                  const delay = turnCountRef.current > 1 ? 4000 : 1500;
+                  showChipsAfterDelay(pendingChipsRef.current, delay);
+                  pendingChipsRef.current = [];
+                }
+              }, rem * 1000 + 300);
               break;
             }
             case "session_ended": {
@@ -402,6 +445,10 @@ export default function ConversationPage() {
     else if (micState === "recording") stopRecording();
     else if (micState === "playing")   { stopAllAudio(); setMicStateSync("idle"); }
   }
+
+  const handleChipSelect = useCallback((_chip: string) => {
+    // Tooltip is shown inside SuggestionChips — nothing to do here
+  }, []);
 
   // ── Preview mode ───────────────────────────────────────────────────────────
 
@@ -519,6 +566,19 @@ export default function ConversationPage() {
       {error && (
         <div className="mx-6 mb-3 px-4 py-3 bg-error-container rounded-2xl text-error text-sm text-center font-manrope">
           {error}
+        </div>
+      )}
+
+      {/* Suggestion chips — fixed height so layout doesn't shift */}
+      {pageState === "core" && (
+        <div className="pb-3 min-h-[80px] flex items-end justify-center">
+          {micState === "idle" && (
+            <SuggestionChips
+              chips={chips}
+              visible={chipsVisible}
+              onSelect={handleChipSelect}
+            />
+          )}
         </div>
       )}
 

@@ -84,7 +84,7 @@ export function getAudioUrl(path: string): string {
 
 export interface StreamEvent {
   type: "transcript" | "ai_chunk" | "audio" | "done" | "error"
-    | "session_created" | "turn_update" | "session_ended" | "demo_ended";
+    | "session_created" | "turn_update" | "session_ended" | "demo_ended" | "chips";
   data: Record<string, unknown>;
 }
 
@@ -148,6 +148,28 @@ export async function* startSpeakingSession(
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error((err as { detail?: string }).detail || "Failed to start session");
+  }
+  yield* _parseSSEStream(res);
+}
+
+export async function* sendSpeakingTurnText(
+  sessionId: string,
+  text: string,
+  signal?: AbortSignal
+): AsyncGenerator<StreamEvent> {
+  const auth = await getAuthHeader();
+  const form = new FormData();
+  form.append("session_id", sessionId);
+  form.append("text", text);
+  const res = await fetch(`${API_URL}/api/speaking/turn/text/stream`, {
+    method: "POST",
+    headers: auth,
+    body: form,
+    signal,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || "Text turn failed");
   }
   yield* _parseSSEStream(res);
 }

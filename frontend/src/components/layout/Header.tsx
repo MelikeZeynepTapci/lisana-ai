@@ -34,15 +34,20 @@ export default function Header({ title }: HeaderProps) {
       const token = data.session?.access_token;
       if (!token) return;
 
-      const res = await fetch(`${API_URL}/api/user/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) return;
-      const info: UserInfo = await res.json();
-      setUserInfo(info);
-
-      const name = info.username ?? info.full_name ?? data.session?.user.email ?? "";
-      setInitial(name[0]?.toUpperCase() ?? "?");
+      try {
+        const res = await fetch(`${API_URL}/api/user/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const info: UserInfo = await res.json();
+        setUserInfo(info);
+        const name = info.username ?? info.full_name ?? data.session?.user.email ?? "";
+        setInitial(name[0]?.toUpperCase() ?? "?");
+      } catch {
+        // Backend unreachable — fall back to Supabase session data
+        const email = data.session?.user.email ?? "";
+        setInitial(email[0]?.toUpperCase() ?? "?");
+      }
     });
   }, []);
 
