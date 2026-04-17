@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --purple: #7C5CBF;
+  --purple-pale: #F3EFFC;
+  --teal: #4ECBA8;
+  --teal-dark: #2A9D7C;
+  --teal-pale: #EEF9F5;
+  --orange: #F4A340;
+  --orange-pale: #FEF4E7;
+  --green: #5A9E5A;
+  --green-pale: #EEF6EE;
+  --yellow-pale: #FAFADC;
+  --pink: #E8437A;
+  --navy: #1B1F3B;
+  --body-text: #5A5F7A;
+  --muted: #9499B0;
+  --bg: #F7F7F8;
+  --surface: #FFFFFF;
+  --border: rgba(0, 0, 0, 0.08);
+  --grad-btn: linear-gradient(135deg, #E8437A 0%, #F97316 100%);
+}
+
+.btn-grad {
+  background: var(--grad-btn);
+  box-shadow: 0 4px 16px rgba(232, 67, 122, 0.25);
+  color: white;
+  transition: opacity 0.2s;
+}
+.btn-grad:hover { opacity: 0.88; }
+
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-6px); }

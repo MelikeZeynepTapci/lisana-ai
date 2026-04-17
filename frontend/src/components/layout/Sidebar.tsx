@@ -41,7 +41,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="hidden md:flex flex-col w-52 min-h-screen bg-background border-r border-outline-variant/30 fixed left-0 top-0 bottom-0 z-40">
+    <aside className="hidden md:flex flex-col w-52 min-h-screen bg-surface-lowest border-r border-outline-variant/20 fixed left-0 top-0 bottom-0 z-40" style={{ boxShadow: "4px 0 24px rgba(27,31,59,0.08)" }}>
       {/* Logo */}
       <div className="px-5 pt-6 pb-5">
         <Link href="/" className="flex items-center gap-2.5">
@@ -64,8 +64,8 @@ export default function Sidebar() {
                 href={item.href}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl font-manrope font-medium text-sm transition-all duration-200 ${
                   isActive
-                    ? "bg-surface-lowest text-primary shadow-ambient-sm"
-                    : "text-on-surface-variant hover:bg-surface-highest/60 hover:text-on-surface"
+                    ? "bg-primary-container text-primary"
+                    : "text-on-surface-variant hover:bg-surface-high hover:text-on-surface"
                 }`}
               >
                 <span className={`material-symbols-outlined text-[20px] ${isActive ? "ms-filled text-primary" : ""}`}>

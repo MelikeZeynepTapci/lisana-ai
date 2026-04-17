@@ -321,7 +321,6 @@ export default function ConversationPage() {
       mediaRecorderRef.current = recorder;
       recorder.start(100);
       setMicStateSync("recording");
-      hideChips();
       setError(null);
     } catch (err) {
       const msg = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
@@ -358,6 +357,7 @@ export default function ConversationPage() {
               turnUserText = event.data.text as string;
               break;
             case "ai_chunk":
+              if (!turnMayaText) hideChips();
               turnMayaText += (event.data.text as string) + " ";
               if (micStateRef.current !== "playing") setMicStateSync("playing");
               enqueueText((event.data.text as string) + " ");

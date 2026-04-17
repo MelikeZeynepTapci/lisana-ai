@@ -268,7 +268,6 @@ export default function DemoPage() {
       mediaRecorderRef.current = recorder;
       recorder.start(100);
       setMicStateSync("recording");
-      hideChips();
       setError(null);
     } catch {
       setError("Microphone access denied.");
@@ -304,6 +303,7 @@ export default function DemoPage() {
               turnUserText = event.data.text as string;
               break;
             case "ai_chunk":
+              if (!turnMayaText) hideChips();
               turnMayaText += (event.data.text as string) + " ";
               if (micStateRef.current !== "playing") setMicStateSync("playing");
               enqueueText((event.data.text as string) + " ");

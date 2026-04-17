@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Space_Grotesk, Lora } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -9,10 +9,17 @@ const canela = localFont({
   display: "swap",
 });
 
-const inter = Inter({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-manrope",
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const lora = Lora({
+  subsets: ["latin"],
+  variable: "--font-lora",
+  weight: ["600", "700"],
   display: "swap",
 });
 
@@ -23,7 +30,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${canela.variable} ${inter.variable}`}>
+    <html lang="en" className={`${canela.variable} ${spaceGrotesk.variable} ${lora.variable}`}>
       <head>
         <link
           rel="stylesheet"
