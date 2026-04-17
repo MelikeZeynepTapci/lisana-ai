@@ -94,20 +94,19 @@ function MayaAvatar({ micState }: { micState: MicState }) {
       {micState === "recording" && (
         <span className="absolute inset-0 rounded-full border-2 border-error/40 animate-ping" />
       )}
-      <div className={`w-24 h-24 rounded-full flex items-center justify-center transition-colors duration-300 ${
+      <div className={`w-24 h-24 rounded-full overflow-hidden flex items-center justify-center transition-colors duration-300 ${
         micState === "playing"    ? "bg-primary/15" :
         micState === "recording"  ? "bg-error/10" :
         micState === "processing" ? "bg-surface-highest" :
         "bg-primary-container/40"
       }`}>
-        <span className={`material-symbols-outlined ms-filled text-[40px] transition-colors duration-300 ${
-          micState === "playing"    ? "text-primary" :
-          micState === "recording"  ? "text-error" :
-          micState === "processing" ? "text-on-surface-variant" :
-          "text-primary"
-        }`}>
-          {micState === "processing" ? "hourglass_top" : "smart_toy"}
-        </span>
+        {micState === "processing" ? (
+          <span className="material-symbols-outlined ms-filled text-[40px] text-on-surface-variant">
+            hourglass_top
+          </span>
+        ) : (
+          <img src="/maya_icon.svg" alt="Maya" className="w-full h-full object-cover" />
+        )}
       </div>
     </div>
   );
@@ -556,7 +555,6 @@ export default function ConversationPage() {
           <p className="font-manrope text-sm text-on-surface max-w-sm leading-relaxed">{mayaText}</p>
         )}
         <p className="font-manrope text-xs text-on-surface-variant">
-          {micState === "idle"       && pageState === "core"  && "Hold SPACE or tap the mic to speak"}
           {micState === "recording"  && "Listening..."}
           {micState === "processing" && (pageState === "entry" ? "Starting session..." : "Processing...")}
           {micState === "playing"    && `${sessionInfo?.personaName ?? "Maya"} is speaking`}

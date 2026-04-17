@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { startDemoSession, sendDemoTurn } from "@/lib/api";
 import { FeedbackCard, FeedbackLoader, type Feedback, type TranscriptTurn } from "@/components/session/FeedbackCard";
+import { SuggestionChips } from "@/components/session/SuggestionChips";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -31,20 +32,19 @@ function MayaAvatar({ micState }: { micState: MicState }) {
       {micState === "recording" && (
         <span className="absolute inset-0 rounded-full border-2 border-error/40 animate-ping" />
       )}
-      <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-colors duration-300 ${
+      <div className={`w-20 h-20 rounded-full overflow-hidden flex items-center justify-center transition-colors duration-300 ${
         micState === "playing"    ? "bg-primary/15" :
         micState === "recording"  ? "bg-error/10" :
         micState === "processing" ? "bg-surface-highest" :
         "bg-primary-container/40"
       }`}>
-        <span className={`material-symbols-outlined ms-filled text-[36px] transition-colors duration-300 ${
-          micState === "playing"    ? "text-primary" :
-          micState === "recording"  ? "text-error" :
-          micState === "processing" ? "text-on-surface-variant" :
-          "text-primary"
-        }`}>
-          {micState === "processing" ? "hourglass_top" : "smart_toy"}
-        </span>
+        {micState === "processing" ? (
+          <span className="material-symbols-outlined ms-filled text-[36px] text-on-surface-variant">
+            hourglass_top
+          </span>
+        ) : (
+          <img src="/maya_icon.svg" alt="Maya" className="w-full h-full object-cover" />
+        )}
       </div>
     </div>
   );
@@ -89,12 +89,18 @@ export default function DemoPage() {
   const transcriptRef = useRef<TranscriptTurn[]>([]);
   const [sessionTranscript, setSessionTranscript] = useState<TranscriptTurn[]>([]);
 
+  const [chips,        setChips]        = useState<string[]>([]);
+  const [chipsVisible, setChipsVisible] = useState(false);
+
   const micStateRef        = useRef<MicState>("idle");
   const sessionIdRef       = useRef<string | null>(null);
   const mediaRecorderRef   = useRef<MediaRecorder | null>(null);
   const chunksRef          = useRef<Blob[]>([]);
   const spaceDownRef       = useRef(false);
   const abortRef           = useRef<AbortController | null>(null);
+  const chipsTimerRef      = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingChipsRef    = useRef<string[]>([]);
+  const turnCountRef       = useRef(0);
 
   // Web Audio
   const audioCtxRef          = useRef<AudioContext | null>(null);
@@ -107,6 +113,19 @@ export default function DemoPage() {
   const currentMayaTextRef = useRef("");
 
   const setMicStateSync = (s: MicState) => { micStateRef.current = s; setMicState(s); };
+
+  function hideChips() {
+    if (chipsTimerRef.current) { clearTimeout(chipsTimerRef.current); chipsTimerRef.current = null; }
+    setChipsVisible(false);
+  }
+
+  function showChipsAfterDelay(chipsArr: string[], delayMs: number) {
+    if (chipsTimerRef.current) clearTimeout(chipsTimerRef.current);
+    chipsTimerRef.current = setTimeout(() => {
+      setChips(chipsArr);
+      setChipsVisible(true);
+    }, delayMs);
+  }
 
   // ── Audio ──────────────────────────────────────────────────────────────────
 
@@ -206,11 +225,20 @@ export default function DemoPage() {
           case "audio":
             schedulePCMChunk(event.data.pcm as string, event.data.rate as number);
             break;
+          case "chips":
+            pendingChipsRef.current = event.data.chips as string[];
+            break;
           case "done": {
             if (openingText.trim()) transcriptRef.current.push({ role: "assistant", text: openingText.trim() });
             const ctx = audioCtxRef.current;
             const rem = ctx ? Math.max(0, nextPlayTimeRef.current - ctx.currentTime) : 0;
-            setTimeout(() => setMicStateSync("idle"), rem * 1000 + 300);
+            setTimeout(() => {
+              setMicStateSync("idle");
+              if (pendingChipsRef.current.length > 0) {
+                showChipsAfterDelay(pendingChipsRef.current, 1500);
+                pendingChipsRef.current = [];
+              }
+            }, rem * 1000 + 300);
             break;
           }
           case "error":
@@ -240,6 +268,7 @@ export default function DemoPage() {
       mediaRecorderRef.current = recorder;
       recorder.start(100);
       setMicStateSync("recording");
+      hideChips();
       setError(null);
     } catch {
       setError("Microphone access denied.");
@@ -282,8 +311,12 @@ export default function DemoPage() {
             case "audio":
               schedulePCMChunk(event.data.pcm as string, event.data.rate as number);
               break;
+            case "chips":
+              pendingChipsRef.current = event.data.chips as string[];
+              break;
             case "turn_update": {
               const newCount = event.data.turn_count as number;
+              turnCountRef.current = newCount;
               setTurnCount(newCount);
               if (newCount >= DEMO_MAX_TURNS) {
                 const ctx = audioCtxRef.current;
@@ -297,7 +330,14 @@ export default function DemoPage() {
               if (turnMayaText.trim()) transcriptRef.current.push({ role: "assistant", text: turnMayaText.trim() });
               const ctx = audioCtxRef.current;
               const rem = ctx ? Math.max(0, nextPlayTimeRef.current - ctx.currentTime) : 0;
-              setTimeout(() => setMicStateSync("idle"), rem * 1000 + 300);
+              setTimeout(() => {
+                setMicStateSync("idle");
+                if (pendingChipsRef.current.length > 0) {
+                  const delay = turnCountRef.current > 1 ? 4000 : 1500;
+                  showChipsAfterDelay(pendingChipsRef.current, delay);
+                  pendingChipsRef.current = [];
+                }
+              }, rem * 1000 + 300);
               break;
             }
             case "demo_ended": {
@@ -556,6 +596,17 @@ export default function DemoPage() {
           {error && (
             <p className="font-manrope text-xs text-error text-center max-w-xs">{error}</p>
           )}
+
+          {/* Suggestion chips */}
+          <div className="min-h-[72px] flex items-center justify-center">
+            {micState === "idle" && (
+              <SuggestionChips
+                chips={chips}
+                visible={chipsVisible}
+                onSelect={() => {}}
+              />
+            )}
+          </div>
 
           {/* Mic button */}
           <div className="flex flex-col items-center gap-3">

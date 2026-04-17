@@ -9,6 +9,7 @@ from fastapi import APIRouter, Form, HTTPException, Request, UploadFile, File
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from app.services.chip_generator import generate_chips
 from app.services.maya.maya_service import stream_maya_opening, stream_maya_turn
 from app.services.session.feedback_generator import generate_feedback
 from app.services.session.session_manager import LEVEL_PARAMS, load_scenario
@@ -147,9 +148,20 @@ async def demo_start(request: Request, body: DemoStartBody):
             async for evt in _stream_tts(sentence):
                 yield evt
 
+        opening_text = " ".join(opening_parts)
         _demo_sessions[session_id]["history"].append(
-            {"role": "assistant", "content": " ".join(opening_parts)}
+            {"role": "assistant", "content": opening_text}
         )
+
+        chips = await generate_chips(
+            maya_message=opening_text,
+            language=DEMO_LANGUAGE,
+            level=level,
+            user_profile={"native_language": "", "interests": [], "learning_goal": "", "intro_sentence": ""},
+        )
+        if chips:
+            yield _sse("chips", {"chips": chips})
+
         yield _sse("done", {})
 
     return StreamingResponse(
@@ -221,12 +233,23 @@ async def demo_turn(
             async for evt in _stream_tts(sentence):
                 yield evt
 
-        session["history"].append({"role": "assistant", "content": " ".join(maya_parts)})
+        maya_text = " ".join(maya_parts)
+        session["history"].append({"role": "assistant", "content": maya_text})
 
         yield _sse("turn_update", {
             "turn_count": session["turn_count"],
             "max_turns": DEMO_MAX_TURNS,
         })
+
+        if not is_last:
+            chips = await generate_chips(
+                maya_message=maya_text,
+                language=DEMO_LANGUAGE,
+                level=level,
+                user_profile={"native_language": "", "interests": [], "learning_goal": "", "intro_sentence": ""},
+            )
+            if chips:
+                yield _sse("chips", {"chips": chips})
 
         if is_last:
             transcript = [
