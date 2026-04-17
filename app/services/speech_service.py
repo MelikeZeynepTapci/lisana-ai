@@ -19,6 +19,15 @@ audio_dir.mkdir(parents=True, exist_ok=True)
 
 TTSProvider = Literal["elevenlabs", "openai"]
 
+_LEVEL_SPEED: dict[str, float] = {
+    "A1": 0.80, "A2": 0.80,
+    "B1": 0.85, "B2": 0.85,
+    "C1": 0.90, "C2": 0.90,
+}
+
+def _speed_for_level(level: str) -> float:
+    return _LEVEL_SPEED.get(level.upper(), 0.85)
+
 
 def _get_preferred_tts_provider() -> TTSProvider:
     """
@@ -44,7 +53,7 @@ async def transcribe_audio(audio_bytes: bytes, filename: str) -> str:
     return response.text
 
 
-async def _elevenlabs_pcm_stream(text: str) -> AsyncGenerator[bytes, None]:
+async def _elevenlabs_pcm_stream(text: str, level: str = "B1") -> AsyncGenerator[bytes, None]:
     """
     Stream raw PCM 24kHz mono audio from ElevenLabs.
     Raises a detailed exception on failure.
@@ -67,10 +76,10 @@ async def _elevenlabs_pcm_stream(text: str) -> AsyncGenerator[bytes, None]:
         "text": text,
         "model_id": "eleven_flash_v2_5",
         "voice_settings": {
-            "stability": 0.3,
+            "stability": 0.6,
             "similarity_boost": 0.75,
-            "style": 0.7,
-            "speed": 0.85,
+            "style": 0.8,
+            "speed": _speed_for_level(level),
         },
     }
 
@@ -126,6 +135,7 @@ async def _openai_pcm_stream(text: str) -> AsyncGenerator[bytes, None]:
 async def synthesize_sentence_stream(
     text: str,
     *,
+    level: str = "B1",
     allow_fallback: bool = True,
 ) -> AsyncGenerator[bytes, None]:
     """
@@ -140,7 +150,7 @@ async def synthesize_sentence_stream(
 
     if preferred_provider == "elevenlabs":
         try:
-            async for chunk in _elevenlabs_pcm_stream(text):
+            async for chunk in _elevenlabs_pcm_stream(text, level=level):
                 yield chunk
             return
         except Exception as exc:
@@ -179,10 +189,10 @@ async def _synthesize_with_elevenlabs_mp3(text: str) -> bytes:
         "text": text,
         "model_id": "eleven_flash_v2_5",
         "voice_settings": {
-            "stability": 0.3,
+            "stability": 0.6,
             "similarity_boost": 0.75,
-            "style": 0.7,
-            "speed": 0.85,
+            "style": 0.75,
+            "speed": 0.90,
         },
     }
 

@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
+import { createClient } from "@/lib/supabase";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const quickStart = [
   { href: "/speaking",   icon: "record_voice_over", iconBg: "bg-tertiary-container",    iconColor: "text-tertiary",  title: "Speaking",    desc: "Real scenarios" },
@@ -29,6 +32,27 @@ const rankColors = ["text-yellow-500", "text-slate-400", "text-amber-600"];
 export default function DashboardPage() {
   const [selectedOption, setSelectedOption] = useState(0);
   const [wordFlipped, setWordFlipped] = useState(false);
+  const [displayName, setDisplayName] = useState<string>("");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(async ({ data }) => {
+      const token = data.session?.access_token;
+      if (!token) return;
+      try {
+        const res = await fetch(`${API_URL}/api/user/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const info = await res.json();
+          setDisplayName(info.username ?? info.full_name ?? data.session?.user.email?.split("@")[0] ?? "");
+          return;
+        }
+      } catch {}
+      const email = data.session?.user.email ?? "";
+      setDisplayName(email.split("@")[0]);
+    });
+  }, []);
 
   return (
     <>
@@ -37,7 +61,7 @@ export default function DashboardPage() {
 
       {/* ── Greeting ─────────────────────────────────────────────────────────── */}
       <div className="mb-7">
-        <h1 className="font-lora font-bold text-3xl text-on-surface">Good morning, Alex 👋</h1>
+        <h1 className="font-lora font-bold text-3xl text-on-surface">Welcome, {displayName || "…"} 👋</h1>
         <p className="font-manrope text-sm text-on-surface-variant mt-1">Your daily 10-minute warm-up is ready.</p>
       </div>
 

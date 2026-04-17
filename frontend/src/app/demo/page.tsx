@@ -72,12 +72,13 @@ function TurnDots({ used, max }: { used: number; max: number }) {
 
 export default function DemoPage() {
   const router = useRouter();
+
   const [pageState, setPageState] = useState<PageState>("pre_session");
   const [micState, setMicState] = useState<MicState>("idle");
   const [turnCount, setTurnCount] = useState(0);
   const [mayaText, setMayaText] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [scenarioTitle, setScenarioTitle] = useState("Café Order");
+  const [scenarioTitle, setScenarioTitle] = useState("Daily Conversation");
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [generatingFeedback, setGeneratingFeedback] = useState(false);
 

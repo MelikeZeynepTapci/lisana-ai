@@ -103,3 +103,19 @@ async def complete_onboarding(
 
     await db.commit()
     return {"ok": True}
+
+
+@router.post("/reset")
+async def reset_onboarding(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Clear onboarding data so the user can redo the onboarding flow."""
+    result = await db.execute(
+        select(UserProfile).where(UserProfile.user_id == current_user.id)
+    )
+    profile = result.scalar_one_or_none()
+    if profile:
+        profile.onboarding_data = {}
+    await db.commit()
+    return {"ok": True}

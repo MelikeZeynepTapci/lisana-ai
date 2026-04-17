@@ -52,9 +52,8 @@ export default function Sidebar() {
         </Link>
       </div>
 
-      {/* Daily Mode */}
+
       <div className="px-3 mb-2">
-        <p className="font-manrope font-semibold text-[10px] text-on-surface-variant uppercase tracking-widest px-2 mb-1.5">Daily Mode</p>
         <nav className="space-y-0.5">
           {dailyModeItems.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));

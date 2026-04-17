@@ -44,8 +44,8 @@ def _extract_sentence(buffer: str) -> tuple[str, str]:
     return "", buffer
 
 
-async def _stream_tts(text: str):
-    async for pcm_chunk in synthesize_sentence_stream(text):
+async def _stream_tts(text: str, level: str = "B1"):
+    async for pcm_chunk in synthesize_sentence_stream(text, level=level):
         yield _sse("audio", {"rate": 24000, "pcm": base64.b64encode(pcm_chunk).decode()})
 
 
@@ -146,7 +146,7 @@ async def start_session(
             ):
                 opening_parts.append(sentence)
                 yield _sse("ai_chunk", {"text": sentence})
-                async for evt in _stream_tts(sentence):
+                async for evt in _stream_tts(sentence, level=level):
                     yield evt
 
             opening_text = " ".join(opening_parts)
@@ -357,7 +357,7 @@ async def speaking_turn(
             ):
                 maya_parts.append(sentence)
                 yield _sse("ai_chunk", {"text": sentence})
-                async for evt in _stream_tts(sentence):
+                async for evt in _stream_tts(sentence, level=level):
                     yield evt
 
             maya_text = " ".join(maya_parts)
@@ -555,7 +555,7 @@ async def speaking_turn_text(
             ):
                 maya_parts.append(sentence)
                 yield _sse("ai_chunk", {"text": sentence})
-                async for evt in _stream_tts(sentence):
+                async for evt in _stream_tts(sentence, level=level):
                     yield evt
 
             maya_text = " ".join(maya_parts)
