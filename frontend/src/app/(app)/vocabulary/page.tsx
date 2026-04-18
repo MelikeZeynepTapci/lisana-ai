@@ -16,7 +16,7 @@ const collections = [
   },
   {
     icon: "flight",
-    iconBg: "bg-primary-container/80",
+    iconBg: "bg-primary-container",
     iconColor: "text-primary",
     title: "Travel Essentials",
     meta: "30 words",
@@ -58,32 +58,34 @@ export default function VocabularyPage() {
       <div className="px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Collections Picker */}
-          <div className="lg:col-span-3 space-y-3">
-            <h3 className="font-lexend font-bold text-base text-on-surface mb-4">Collections</h3>
-            {collections.map((c, i) => (
-              <div
-                key={i}
-                className={`rounded-3xl p-4 cursor-pointer transition-all duration-200 ${
-                  c.active
-                    ? "bg-surface-lowest border-2 border-primary shadow-ambient-sm"
-                    : "bg-surface-low border-2 border-transparent hover:bg-surface-highest/60"
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className={`w-10 h-10 ${c.iconBg} rounded-2xl flex items-center justify-center`}>
-                    <span className={`material-symbols-outlined ms-filled text-[20px] ${c.iconColor}`}>{c.icon}</span>
+          <div className="lg:col-span-3">
+            <h3 className="font-lexend font-bold text-base text-on-surface mb-3">Collections</h3>
+            <div className="flex lg:flex-col gap-3 overflow-x-auto pb-1 lg:pb-0 -mx-6 px-6 lg:mx-0 lg:px-0">
+              {collections.map((c, i) => (
+                <div
+                  key={i}
+                  className={`rounded-3xl p-4 cursor-pointer transition-all duration-200 flex-shrink-0 lg:flex-shrink w-60 lg:w-auto ${
+                    c.active
+                      ? "bg-surface-lowest border-2 border-primary shadow-ambient-sm"
+                      : "bg-surface border-2 border-outline-variant/60 hover:border-primary/30"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`w-10 h-10 ${c.iconBg} rounded-2xl flex items-center justify-center`}>
+                      <span className={`material-symbols-outlined ms-filled text-[20px] ${c.iconColor}`}>{c.icon}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-manrope font-semibold text-sm text-on-surface">{c.title}</p>
+                      <p className="font-manrope text-xs text-on-surface-variant">{c.meta}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-manrope font-semibold text-sm text-on-surface">{c.title}</p>
-                    <p className="font-manrope text-xs text-on-surface-variant">{c.meta}</p>
-                  </div>
+                  <p className={`font-manrope font-bold text-xs ${c.statusColor}`}>{c.status}</p>
                 </div>
-                <p className={`font-manrope font-bold text-xs ${c.statusColor}`}>{c.status}</p>
-              </div>
-            ))}
+              ))}
+            </div>
 
             {/* Daily Goal */}
-            <div className="bg-surface-lowest rounded-3xl p-4 shadow-ambient-sm mt-4">
+            <div className="bg-surface-lowest border border-outline-variant/60 rounded-3xl p-4 mt-4" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
               <p className="font-lexend font-semibold text-sm text-on-surface mb-3">Daily Goal</p>
               <div className="w-full bg-surface-highest rounded-full h-2.5 mb-2">
                 <div className="bg-tertiary h-2.5 rounded-full" style={{ width: "75%" }} />
@@ -98,8 +100,8 @@ export default function VocabularyPage() {
           <div className="lg:col-span-9 space-y-5">
             {/* The Card */}
             <div
-              className="relative overflow-hidden bg-surface-lowest rounded-4xl shadow-ambient cursor-pointer select-none"
-              style={{ aspectRatio: "4/3", maxHeight: "380px" }}
+              className="relative overflow-hidden bg-surface-lowest border border-outline-variant/60 rounded-4xl cursor-pointer select-none"
+              style={{ aspectRatio: "4/3", maxHeight: "380px", boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}
               onClick={() => setFlipped(!flipped)}
             >
               {/* Decorative blurs */}
@@ -112,9 +114,9 @@ export default function VocabularyPage() {
                     <p className="font-manrope text-xs font-semibold text-primary/60 uppercase tracking-widest mb-6">
                       Word 14 of 30
                     </p>
-                    <h2 className="font-lexend font-bold text-6xl text-on-surface mb-3">La Biblioteca</h2>
+                    <h2 className="font-lexend font-bold text-4xl sm:text-6xl text-on-surface mb-3">La Biblioteca</h2>
                     <p className="font-manrope text-sm text-on-surface-variant mb-8">Noun • Spanish</p>
-                    <button className="flex items-center gap-2 bg-primary-container/80 hover:bg-primary-container text-primary px-5 py-2.5 rounded-full shadow-ambient-sm transition-all duration-200">
+                    <button className="flex items-center gap-2 bg-primary-container hover:bg-primary-container/70 border border-primary/20 text-primary px-5 py-2.5 rounded-full shadow-ambient-sm transition-all duration-200">
                       <span className="material-symbols-outlined ms-filled text-[18px]">cached</span>
                       <span className="font-manrope font-semibold text-sm">Flip Card</span>
                     </button>
@@ -124,9 +126,9 @@ export default function VocabularyPage() {
                     <p className="font-manrope text-xs font-semibold text-tertiary uppercase tracking-widest mb-4">
                       Translation
                     </p>
-                    <h2 className="font-lexend font-bold text-5xl text-on-surface mb-2">The Library</h2>
+                    <h2 className="font-lexend font-bold text-3xl sm:text-5xl text-on-surface mb-2">The Library</h2>
                     <p className="font-manrope text-sm text-on-surface-variant mb-2">A place where books are kept</p>
-                    <div className="mt-4 bg-surface-low/80 rounded-2xl px-6 py-3">
+                    <div className="mt-4 bg-surface border border-outline-variant/60 rounded-2xl px-6 py-3">
                       <p className="font-manrope text-sm text-on-surface-variant italic">
                         &ldquo;Voy a la <span className="text-primary font-semibold">biblioteca</span> cada semana.&rdquo;
                       </p>
@@ -141,7 +143,7 @@ export default function VocabularyPage() {
             <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={handleLearning}
-                className="flex items-center justify-center gap-2 bg-secondary-container text-secondary font-manrope font-bold py-4 rounded-4xl shadow-ambient-sm hover:shadow-ambient active:scale-95 transition-all duration-200"
+                className="flex items-center justify-center gap-2 bg-secondary-container border border-secondary/20 text-secondary font-manrope font-bold py-4 rounded-4xl shadow-ambient-sm hover:shadow-ambient active:scale-95 transition-all duration-200"
               >
                 <span className="material-symbols-outlined ms-filled text-[20px]">refresh</span>
                 Still learning
@@ -158,7 +160,7 @@ export default function VocabularyPage() {
             </div>
 
             {/* Retention Progress */}
-            <div className="bg-surface-lowest rounded-4xl p-5 shadow-ambient-sm">
+            <div className="bg-surface-lowest border border-outline-variant/60 rounded-4xl p-5" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <p className="font-manrope font-semibold text-sm text-on-surface">Retention Progress</p>
@@ -173,7 +175,7 @@ export default function VocabularyPage() {
 
             {/* Usage Hint + Pronunciation */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-surface-low rounded-3xl p-5">
+              <div className="bg-surface-lowest border border-outline-variant/60 rounded-3xl p-5" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="material-symbols-outlined ms-filled text-[20px] text-primary">translate</span>
                   <p className="font-manrope font-semibold text-sm text-on-surface">Usage Hint</p>
@@ -183,13 +185,13 @@ export default function VocabularyPage() {
                   <span className="font-semibold text-on-surface">&ldquo;librería&rdquo;</span> (bookstore).
                 </p>
               </div>
-              <div className="bg-surface-low rounded-3xl p-5">
+              <div className="bg-surface-lowest border border-outline-variant/60 rounded-3xl p-5" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="material-symbols-outlined ms-filled text-[20px] text-secondary">record_voice_over</span>
                   <p className="font-manrope font-semibold text-sm text-on-surface">Pronunciation</p>
                 </div>
                 <div className="flex items-center gap-3 mb-2">
-                  <button className="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center shadow-ambient-sm hover:bg-primary-container/80 transition-colors">
+                  <button className="w-9 h-9 rounded-full bg-primary-container border border-primary/20 flex items-center justify-center shadow-ambient-sm hover:bg-primary-container/80 transition-colors">
                     <span className="material-symbols-outlined ms-filled text-[18px] text-primary">play_arrow</span>
                   </button>
                   <div>

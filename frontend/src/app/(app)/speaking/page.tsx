@@ -83,18 +83,18 @@ export default function SpeakingPage() {
 
       <div className="px-6 py-6">
         {/* Page heading */}
-        <div className="flex items-start justify-between mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-5">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="material-symbols-outlined ms-filled text-[16px] text-primary">record_voice_over</span>
               <span className="font-manrope font-semibold text-sm text-primary">Daily speaking practice</span>
             </div>
-            <h1 className="font-lexend font-bold text-3xl text-on-surface">Practice Your Speaking</h1>
+            <h1 className="font-lexend font-bold text-2xl sm:text-3xl text-on-surface">Practice Your Speaking</h1>
             <p className="font-manrope text-sm text-on-surface-variant mt-1">
               Choose a real-world scenario and start talking. Maya keeps it conversational, corrects naturally, and helps you build confidence without turning practice into homework.
             </p>
           </div>
-          <div className="flex gap-6 flex-shrink-0 mt-1">
+          <div className="flex gap-6 flex-shrink-0 sm:mt-1">
             <div className="text-right">
               <p className="font-lexend font-bold text-2xl text-on-surface">9</p>
               <p className="font-manrope text-xs text-on-surface-variant">Fresh scenarios<br />matched to your level</p>
@@ -106,49 +106,9 @@ export default function SpeakingPage() {
           </div>
         </div>
 
-        {/* Pronunciation Assessment Banner */}
-        <div className="flex items-center gap-5 bg-surface-lowest rounded-3xl p-5 shadow-ambient-sm mb-5">
-          <div className="w-10 h-10 bg-primary-container/60 rounded-2xl flex items-center justify-center flex-shrink-0">
-            <span className="material-symbols-outlined ms-filled text-[22px] text-primary">mic</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-lexend font-semibold text-sm text-on-surface">Pronunciation Assessment</h3>
-              <span className="font-manrope font-bold text-[10px] bg-tertiary-container text-tertiary px-2 py-0.5 rounded-full">Coming Soon</span>
-              <span className="font-manrope text-xs text-on-surface-variant">Separate page soon</span>
-            </div>
-            <p className="font-manrope text-xs text-on-surface-variant leading-relaxed">
-              Get AI scoring for clarity, rhythm, and sound accuracy by reading short guided sentences aloud. This preview stays compact so your scenario library still fits comfortably on one desktop screen.
-            </p>
-            <div className="flex items-center gap-4 mt-2">
-              <span className="font-manrope text-xs text-on-surface-variant flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px]">article</span>
-                Read 3 short sentences
-              </span>
-              <span className="font-manrope text-xs text-on-surface-variant flex items-center gap-1">
-                <span className="material-symbols-outlined ms-filled text-[14px] text-primary">auto_awesome</span>
-                AI score + feedback
-              </span>
-              <span className="font-manrope text-xs text-on-surface-variant flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px]">schedule</span>
-                3 min check-in
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 flex-shrink-0">
-            <div className="text-right">
-              <p className="font-manrope text-xs text-on-surface-variant mb-0.5">Sample score</p>
-              <p className="font-lexend font-bold text-2xl text-on-surface">87<span className="text-base font-manrope text-on-surface-variant">/100</span></p>
-            </div>
-            <button className="bg-primary text-white font-manrope font-bold text-sm px-5 py-2.5 rounded-full hover:bg-primary/90 transition-colors whitespace-nowrap">
-              Try pronunciation preview
-            </button>
-          </div>
-        </div>
-
         {/* Search + Filters */}
-        <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 relative">
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <div className="flex-1 min-w-[160px] relative">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-on-surface-variant">search</span>
             <input
               type="text"
@@ -158,38 +118,99 @@ export default function SpeakingPage() {
           </div>
           <button className="flex items-center gap-2 bg-surface-lowest border border-outline-variant/40 rounded-2xl px-4 py-2.5 font-manrope text-sm text-on-surface hover:border-primary/40 transition-colors">
             <span className="material-symbols-outlined text-[18px] text-on-surface-variant">tune</span>
-            Level: All
+            <span className="hidden sm:inline">Level: All</span>
+            <span className="sm:hidden">Level</span>
           </button>
           <button className="flex items-center gap-2 bg-surface-lowest border border-outline-variant/40 rounded-2xl px-4 py-2.5 font-manrope text-sm text-on-surface hover:border-primary/40 transition-colors">
             <span className="material-symbols-outlined text-[18px] text-on-surface-variant">folder</span>
-            Topic: All
+            <span className="hidden sm:inline">Topic: All</span>
+            <span className="sm:hidden">Topic</span>
           </button>
         </div>
 
-        {/* Scenarios Grid */}
-        <div className="grid grid-cols-3 gap-4">
-          {scenarios.map((sc, i) => (
-            <div
-              key={i}
-              className="group relative bg-surface-lowest rounded-3xl p-5 shadow-ambient-sm hover:shadow-ambient hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <span className="text-3xl">{sc.emoji}</span>
-                <span className={`text-[10px] font-manrope font-bold px-2 py-0.5 rounded-full ${sc.levelColor}`}>
-                  {sc.level}
+        {/* Scenarios — scrollable window */}
+        <div className="bg-surface rounded-3xl border border-outline-variant/50 overflow-hidden mb-5" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
+          {/* Window chrome bar */}
+          <div className="flex items-center justify-between px-5 py-3 border-b border-outline-variant/40 bg-surface-lowest">
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-error/40" />
+              <div className="w-3 h-3 rounded-full bg-yellow-300/70" />
+              <div className="w-3 h-3 rounded-full bg-tertiary/50" />
+            </div>
+            <span className="font-manrope text-xs text-on-surface-variant">9 scenarios available</span>
+            <div className="w-14" />
+          </div>
+
+          {/* Scrollable grid */}
+          <div className="overflow-y-auto p-5" style={{ maxHeight: "420px" }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {scenarios.map((sc, i) => (
+                <div
+                  key={i}
+                  className="group relative bg-surface-lowest rounded-3xl p-5 border border-outline-variant/40 hover:border-primary/30 hover:shadow-ambient hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <span className="text-3xl">{sc.emoji}</span>
+                    <span className={`text-[10px] font-manrope font-bold px-2 py-0.5 rounded-full ${sc.levelColor}`}>
+                      {sc.level}
+                    </span>
+                  </div>
+                  <h3 className="font-lexend font-semibold text-sm text-on-surface mb-1.5">{sc.title}</h3>
+                  <p className="font-manrope text-xs text-on-surface-variant line-clamp-2 leading-relaxed mb-4">{sc.desc}</p>
+                  <Link
+                    href={`/conversation?scenario_id=${sc.scenarioId}&scenario=${encodeURIComponent(sc.title)}&language=German`}
+                    className="flex items-center gap-1 font-manrope font-semibold text-xs text-primary hover:gap-2 transition-all duration-200"
+                  >
+                    Start session
+                    <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Pronunciation Assessment Banner */}
+        <div className="bg-surface-lowest rounded-3xl p-5 border border-outline-variant/50" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 bg-primary-container/60 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <span className="material-symbols-outlined ms-filled text-[22px] text-primary">mic</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center flex-wrap gap-2 mb-1">
+                <h3 className="font-lexend font-semibold text-sm text-on-surface">Pronunciation Assessment</h3>
+                <span className="font-manrope font-bold text-[10px] bg-tertiary-container text-tertiary px-2 py-0.5 rounded-full">Coming Soon</span>
+              </div>
+              <p className="font-manrope text-xs text-on-surface-variant leading-relaxed">
+                Get AI scoring for clarity, rhythm, and sound accuracy by reading short guided sentences aloud.
+              </p>
+              <div className="hidden sm:flex items-center gap-4 mt-2">
+                <span className="font-manrope text-xs text-on-surface-variant flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[14px]">article</span>
+                  Read 3 short sentences
+                </span>
+                <span className="font-manrope text-xs text-on-surface-variant flex items-center gap-1">
+                  <span className="material-symbols-outlined ms-filled text-[14px] text-primary">auto_awesome</span>
+                  AI score + feedback
+                </span>
+                <span className="font-manrope text-xs text-on-surface-variant flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[14px]">schedule</span>
+                  3 min check-in
                 </span>
               </div>
-              <h3 className="font-lexend font-semibold text-sm text-on-surface mb-1.5">{sc.title}</h3>
-              <p className="font-manrope text-xs text-on-surface-variant line-clamp-2 leading-relaxed mb-4">{sc.desc}</p>
-              <Link
-                href={`/conversation?scenario_id=${sc.scenarioId}&scenario=${encodeURIComponent(sc.title)}&language=German`}
-                className="flex items-center gap-1 font-manrope font-semibold text-xs text-primary hover:gap-2 transition-all duration-200"
-              >
-                Start session
-                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-              </Link>
             </div>
-          ))}
+            <div className="hidden sm:flex items-center gap-4 flex-shrink-0">
+              <div className="text-right">
+                <p className="font-manrope text-xs text-on-surface-variant mb-0.5">Sample score</p>
+                <p className="font-lexend font-bold text-2xl text-on-surface">87<span className="text-base font-manrope text-on-surface-variant">/100</span></p>
+              </div>
+            </div>
+          </div>
+          <div className="mt-3">
+            <button className="w-full sm:w-auto bg-primary text-white font-manrope font-bold text-sm px-5 py-2.5 rounded-full hover:bg-primary/90 transition-colors">
+              Try pronunciation preview
+            </button>
+          </div>
         </div>
       </div>
     </div>

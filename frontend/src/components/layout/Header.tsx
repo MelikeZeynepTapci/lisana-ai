@@ -38,7 +38,11 @@ export default function Header({ title }: HeaderProps) {
         const res = await fetch(`${API_URL}/api/user/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) return;
+        if (!res.ok) {
+          const email = data.session?.user.email ?? "";
+          setInitial(email[0]?.toUpperCase() ?? "?");
+          return;
+        }
         const info: UserInfo = await res.json();
         setUserInfo(info);
         const name = info.username ?? info.full_name ?? data.session?.user.email ?? "";
@@ -62,14 +66,15 @@ export default function Header({ title }: HeaderProps) {
       <div className="flex items-center justify-between px-6 py-3.5">
         {title && <h1 className="font-lexend font-bold text-xl text-on-surface">{title}</h1>}
         {!title && <div />}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           {/* Streak */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border" style={{ background: "var(--orange-pale)", borderColor: "rgba(244,163,64,0.3)" }}>
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border" style={{ background: "var(--orange-pale)", borderColor: "rgba(244,163,64,0.3)" }}>
             <span className="material-symbols-outlined ms-filled text-[16px]" style={{ color: "#B5702A" }}>local_fire_department</span>
-            <span className="font-manrope font-bold text-sm" style={{ color: "#B5702A" }}>14 Day Streak</span>
+            <span className="font-manrope font-bold text-sm hidden sm:inline" style={{ color: "#B5702A" }}>14 Day Streak</span>
+            <span className="font-manrope font-bold text-sm sm:hidden" style={{ color: "#B5702A" }}>14</span>
           </div>
           {/* XP */}
-          <div className="flex items-center gap-1.5 bg-primary-container/60 px-3 py-1.5 rounded-full">
+          <div className="hidden sm:flex items-center gap-1.5 bg-primary-container/60 px-3 py-1.5 rounded-full">
             <span className="material-symbols-outlined ms-filled text-[16px] text-primary">bolt</span>
             <span className="font-manrope font-bold text-sm text-primary">120 / 200 XP</span>
           </div>

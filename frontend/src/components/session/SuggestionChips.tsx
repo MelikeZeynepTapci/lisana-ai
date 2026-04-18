@@ -27,12 +27,11 @@ export function SuggestionChips({ chips, visible, onSelect }: SuggestionChipsPro
       {chips.map((chip, i) => (
         <div key={i} className="group relative flex items-center w-48">
           <button
-            className={`w-full font-manrope text-sm px-4 py-2 rounded-2xl transition-transform text-center ${
-              i === 0
-                ? "text-tertiary bg-tertiary-container/50 border border-tertiary/20 hover:bg-tertiary-container/80"
-                : "text-secondary bg-secondary-container/50 border border-secondary/20 hover:bg-secondary-container/80"
-            }`}
+            className="w-full font-manrope text-sm px-4 py-2 rounded-2xl text-center text-on-surface border border-white/50 hover:bg-white/80"
             style={{
+              background: "rgba(255,255,255,0.55)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
               opacity: rendered && visible ? 1 : 0,
               transform: rendered && visible ? "translateY(0)" : "translateY(10px)",
               transition: "opacity 0.8s ease-out, transform 0.8s ease-out",

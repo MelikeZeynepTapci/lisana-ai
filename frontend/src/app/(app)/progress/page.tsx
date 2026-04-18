@@ -6,7 +6,7 @@ const heatmapData = Array.from({ length: 7 * 12 }, (_, i) => {
 });
 
 const radarPoints = (() => {
-  const skills = [78, 65, 82, 70, 55]; // Speaking, Listening, Vocab, Grammar, Writing
+  const skills = [78, 65, 82, 70, 55];
   const cx = 80;
   const cy = 80;
   const r = 65;
@@ -57,7 +57,7 @@ export default function ProgressPage() {
               <p className="font-lexend font-bold text-2xl text-secondary">342</p>
               <p className="font-manrope font-bold text-[10px] uppercase tracking-widest text-on-surface-variant">Day Streak</p>
             </div>
-            <div className="w-px bg-outline-variant/40" />
+            <div className="w-px bg-outline-variant/60" />
             <div className="text-center">
               <p className="font-lexend font-bold text-2xl text-primary">12.4k</p>
               <p className="font-manrope font-bold text-[10px] uppercase tracking-widest text-on-surface-variant">XP Points</p>
@@ -68,8 +68,7 @@ export default function ProgressPage() {
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Current Level Card */}
-          <div className="lg:col-span-8 relative overflow-hidden bg-surface-low rounded-4xl p-8 shadow-ambient-sm">
-            {/* Decorative */}
+          <div className="lg:col-span-8 relative overflow-hidden bg-surface-lowest border border-outline-variant/60 rounded-4xl p-8" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
             <div className="absolute bottom-0 right-0 w-56 h-56 bg-primary-container/30 rounded-full blur-3xl translate-y-1/3 translate-x-1/4" />
 
             <div className="relative z-10 flex flex-col sm:flex-row items-center gap-8">
@@ -103,11 +102,11 @@ export default function ProgressPage() {
                   <span className="text-primary font-semibold">42 more hours</span> to reach C1.
                 </p>
                 <div className="flex gap-3">
-                  <div className="bg-white rounded-2xl px-4 py-2">
+                  <div className="bg-surface border border-outline-variant/60 rounded-2xl px-4 py-2">
                     <p className="font-manrope text-xs text-on-surface-variant">Fluency</p>
                     <p className="font-manrope font-bold text-sm text-on-surface">78%</p>
                   </div>
-                  <div className="bg-white rounded-2xl px-4 py-2">
+                  <div className="bg-surface border border-outline-variant/60 rounded-2xl px-4 py-2">
                     <p className="font-manrope text-xs text-on-surface-variant">Accuracy</p>
                     <p className="font-manrope font-bold text-sm text-on-surface">84%</p>
                   </div>
@@ -118,7 +117,7 @@ export default function ProgressPage() {
 
           {/* Quick Stats */}
           <div className="lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-4">
-            <div className="bg-surface-lowest rounded-4xl p-5 shadow-ambient-sm">
+            <div className="bg-surface-lowest border border-outline-variant/60 rounded-4xl p-5" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-tertiary-container rounded-2xl flex items-center justify-center">
                   <span className="material-symbols-outlined ms-filled text-[20px] text-tertiary">menu_book</span>
@@ -128,7 +127,7 @@ export default function ProgressPage() {
               <p className="font-lexend font-bold text-3xl text-on-surface">4,821</p>
               <p className="font-manrope font-bold text-xs text-tertiary mt-1">+124 this week</p>
             </div>
-            <div className="bg-surface-lowest rounded-4xl p-5 shadow-ambient-sm">
+            <div className="bg-surface-lowest border border-outline-variant/60 rounded-4xl p-5" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-secondary-container rounded-2xl flex items-center justify-center">
                   <span className="material-symbols-outlined ms-filled text-[20px] text-secondary">schedule</span>
@@ -144,7 +143,7 @@ export default function ProgressPage() {
         {/* Skills + Heatmap Row */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Radar Chart */}
-          <div className="lg:col-span-5 bg-surface-lowest rounded-4xl p-6 shadow-ambient-sm">
+          <div className="lg:col-span-5 bg-surface-lowest border border-outline-variant/60 rounded-4xl p-6" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
             <div className="flex items-center gap-2 mb-5">
               <span className="material-symbols-outlined ms-filled text-[20px] text-primary">radar</span>
               <h3 className="font-lexend font-semibold text-base text-on-surface">Skills Proficiency</h3>
@@ -152,17 +151,14 @@ export default function ProgressPage() {
             <div className="flex items-center justify-center">
               <div className="relative">
                 <svg width="160" height="160" viewBox="0 0 160 160">
-                  {/* Grid rings */}
                   {[0.2, 0.4, 0.6, 0.8, 1].map((ratio) => {
                     const pts = radarGridPoints(ratio);
                     const d = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ") + " Z";
                     return <path key={ratio} d={d} fill="none" stroke="#b8be86" strokeWidth="0.8" strokeOpacity="0.3" />;
                   })}
-                  {/* Axes */}
                   {radarGridPoints(1).map((p, i) => (
                     <line key={i} x1="80" y1="80" x2={p.x} y2={p.y} stroke="#b8be86" strokeWidth="0.8" strokeOpacity="0.3" />
                   ))}
-                  {/* Data shape */}
                   <polygon
                     points={radarPoints.map((p) => `${p.x},${p.y}`).join(" ")}
                     fill="#725991"
@@ -171,7 +167,6 @@ export default function ProgressPage() {
                     strokeWidth="2"
                   />
                 </svg>
-                {/* Labels */}
                 <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 font-manrope text-[10px] font-bold text-on-surface-variant">Speaking</span>
                 <span className="absolute top-[30%] right-0 translate-x-2 font-manrope text-[10px] font-bold text-on-surface-variant">Listening</span>
                 <span className="absolute bottom-[10%] right-[5%] font-manrope text-[10px] font-bold text-on-surface-variant">Vocab</span>
@@ -182,7 +177,7 @@ export default function ProgressPage() {
           </div>
 
           {/* Heatmap */}
-          <div className="lg:col-span-7 bg-surface-lowest rounded-4xl p-6 shadow-ambient-sm">
+          <div className="lg:col-span-7 bg-surface-lowest border border-outline-variant/60 rounded-4xl p-6" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
             <div className="flex items-center gap-2 mb-5">
               <span className="material-symbols-outlined ms-filled text-[20px] text-secondary">calendar_month</span>
               <h3 className="font-lexend font-semibold text-base text-on-surface">Learning Consistency</h3>
@@ -209,14 +204,14 @@ export default function ProgressPage() {
         {/* Badges + Weekly Focus Row */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Badges */}
-          <div className="lg:col-span-5 bg-surface-lowest rounded-4xl p-6 shadow-ambient-sm">
+          <div className="lg:col-span-5 bg-surface-lowest border border-outline-variant/60 rounded-4xl p-6" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
             <p className="font-manrope font-bold text-xs uppercase tracking-widest text-on-surface-variant mb-5">
               Achievement Badges
             </p>
             <div className="grid grid-cols-4 gap-3">
               {badges.map((b, i) => (
                 <div key={i} className={`flex flex-col items-center gap-2 ${!b.earned ? "opacity-30" : ""}`}>
-                  <div className={`w-14 h-14 ${b.bg} rounded-3xl flex items-center justify-center shadow-ambient-sm`}>
+                  <div className={`w-14 h-14 ${b.bg} border border-outline-variant/40 rounded-3xl flex items-center justify-center shadow-ambient-sm`}>
                     <span className={`material-symbols-outlined ms-filled text-[26px] ${b.color}`}>{b.icon}</span>
                   </div>
                   <p className="font-manrope text-[10px] font-semibold text-center text-on-surface-variant leading-tight">
@@ -230,20 +225,22 @@ export default function ProgressPage() {
           {/* Weekly Focus Recommendation */}
           <div className="lg:col-span-7 relative overflow-hidden bg-gradient-to-br from-primary to-primary-dim rounded-4xl p-6 shadow-ambient-lg">
             <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
-            <div className="relative z-10 flex items-center gap-5">
-              <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-3xl flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined ms-filled text-[28px] text-white">psychology</span>
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-5">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-3xl flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-outlined ms-filled text-[28px] text-white">psychology</span>
+                </div>
+                <div className="flex-1">
+                  <p className="font-manrope font-bold text-xs text-white/60 uppercase tracking-widest mb-1">AI Recommendation</p>
+                  <h3 className="font-lexend font-bold text-xl text-white mb-1">
+                    Focus: Conditional Tense
+                  </h3>
+                  <p className="font-manrope text-sm text-white/70 leading-relaxed">
+                    Our AI noticed you&apos;re struggling with &ldquo;If&rdquo; clauses. Try our curated module today.
+                  </p>
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="font-manrope font-bold text-xs text-white/60 uppercase tracking-widest mb-1">AI Recommendation</p>
-                <h3 className="font-lexend font-bold text-xl text-white mb-1">
-                  Focus: Conditional Tense
-                </h3>
-                <p className="font-manrope text-sm text-white/70 leading-relaxed">
-                  Our AI noticed you&apos;re struggling with &ldquo;If&rdquo; clauses. Try our curated module today.
-                </p>
-              </div>
-              <button className="flex-shrink-0 bg-white text-primary font-manrope font-bold text-sm px-5 py-3 rounded-full hover:scale-105 active:scale-95 transition-all duration-200 shadow-ambient">
+              <button className="flex-shrink-0 w-full sm:w-auto bg-white text-primary font-manrope font-bold text-sm px-5 py-3 rounded-full hover:scale-105 active:scale-95 transition-all duration-200 shadow-ambient text-center">
                 Start Lesson
               </button>
             </div>

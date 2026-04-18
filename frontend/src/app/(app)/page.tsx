@@ -8,10 +8,10 @@ import { createClient } from "@/lib/supabase";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const quickStart = [
-  { href: "/speaking",   icon: "record_voice_over", iconBg: "bg-tertiary-container",    iconColor: "text-tertiary",  title: "Speaking",    desc: "Real scenarios" },
-  { href: "/listening",  icon: "headphones",         iconBg: "bg-primary-container/60",  iconColor: "text-primary",   title: "Listening",   desc: "Audio practice" },
-  { href: "/vocabulary", icon: "menu_book",           iconBg: "bg-secondary-container",   iconColor: "text-secondary", title: "Vocabulary",  desc: "24 words due" },
-  { href: "/grammar",    icon: "auto_stories",        iconBg: "bg-surface-highest",       iconColor: "text-on-surface",title: "Grammar",     desc: "Focus on Daily" },
+  { href: "/speaking",   icon: "record_voice_over", iconBg: "bg-tertiary-container",   iconColor: "text-tertiary",  title: "Speaking",   desc: "Real scenarios" },
+  { href: "/listening",  icon: "headphones",         iconBg: "bg-primary-container",    iconColor: "text-primary",   title: "Listening",  desc: "Audio practice" },
+  { href: "/vocabulary", icon: "menu_book",           iconBg: "bg-secondary-container",  iconColor: "text-secondary", title: "Vocabulary", desc: "24 words due" },
+  { href: "/grammar",    icon: "auto_stories",        iconBg: "bg-surface-highest",      iconColor: "text-on-surface",title: "Grammar",    desc: "Focus on Daily" },
 ];
 
 const quizOptions = [
@@ -66,12 +66,13 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Quick Start ──────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-4 gap-3 mb-7">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-7">
         {quickStart.map((card) => (
           <Link
             key={card.href}
             href={card.href}
-            className="flex items-center gap-3 bg-surface-lowest border border-outline-variant/20 rounded-2xl px-4 py-3.5 hover:shadow-ambient hover:-translate-y-0.5 transition-all duration-200"
+            className="flex items-center gap-3 bg-surface-lowest border border-outline-variant/60 rounded-2xl px-4 py-3.5 hover:shadow-ambient hover:-translate-y-0.5 transition-all duration-200"
+            style={{ boxShadow: "0 1px 4px rgba(27,31,59,0.06)" }}
           >
             <div className={`w-10 h-10 ${card.iconBg} rounded-xl flex items-center justify-center flex-shrink-0`}>
               <span className={`material-symbols-outlined ms-filled text-[20px] ${card.iconColor}`}>{card.icon}</span>
@@ -80,25 +81,25 @@ export default function DashboardPage() {
               <p className="font-manrope font-semibold text-sm text-on-surface">{card.title}</p>
               <p className="font-manrope text-xs text-on-surface-variant">{card.desc}</p>
             </div>
-            <span className="material-symbols-outlined text-[18px] text-on-surface-variant/50 flex-shrink-0">chevron_right</span>
+            <span className="material-symbols-outlined text-[18px] text-on-surface-variant/60 flex-shrink-0">chevron_right</span>
           </Link>
         ))}
       </div>
 
       {/* ── Two-column main ──────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-5 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
 
         {/* Left column */}
-        <div className="col-span-3 space-y-5">
+        <div className="lg:col-span-3 space-y-5">
 
           {/* Daily News */}
-          <div className="bg-surface-lowest border border-outline-variant/20 rounded-3xl p-6">
+          <div className="bg-surface-lowest border border-outline-variant/60 rounded-3xl p-6" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined ms-filled text-[20px] text-primary">newspaper</span>
                 <h3 className="font-lexend font-semibold text-base text-on-surface">Daily News</h3>
               </div>
-              <span className="font-manrope font-bold text-xs bg-primary-container/60 text-primary px-3 py-1 rounded-full">B2 Level</span>
+              <span className="font-manrope font-bold text-xs bg-primary-container text-primary px-3 py-1 rounded-full">B2 Level</span>
             </div>
 
             <h4 className="font-lora font-bold text-lg text-on-surface mb-2 leading-snug">
@@ -108,7 +109,7 @@ export default function DashboardPage() {
               Die Deutsche Bahn hat angekündigt, bis 2030 eine neue Flotte von Hochgeschwindigkeitszügen einzuführen. Diese Züge sollen nicht nur deutlich schneller, sondern auch weitaus umweltfreundlicher betrieben werden, um die Klimaziele zu unterstützen.
             </p>
 
-            <div className="border-t border-outline-variant/20 pt-4">
+            <div className="border-t border-outline-variant/50 pt-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="font-manrope font-semibold text-xs text-primary uppercase tracking-wide">Question 1 of 3</span>
                 <span className="font-manrope font-bold text-xs bg-tertiary text-white px-2.5 py-1 rounded-full">+15 XP</span>
@@ -124,7 +125,7 @@ export default function DashboardPage() {
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl border text-sm text-left transition-all duration-200 font-manrope ${
                       selectedOption === i
                         ? "border-primary bg-primary-container text-primary font-semibold"
-                        : "border-outline-variant/40 text-on-surface hover:border-primary/30"
+                        : "border-outline-variant/70 text-on-surface hover:border-primary/40 hover:bg-primary-container/20"
                     }`}
                     style={selectedOption !== i ? { background: "var(--yellow-pale)" } : undefined}
                   >
@@ -146,7 +147,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Progress Snapshot */}
-          <div className="bg-surface-lowest border border-outline-variant/20 rounded-3xl p-6">
+          <div className="bg-surface-lowest border border-outline-variant/60 rounded-3xl p-6" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined ms-filled text-[20px] text-primary">insights</span>
@@ -184,9 +185,9 @@ export default function DashboardPage() {
             </div>
 
             {/* Maya's Tip */}
-            <div className="bg-primary-container/25 border border-primary/10 rounded-2xl p-4">
+            <div className="bg-primary-container border border-primary/20 rounded-2xl p-4">
               <div className="flex items-center gap-2.5 mb-2">
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-primary-container/40 flex-shrink-0">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-primary/10 flex-shrink-0">
                   <img src="/maya_icon.svg" alt="Maya" className="w-full h-full object-cover" />
                 </div>
                 <span className="font-manrope font-bold text-sm text-primary">Maya&apos;s Tip</span>
@@ -204,16 +205,16 @@ export default function DashboardPage() {
         </div>
 
         {/* Right column */}
-        <div className="col-span-2 space-y-5">
+        <div className="lg:col-span-2 space-y-5">
 
           {/* Word of the Day */}
-          <div className="bg-surface-lowest border border-outline-variant/20 rounded-3xl p-6">
+          <div className="bg-surface-lowest border border-outline-variant/60 rounded-3xl p-6" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined ms-filled text-[20px] text-secondary">menu_book</span>
                 <h3 className="font-lexend font-semibold text-base text-on-surface">Word of the Day</h3>
               </div>
-              <span className="font-manrope text-xs bg-secondary-container text-secondary px-2.5 py-1 rounded-full font-semibold">German</span>
+              <span className="font-manrope text-xs bg-secondary-container text-secondary px-2.5 py-1 rounded-full font-semibold border border-secondary/20">German</span>
             </div>
 
             <div className="text-center mb-5">
@@ -227,11 +228,11 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-2 mb-5">
-              <div className="bg-surface-low border border-outline-variant/10 rounded-2xl p-3">
+              <div className="bg-surface border border-outline-variant/60 rounded-2xl p-3">
                 <p className="font-manrope font-semibold text-[10px] text-on-surface-variant uppercase tracking-wide mb-1">Translation</p>
                 <p className="font-manrope font-semibold text-sm text-on-surface">Passion</p>
               </div>
-              <div className="bg-surface-low border border-outline-variant/10 rounded-2xl p-3">
+              <div className="bg-surface border border-outline-variant/60 rounded-2xl p-3">
                 <p className="font-manrope font-semibold text-[10px] text-on-surface-variant uppercase tracking-wide mb-1">Example</p>
                 <p className="font-manrope text-sm text-on-surface italic">&ldquo;Sie kocht mit großer Leidenschaft.&rdquo;</p>
                 <p className="font-manrope text-xs text-on-surface-variant mt-1">(She cooks with great passion.)</p>
@@ -242,7 +243,7 @@ export default function DashboardPage() {
               <div className="grid grid-cols-2 gap-2.5">
                 <button
                   onClick={() => setWordFlipped(true)}
-                  className="flex items-center justify-center gap-1.5 border border-outline-variant/40 text-on-surface font-manrope font-bold text-sm py-2.5 rounded-full hover:bg-surface-highest/40 transition-colors"
+                  className="flex items-center justify-center gap-1.5 border border-outline-variant text-on-surface font-manrope font-bold text-sm py-2.5 rounded-full hover:bg-surface transition-colors"
                 >
                   <span className="material-symbols-outlined text-[17px]">cached</span>
                   Flip
@@ -256,7 +257,7 @@ export default function DashboardPage() {
               <div className="grid grid-cols-2 gap-2.5">
                 <button
                   onClick={() => setWordFlipped(false)}
-                  className="border border-outline-variant/40 text-on-surface font-manrope font-bold text-sm py-2.5 rounded-full hover:bg-surface-highest/40 transition-colors"
+                  className="border border-outline-variant text-on-surface font-manrope font-bold text-sm py-2.5 rounded-full hover:bg-surface transition-colors"
                 >
                   Still Learning
                 </button>
@@ -268,13 +269,13 @@ export default function DashboardPage() {
           </div>
 
           {/* Weekly Leaderboard */}
-          <div className="bg-surface-lowest border border-outline-variant/20 rounded-3xl p-6">
+          <div className="bg-surface-lowest border border-outline-variant/60 rounded-3xl p-6" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined ms-filled text-[20px] text-secondary">leaderboard</span>
                 <h3 className="font-lexend font-semibold text-base text-on-surface">Leaderboard</h3>
               </div>
-              <span className="font-manrope text-xs text-on-surface-variant bg-surface-low px-2.5 py-1 rounded-full">Resets in 2d</span>
+              <span className="font-manrope text-xs text-on-surface-variant bg-surface border border-outline-variant/60 px-2.5 py-1 rounded-full">Resets in 2d</span>
             </div>
 
             <div className="space-y-1">
@@ -282,7 +283,7 @@ export default function DashboardPage() {
                 <div
                   key={user.rank}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-colors ${
-                    user.isYou ? "bg-tertiary-container/40" : "hover:bg-surface-low"
+                    user.isYou ? "bg-tertiary-container border border-tertiary/20" : "hover:bg-surface"
                   }`}
                 >
                   <span className={`font-manrope font-bold text-sm w-4 flex-shrink-0 ${rankColors[user.rank - 1] ?? "text-on-surface-variant"}`}>
@@ -292,12 +293,12 @@ export default function DashboardPage() {
                     {user.name[0]}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`font-manrope font-semibold text-sm truncate ${user.isYou ? "text-tertiary" : "text-on-surface"}`}>
+                    <p className={`font-manrope font-semibold text-sm truncate ${user.isYou ? "text-secondary" : "text-on-surface"}`}>
                       {user.name}
                     </p>
                     <p className="font-manrope text-xs text-on-surface-variant">{user.level}</p>
                   </div>
-                  <span className={`font-manrope font-bold text-sm flex-shrink-0 ${user.isYou ? "text-tertiary" : "text-on-surface"}`}>
+                  <span className={`font-manrope font-bold text-sm flex-shrink-0 ${user.isYou ? "text-secondary" : "text-on-surface"}`}>
                     {user.xp}
                   </span>
                 </div>
