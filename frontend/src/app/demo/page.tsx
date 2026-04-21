@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { startDemoSession, sendDemoTurn } from "@/lib/api";
 import { FeedbackCard, FeedbackLoader, type Feedback, type TranscriptTurn } from "@/components/session/FeedbackCard";
 import { SuggestionChips } from "@/components/session/SuggestionChips";
@@ -70,8 +70,9 @@ function TurnDots({ used, max }: { used: number; max: number }) {
 
 // ─── Demo Page ────────────────────────────────────────────────────────────────
 
-export default function DemoPage() {
+function DemoPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [pageState, setPageState] = useState<PageState>("pre_session");
   const [micState, setMicState] = useState<MicState>("idle");
@@ -82,9 +83,9 @@ export default function DemoPage() {
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [generatingFeedback, setGeneratingFeedback] = useState(false);
 
-  // Onboarding form
-  const [userName, setUserName] = useState("");
-  const [selectedLevel, setSelectedLevel] = useState("A1");
+  // Pre-filled from URL params
+  const [userName, setUserName] = useState(searchParams.get("name") ?? "");
+  const [selectedLevel, setSelectedLevel] = useState(searchParams.get("level") ?? "A1");
 
   // Transcript accumulation
   const transcriptRef = useRef<TranscriptTurn[]>([]);
@@ -114,6 +115,18 @@ export default function DemoPage() {
   const currentMayaTextRef = useRef("");
 
   const setMicStateSync = (s: MicState) => { micStateRef.current = s; setMicState(s); };
+
+  // Auto-start if URL params are present
+  const autoStartedRef = useRef(false);
+  useEffect(() => {
+    if (autoStartedRef.current) return;
+    if (searchParams.get("name") !== null || searchParams.get("level") !== null) {
+      autoStartedRef.current = true;
+      // handleStart is defined below; call it after a short tick so state is settled
+      setTimeout(() => handleStart(), 0);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function hideChips() {
     if (chipsTimerRef.current) { clearTimeout(chipsTimerRef.current); chipsTimerRef.current = null; }
@@ -658,5 +671,13 @@ export default function DemoPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function DemoPage() {
+  return (
+    <Suspense>
+      <DemoPageInner />
+    </Suspense>
   );
 }

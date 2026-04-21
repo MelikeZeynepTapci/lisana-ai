@@ -214,7 +214,7 @@ export default function LandingPage() {
             </p>
             <div className="animate-fade-up delay-400 flex flex-col items-start gap-1.5">
               <Link
-                href="/demo"
+                href="/demo/setup"
                 className="animate-float font-manrope font-bold text-base bg-tertiary-container text-on-surface px-8 py-4 rounded-full hover:bg-tertiary-container/80 transition-colors flex items-center gap-2" style={{ boxShadow: "0 8px 24px rgba(34,112,95,0.20)" }}
               >
                 <span className="material-symbols-outlined ms-filled text-[18px]">play_circle</span>
