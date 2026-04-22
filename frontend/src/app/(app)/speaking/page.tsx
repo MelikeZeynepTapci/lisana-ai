@@ -166,9 +166,6 @@ export default function SpeakingPage() {
                           {sc.tag}
                         </span>
                       )}
-                      <span className={`text-[10px] font-manrope font-bold px-2 py-0.5 rounded-full ${sc.levelColor}`}>
-                        {sc.level}
-                      </span>
                     </div>
                   </div>
                   <h3 className="font-lexend font-semibold text-sm text-on-surface mb-1.5">{sc.title}</h3>

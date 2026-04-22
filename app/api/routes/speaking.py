@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import json
 import re
@@ -15,6 +16,7 @@ from app.core.database import AsyncSessionLocal
 from app.models.models import Message, Session, User, UserLanguageProfile, UserProfile
 from app.services.chip_generator import generate_chips
 from app.services.maya.maya_service import stream_maya_opening, stream_maya_turn
+from app.services.session.corrections_analyzer import analyze_corrections
 from app.services.session.feedback_generator import generate_feedback
 from app.services.session.session_manager import (
     LEVEL_PARAMS,
@@ -280,7 +282,7 @@ async def speaking_turn(
                 return
 
             try:
-                user_text = await transcribe_audio(audio_bytes, filename)
+                user_text = await transcribe_audio(audio_bytes, filename, language=language)
             except Exception:
                 yield _sse("error", {"message": "Transcription failed"})
                 return
@@ -290,6 +292,10 @@ async def speaking_turn(
                 return
 
             yield _sse("transcript", {"text": user_text})
+
+            corrections_task = asyncio.create_task(
+                analyze_corrections(user_text, language, level)
+            )
 
             turn_duration = time.time() - turn_start
             session.turn_count = (session.turn_count or 0) + 1
@@ -374,18 +380,27 @@ async def speaking_turn(
             db.add(Message(session_id=session.id, role="user", transcript=user_text))
             db.add(Message(session_id=session.id, role="assistant", transcript=maya_text))
 
-            yield _sse("turn_update", {
-                "turn_count": session.turn_count,
-                "soft_cap": params["soft_cap"],
-                "state": session.state,
-            })
-
             should_end = immediate_end or (
                 session.state == "WRAP_UP" and (session.wrap_up_turns or 0) >= 2
             )
 
             if should_end:
                 session.state = "ENDED"
+
+            yield _sse("turn_update", {
+                "turn_count": session.turn_count,
+                "soft_cap": params["soft_cap"],
+                "state": session.state,
+            })
+
+            try:
+                corrections = await asyncio.wait_for(corrections_task, timeout=5.0)
+                if corrections:
+                    yield _sse("corrections", {"corrections": corrections})
+            except Exception:
+                pass
+
+            if should_end:
                 await db.commit()
 
                 full_transcript = (
@@ -490,6 +505,10 @@ async def speaking_turn_text(
 
             yield _sse("transcript", {"text": user_text})
 
+            corrections_task = asyncio.create_task(
+                analyze_corrections(user_text, language, level)
+            )
+
             turn_duration = time.time() - turn_start
             session.turn_count = (session.turn_count or 0) + 1
             session.voice_seconds = (session.voice_seconds or 0) + turn_duration
@@ -572,18 +591,27 @@ async def speaking_turn_text(
             db.add(Message(session_id=session.id, role="user", transcript=user_text))
             db.add(Message(session_id=session.id, role="assistant", transcript=maya_text))
 
-            yield _sse("turn_update", {
-                "turn_count": session.turn_count,
-                "soft_cap": params["soft_cap"],
-                "state": session.state,
-            })
-
             should_end = immediate_end or (
                 session.state == "WRAP_UP" and (session.wrap_up_turns or 0) >= 2
             )
 
             if should_end:
                 session.state = "ENDED"
+
+            yield _sse("turn_update", {
+                "turn_count": session.turn_count,
+                "soft_cap": params["soft_cap"],
+                "state": session.state,
+            })
+
+            try:
+                corrections = await asyncio.wait_for(corrections_task, timeout=5.0)
+                if corrections:
+                    yield _sse("corrections", {"corrections": corrections})
+            except Exception:
+                pass
+
+            if should_end:
                 await db.commit()
 
                 full_transcript = (

@@ -39,17 +39,28 @@ def _get_preferred_tts_provider() -> TTSProvider:
     return "openai"
 
 
-async def transcribe_audio(audio_bytes: bytes, filename: str) -> str:
+async def transcribe_audio(audio_bytes: bytes, filename: str, language: str | None = None) -> str:
     """
     Transcribe audio using OpenAI gpt-4o-mini-transcribe.
+    When a target language is provided, a prompt is added to discourage
+    automatic grammar correction so learner mistakes are preserved.
     """
     audio_file = io.BytesIO(audio_bytes)
     audio_file.name = filename
 
-    response = await openai_client.audio.transcriptions.create(
-        model="gpt-4o-mini-transcribe",
-        file=audio_file,
-    )
+    kwargs: dict = {
+        "model": "gpt-4o-mini-transcribe",
+        "file": audio_file,
+    }
+
+    if language:
+        kwargs["prompt"] = (
+            f"Transcribe the following {language} speech exactly as spoken. "
+            "Do not correct grammar, vocabulary, or pronunciation errors. "
+            "Preserve all mistakes and non-standard forms verbatim."
+        )
+
+    response = await openai_client.audio.transcriptions.create(**kwargs)
     return response.text
 
 
@@ -76,8 +87,8 @@ async def _elevenlabs_pcm_stream(text: str, level: str = "B1") -> AsyncGenerator
         "text": text,
         "model_id": "eleven_flash_v2_5",
         "voice_settings": {
-            "stability": 0.6,
-            "similarity_boost": 0.75,
+            "stability": 0.4,
+            "similarity_boost": 0.6,
             "style": 0.8,
             "speed": _speed_for_level(level),
         },

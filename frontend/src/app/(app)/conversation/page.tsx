@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { startSpeakingSession, sendSpeakingTurn, sendSpeakingTurnText, endSpeakingSession } from "@/lib/api";
+import { startSpeakingSession, sendSpeakingTurn, sendSpeakingTurnText } from "@/lib/api";
 import { FeedbackCard, FeedbackLoader, type Feedback, type TranscriptTurn } from "@/components/session/FeedbackCard";
 import { SuggestionChips } from "@/components/session/SuggestionChips";
 
@@ -10,6 +10,12 @@ import { SuggestionChips } from "@/components/session/SuggestionChips";
 
 type PageState = "pre_session" | "entry" | "core" | "ended";
 type MicState = "idle" | "recording" | "processing" | "playing";
+
+interface Correction {
+  wrong: string;
+  correct: string;
+  note: string;
+}
 
 interface SessionInfo {
   sessionId: string;
@@ -131,6 +137,8 @@ export default function ConversationPage() {
   const [generatingFeedback, setGeneratingFeedback] = useState(false);
   const [error,            setError]             = useState<string | null>(null);
   const [mayaText,         setMayaText]          = useState("");
+  const [userText,         setUserText]          = useState("");
+  const [userCorrections,  setUserCorrections]   = useState<Correction[]>([]);
   const [chips,            setChips]             = useState<string[]>([]);
   const [chipsVisible,     setChipsVisible]      = useState(false);
 
@@ -333,6 +341,7 @@ export default function ConversationPage() {
     const recorder = mediaRecorderRef.current;
     if (!recorder || recorder.state !== "recording") return;
 
+    hideChips();
     setMicStateSync("processing");
     recorder.stop();
     recorder.stream.getTracks().forEach(t => t.stop());
@@ -343,6 +352,8 @@ export default function ConversationPage() {
       if (!sid) return;
 
       resetMayaText();
+      setUserText("");
+      setUserCorrections([]);
       const abort = new AbortController();
       abortRef.current = abort;
 
@@ -355,6 +366,10 @@ export default function ConversationPage() {
           switch (event.type) {
             case "transcript":
               turnUserText = event.data.text as string;
+              setUserText(turnUserText);
+              break;
+            case "corrections":
+              setUserCorrections(event.data.corrections as Correction[]);
               break;
             case "ai_chunk":
               if (!turnMayaText) hideChips();
@@ -448,6 +463,35 @@ export default function ConversationPage() {
   const handleChipSelect = useCallback((_chip: string) => {
     // Tooltip is shown inside SuggestionChips — nothing to do here
   }, []);
+
+  function renderUserText(text: string, corrections: Correction[]) {
+    if (!corrections.length) return <span>{text}</span>;
+
+    const parts: React.ReactNode[] = [];
+    let remaining = text;
+    let offset = 0;
+
+    for (const c of corrections) {
+      const idx = remaining.toLowerCase().indexOf(c.wrong.toLowerCase());
+      if (idx === -1) continue;
+      if (idx > 0) parts.push(<span key={offset}>{remaining.slice(0, idx)}</span>);
+      parts.push(
+        <span key={offset + idx} className="relative group">
+          <mark className="bg-error/20 text-error rounded px-0.5 not-italic">{remaining.slice(idx, idx + c.wrong.length)}</mark>
+          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-10 pointer-events-none">
+            <span className="block bg-on-surface text-surface text-[11px] font-manrope rounded-lg px-2.5 py-1.5 whitespace-nowrap max-w-[220px] text-center shadow-lg">
+              <span className="text-primary-container font-semibold">{c.correct}</span>
+              {c.note && <span className="block text-surface/60 mt-0.5">{c.note}</span>}
+            </span>
+          </span>
+        </span>
+      );
+      remaining = remaining.slice(idx + c.wrong.length);
+      offset += idx + c.wrong.length;
+    }
+    if (remaining) parts.push(<span key="tail">{remaining}</span>);
+    return <>{parts}</>;
+  }
 
   // ── Preview mode ───────────────────────────────────────────────────────────
 
@@ -559,6 +603,11 @@ export default function ConversationPage() {
           {micState === "processing" && (pageState === "entry" ? "Starting session..." : "Processing...")}
           {micState === "playing"    && `${sessionInfo?.personaName ?? "Maya"} is speaking`}
         </p>
+        {userText && (
+          <p className="font-manrope text-sm text-on-surface-variant max-w-sm text-center leading-relaxed">
+            {renderUserText(userText, userCorrections)}
+          </p>
+        )}
       </div>
 
       {error && (
@@ -570,7 +619,7 @@ export default function ConversationPage() {
       {/* Suggestion chips — fixed height so layout doesn't shift */}
       {pageState === "core" && (
         <div className="pb-3 min-h-[80px] flex items-end justify-center">
-          {micState === "idle" && (
+          {(micState === "idle" || micState === "recording") && (
             <SuggestionChips
               chips={chips}
               visible={chipsVisible}
@@ -609,22 +658,6 @@ export default function ConversationPage() {
           {micState === "playing"   && "Tap to stop"}
           {micState === "idle" && pageState === "core" && "Hold SPACE or tap mic"}
         </p>
-        {pageState === "core" && sessionInfo && (
-          <button
-            onClick={async () => {
-              stopAllAudio();
-              try {
-                const result = await endSpeakingSession(sessionInfo.sessionId);
-                setFeedback(result.feedback as Feedback);
-              } catch {}
-              setSessionTranscript([...transcriptRef.current]);
-              setPageState("ended");
-            }}
-            className="mt-2 font-manrope text-xs text-on-surface-variant underline underline-offset-2 hover:text-error transition-colors"
-          >
-            End session
-          </button>
-        )}
       </div>
     </div>
   );
