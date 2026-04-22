@@ -11,6 +11,15 @@ const scenarios = [
     desc: "Practice small talk, introducing yourself, and basic everyday interactions with strangers.",
   },
   {
+    emoji: "🇦🇹",
+    scenarioId: "daily_conversation_vienna_v1",
+    title: "Daily Conversation – Vienna",
+    level: "A2",
+    levelColor: "bg-tertiary-container text-tertiary-on-container",
+    desc: "Navigate Viennese small talk: district life, local vocabulary (Bim, Grätzl, Beisl), and the dry wit of Wiener Schmäh.",
+    tag: "de-AT",
+  },
+  {
     emoji: "☕",
     scenarioId: "cafe_order_v1",
     title: "At a Café",
@@ -96,7 +105,7 @@ export default function SpeakingPage() {
           </div>
           <div className="flex gap-6 flex-shrink-0 sm:mt-1">
             <div className="text-right">
-              <p className="font-lexend font-bold text-2xl text-on-surface">9</p>
+              <p className="font-lexend font-bold text-2xl text-on-surface">10</p>
               <p className="font-manrope text-xs text-on-surface-variant">Fresh scenarios<br />matched to your level</p>
             </div>
             <div className="text-right">
@@ -137,7 +146,7 @@ export default function SpeakingPage() {
               <div className="w-3 h-3 rounded-full bg-yellow-300/70" />
               <div className="w-3 h-3 rounded-full bg-tertiary/50" />
             </div>
-            <span className="font-manrope text-xs text-on-surface-variant">9 scenarios available</span>
+            <span className="font-manrope text-xs text-on-surface-variant">10 scenarios available</span>
             <div className="w-14" />
           </div>
 
@@ -151,9 +160,16 @@ export default function SpeakingPage() {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <span className="text-3xl">{sc.emoji}</span>
-                    <span className={`text-[10px] font-manrope font-bold px-2 py-0.5 rounded-full ${sc.levelColor}`}>
-                      {sc.level}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {"tag" in sc && sc.tag && (
+                        <span className="text-[10px] font-manrope font-bold px-2 py-0.5 rounded-full bg-primary-container text-primary">
+                          {sc.tag}
+                        </span>
+                      )}
+                      <span className={`text-[10px] font-manrope font-bold px-2 py-0.5 rounded-full ${sc.levelColor}`}>
+                        {sc.level}
+                      </span>
+                    </div>
                   </div>
                   <h3 className="font-lexend font-semibold text-sm text-on-surface mb-1.5">{sc.title}</h3>
                   <p className="font-manrope text-xs text-on-surface-variant line-clamp-2 leading-relaxed mb-4">{sc.desc}</p>

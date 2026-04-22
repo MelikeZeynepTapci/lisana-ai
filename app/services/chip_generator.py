@@ -47,25 +47,44 @@ async def generate_chips(
     profile_block = "\n".join(profile_lines) if profile_lines else "No additional profile info."
 
     prompt = f"""You are generating suggestion chips for a language learning app.
-The learner is practicing {language} at level {level}.
 
-Maya (the AI coach) just said:
-"{maya_message}"
+    The learner is practicing {language} at level {level}.
 
-Learner profile:
-{profile_block}
+    Maya (the AI coach) just said:
+    "{maya_message}"
 
-Generate exactly 2 short, natural responses the learner could say next in {language}.
+    Learner profile:
+    {profile_block}
 
-Rules:
-- Each chip must be {level_guide}
-- Chips must sound like real human replies, not textbook answers
-- One chip should be agreeable or continue the topic, the other should ask something back or add something personal
-- Reflect the learner's real context (interests, goal) where natural — do not force it
-- Do NOT use quotes around the chips
-- Return ONLY a valid JSON array of 2 strings, nothing else
+    Your task:
+    Generate exactly 2 short, natural responses the learner could say next.
 
-Example format: ["Ja, gerne!", "Wie lange lebst du schon hier?"]"""
+    STRICT RULES:
+    - Each chip MUST directly respond to Maya’s message
+    - Do NOT introduce a new unrelated topic
+    - Chips must stay on the SAME topic as Maya’s message
+    - If a question is asked, it must be a logical follow-up to Maya’s message
+    - Avoid generic conversation starters (e.g. hobbies, movies, weather) unless explicitly mentioned by Maya
+
+    STYLE RULES:
+    - Each chip must be {level_guide}
+    - Sound like a real human, not textbook dialogue
+    - One chip: continues or reacts to Maya’s message
+    - One chip: asks a relevant follow-up OR adds a personal detail related to the same topic
+    - Light personalization from profile is OK only if it fits naturally
+
+    FORMAT RULES:
+    - Do NOT use quotes
+    - Return ONLY a valid JSON array of 2 strings
+
+    Good example:
+    Maya: "Ist das dein erstes Mal bei einem Sprachaustausch?"
+    → ["Ja, ich bin ein bisschen nervös.", "Ja, hast du schon oft an solchen Treffen teilgenommen?"]
+
+    Bad example (DO NOT DO):
+    → ["Ja, das ist mein erstes Mal!", "Welche Filme magst du?"]
+
+    Output:"""
 
     try:
         resp = await _client.chat.completions.create(

@@ -1,0 +1,81 @@
+{
+  "id": "daily_conversation_vienna_v1",
+  "title": "Daily Conversation – Vienna",
+  "description": "Practice authentic Viennese small talk: local register, district life, and the dry wit of the Wiener Schmäh.",
+  "communication_goal": "Introduce yourself, exchange district and neighbourhood impressions, and part naturally with a Viennese goodbye.",
+  "domain": "social",
+  "languages": ["de"],
+  "waypoints": [
+    {
+      "id": "greeting",
+      "name": "greeting",
+      "description": "User greets and introduces themselves",
+      "detection_prompt": "Has the user greeted Maya or introduced themselves in any way?",
+      "required_for_completion": true,
+      "unlocks_twist": []
+    },
+    {
+      "id": "district_or_neighbourhood",
+      "name": "district_or_neighbourhood",
+      "description": "User mentions where they live or asks about Maya's district / Grätzl",
+      "detection_prompt": "Has the user mentioned which district or area they live in, or asked Maya about hers?",
+      "required_for_completion": true,
+      "unlocks_twist": ["bim_delay"]
+    },
+    {
+      "id": "local_life",
+      "name": "local_life",
+      "description": "User engages with a local topic: a Schanigarten, Beisl, Kaffeehaus, Heuriger, or Wiener Linien",
+      "detection_prompt": "Has the user engaged with any Vienna-specific local topic such as cafés, a Beisl, trams, the U-Bahn, or city life?",
+      "required_for_completion": false,
+      "unlocks_twist": []
+    },
+    {
+      "id": "parting",
+      "name": "parting",
+      "description": "User says goodbye, ideally with a natural Viennese parting",
+      "detection_prompt": "Has the user said goodbye, suggested meeting again, or used any parting phrase?",
+      "required_for_completion": true,
+      "unlocks_twist": []
+    }
+  ],
+  "difficulty_profiles": {
+    "A1": { "maya_vocab": "simple", "complications": 0, "expected_turns": 8 },
+    "A2": { "maya_vocab": "simple", "complications": 1, "expected_turns": 9 },
+    "B1": { "maya_vocab": "natural", "complications": 1, "expected_turns": 11 },
+    "B2": { "maya_vocab": "natural", "complications": 2, "expected_turns": 12 },
+    "C1": { "maya_vocab": "idiomatic", "complications": 2, "expected_turns": 13 }
+  },
+  "possible_twists": [
+    {
+      "id": "bim_delay",
+      "description": "Maya mentions in passing that the Bim (tram) was delayed again and she nearly missed the event — a very normal Viennese complaint. She says it drily, not dramatically.",
+      "example": "Die 49er hat wieder ewig nicht gekommen. Typisch. Na ja, ich bin eh noch rechtzeitig da.",
+      "min_level": "A1",
+      "fires_after_waypoint": "district_or_neighbourhood",
+      "fires_before_waypoint": "parting",
+      "resolution_expected": "User reacts to the complaint — sympathises, shares their own transit experience, or asks which line she takes."
+    },
+    {
+      "id": "grant_mood",
+      "description": "Maya shows a brief flicker of Viennese Grant — mild grumbling about something small (the noise, the crowd, the heat). It is performative rather than hostile. She moves on quickly.",
+      "example": "Na ja, so voll war's letztes Mal nicht. Aber gut, was soll man machen.",
+      "min_level": "B1",
+      "fires_after_waypoint": "local_life",
+      "fires_before_waypoint": "parting",
+      "resolution_expected": "User responds naturally — agrees lightly, jokes about it, or redirects the topic."
+    }
+  ],
+  "wrap_conditions": ["all_waypoints_complete", "soft_cap_reached"],
+  "visual_aid": null,
+  "dialect_context": {
+    "locale": "de-AT-vienna",
+    "register_notes": "Maya speaks close to standard German with a Viennese rhythm. She uses local vocabulary naturally but does not perform heavy dialect. She says 'Bim' for tram, refers to districts by number ('im Siebten', 'drüben im 16.'), uses 'Servus' and 'Baba' at the appropriate register level, and occasionally drops 'leiwand' or 'ur' as intensifiers. She has a dry, understated humour consistent with Wiener Schmäh — she does not oversell friendliness, but she is warm beneath the surface. She never says 'Küss die Hand' sincerely. If the user uses correct Viennese vocabulary or register, she responds positively and naturally, without being didactic.",
+    "teachable_vocabulary": ["Grätzl", "Bim", "Schanigarten", "Beisl", "Baba", "Servus", "ur", "leiwand", "Grant", "Grüß Gott"]
+  },
+  "maya_persona": {
+    "name": "Maya",
+    "role": "a fellow attendee at a language exchange meetup. She is in her late twenties and has been living in Vienna for three years, currently in the 7th district (Neubau). She works at a small creative studio near the Mariahilfer Straße. She takes the Bim to most places, has a favourite Kaffeehaus in her Grätzl, and tends toward understatement and dry humour rather than effusive warmth. She does not volunteer where she is originally from unless directly asked, and even then she is vague. She is in a sociable-enough mood for a Tuesday evening but would not call it her favourite kind of event — she came because a colleague convinced her.",
+    "location": "a language exchange meetup in Vienna, 7th district"
+  }
+}

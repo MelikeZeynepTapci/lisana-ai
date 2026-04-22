@@ -67,6 +67,10 @@ def _build_system_prompt(
             twist_example=twist.get("example", ""),
         )
 
+    dialect = scenario.get("dialect_context")
+    if dialect and dialect.get("register_notes"):
+        prompt += f"\n\n[DIALECT/REGISTER: {dialect['register_notes']}]"
+
     return prompt
 
 
@@ -83,6 +87,11 @@ def _build_opening_prompt(scenario: dict, level: str, language: str, user_name: 
     )
     if user_name:
         prompt += f"\nThe user's name is {user_name}. Greet them by name in your opening line."
+
+    dialect = scenario.get("dialect_context")
+    if dialect and dialect.get("register_notes"):
+        prompt += f"\n\n[DIALECT/REGISTER: {dialect['register_notes']}]"
+
     return prompt
 
 
