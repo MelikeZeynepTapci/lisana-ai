@@ -17,7 +17,7 @@ async def analyze_corrections(text: str, language: str, level: str) -> list[dict
         return []
 
     prompt = f"""You are a {language} language tutor. The learner (level {level}) said the following.
-Identify any grammar, vocabulary, or conjugation errors. Do NOT flag pronunciation — only text-level mistakes.
+Identify ALL language errors except pronunciation. This includes: grammar, verb conjugation, word order, case endings, article gender, tense usage, wrong vocabulary, missing words, and any other non-pronunciation mistake.
 
 Learner said: "{text}"
 

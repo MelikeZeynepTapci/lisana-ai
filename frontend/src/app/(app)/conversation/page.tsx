@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { startSpeakingSession, sendSpeakingTurn, sendSpeakingTurnText } from "@/lib/api";
 import { FeedbackCard, FeedbackLoader, type Feedback, type TranscriptTurn } from "@/components/session/FeedbackCard";
-import { SuggestionChips } from "@/components/session/SuggestionChips";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -93,26 +92,12 @@ const MOCK_TRANSCRIPT: TranscriptTurn[] = [
 
 function MayaAvatar({ micState }: { micState: MicState }) {
   return (
-    <div className="relative flex items-center justify-center w-32 h-32">
+    <div className="relative flex items-center justify-center w-20 h-20">
       {micState === "playing" && (
         <span className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping" />
       )}
-      {micState === "recording" && (
-        <span className="absolute inset-0 rounded-full border-2 border-error/40 animate-ping" />
-      )}
-      <div className={`w-24 h-24 rounded-full overflow-hidden flex items-center justify-center transition-colors duration-300 ${
-        micState === "playing"    ? "bg-primary/15" :
-        micState === "recording"  ? "bg-error/10" :
-        micState === "processing" ? "bg-surface-highest" :
-        "bg-primary-container/40"
-      }`}>
-        {micState === "processing" ? (
-          <span className="material-symbols-outlined ms-filled text-[40px] text-on-surface-variant">
-            hourglass_top
-          </span>
-        ) : (
-          <img src="/maya_icon.svg" alt="Maya" className="w-full h-full object-cover" />
-        )}
+      <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center bg-primary-container/40">
+        <img src="/maya_icon.svg" alt="Maya" className="w-full h-full object-cover" />
       </div>
     </div>
   );
@@ -160,8 +145,9 @@ export default function ConversationPage() {
   const scheduledSourcesRef   = useRef<AudioBufferSourceNode[]>([]);
 
   // Typewriter
-  const typeQueueRef       = useRef<Array<{ char: string }>>([]);
+  const typeQueueRef       = useRef<string[]>([]);
   const typeIntervalRef    = useRef<ReturnType<typeof setInterval> | null>(null);
+  const typeDelayedRef     = useRef(false);
   const currentMayaTextRef = useRef("");
 
   const setMicStateSync = (s: MicState) => { micStateRef.current = s; setMicState(s); };
@@ -219,6 +205,7 @@ export default function ConversationPage() {
     abortRef.current?.abort();
     if (typeIntervalRef.current) { clearInterval(typeIntervalRef.current); typeIntervalRef.current = null; }
     typeQueueRef.current = [];
+    typeDelayedRef.current = false;
   }, []);
 
   // ── Typewriter ─────────────────────────────────────────────────────────────
@@ -226,19 +213,23 @@ export default function ConversationPage() {
   function startTypeInterval() {
     if (typeIntervalRef.current) return;
     typeIntervalRef.current = setInterval(() => {
-      const item = typeQueueRef.current.shift();
-      if (!item) { clearInterval(typeIntervalRef.current!); typeIntervalRef.current = null; return; }
-      currentMayaTextRef.current += item.char;
+      const char = typeQueueRef.current.shift();
+      if (char === undefined) { clearInterval(typeIntervalRef.current!); typeIntervalRef.current = null; return; }
+      currentMayaTextRef.current += char;
       setMayaText(currentMayaTextRef.current);
-    }, 18);
+    }, 36);
   }
 
   function enqueueText(text: string) {
-    for (const char of text) typeQueueRef.current.push({ char });
-    startTypeInterval();
+    for (const char of text) typeQueueRef.current.push(char);
+    if (!typeDelayedRef.current) {
+      typeDelayedRef.current = true;
+      setTimeout(startTypeInterval, 1500);
+    }
   }
 
   function resetMayaText() {
+    typeDelayedRef.current = false;
     currentMayaTextRef.current = "";
     typeQueueRef.current = [];
     if (typeIntervalRef.current) { clearInterval(typeIntervalRef.current); typeIntervalRef.current = null; }
@@ -476,16 +467,33 @@ export default function ConversationPage() {
       if (idx === -1) continue;
       if (idx > 0) parts.push(<span key={offset}>{remaining.slice(0, idx)}</span>);
       parts.push(
-        <span key={offset + idx} className="relative group">
-          <mark className="bg-error/20 text-error rounded px-0.5 not-italic">{remaining.slice(idx, idx + c.wrong.length)}</mark>
-          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-10 pointer-events-none">
+        <span key={offset + idx} className="relative group cursor-help inline">
+          <span className="bg-error-container text-error px-2 py-0.5 rounded-md font-medium border border-error/30">{remaining.slice(idx, idx + c.wrong.length)}</span>
+          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
             <span className="block bg-on-surface text-surface text-[11px] font-manrope rounded-lg px-2.5 py-1.5 whitespace-nowrap max-w-[220px] text-center shadow-lg">
-              <span className="text-primary-container font-semibold">{c.correct}</span>
+              <span className="text-tertiary font-semibold block">{c.correct}</span>
               {c.note && <span className="block text-surface/60 mt-0.5">{c.note}</span>}
             </span>
           </span>
         </span>
       );
+      remaining = remaining.slice(idx + c.wrong.length);
+      offset += idx + c.wrong.length;
+    }
+    if (remaining) parts.push(<span key="tail">{remaining}</span>);
+    return <>{parts}</>;
+  }
+
+  function renderCorrectedText(text: string, corrections: Correction[]): React.ReactNode {
+    if (!corrections.length) return <span>{text}</span>;
+    const parts: React.ReactNode[] = [];
+    let remaining = text;
+    let offset = 0;
+    for (const c of corrections) {
+      const idx = remaining.toLowerCase().indexOf(c.wrong.toLowerCase());
+      if (idx === -1) continue;
+      if (idx > 0) parts.push(<span key={offset}>{remaining.slice(0, idx)}</span>);
+      parts.push(<strong key={offset + idx} className="text-tertiary font-semibold">{c.correct}</strong>);
       remaining = remaining.slice(idx + c.wrong.length);
       offset += idx + c.wrong.length;
     }
@@ -567,98 +575,153 @@ export default function ConversationPage() {
   // ── Active session ─────────────────────────────────────────────────────────
 
   return (
-    <div className="page-transition flex flex-col items-center bg-background" style={{ height: "100vh" }}>
-      {/* Header */}
-      <div className="w-full flex items-center justify-between px-6 py-4 border-b border-outline-variant/20">
-        <div>
-          <h2 className="font-lexend font-bold text-base text-on-surface">
+    <div className="page-transition flex flex-col bg-background h-screen overflow-hidden">
+
+      {/* Header – small floating box, top-right */}
+      <div className="flex-shrink-0 flex justify-end px-3 pt-3 pb-0">
+        <div className="flex items-center gap-2 bg-surface-lowest/90 backdrop-blur-sm border border-outline-variant/20 rounded-xl px-2.5 py-1.5 shadow-sm">
+          <button
+            onClick={() => router.push("/speaking")}
+            className="w-5 h-5 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors flex-shrink-0"
+          >
+            <span className="material-symbols-outlined text-[13px]">close</span>
+          </button>
+          <span className="font-lexend font-semibold text-[11px] text-on-surface max-w-[130px] truncate">
             {sessionInfo?.scenarioTitle ?? scenarioTitle}
-          </h2>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="font-manrope font-bold text-xs bg-tertiary-container text-tertiary px-2 py-0.5 rounded-full">
-              {sessionInfo?.level ?? "A1"}
-            </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-tertiary" />
-            <span className="font-manrope text-xs text-on-surface-variant">{language}</span>
-          </div>
-        </div>
-        {pageState === "core" && (
-          <div className="text-right">
-            <p className="font-lexend font-bold text-lg text-on-surface">
-              {turnCount} <span className="text-on-surface-variant text-sm font-manrope">/ {softCap}</span>
-            </p>
-            <p className="font-manrope text-[10px] text-on-surface-variant uppercase tracking-wider">turns</p>
-          </div>
-        )}
-      </div>
-
-      {/* Maya area */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-6 px-6 text-center">
-        <MayaAvatar micState={micState} />
-        {mayaText && (
-          <p className="font-manrope text-sm text-on-surface max-w-sm leading-relaxed">{mayaText}</p>
-        )}
-        <p className="font-manrope text-xs text-on-surface-variant">
-          {micState === "recording"  && "Listening..."}
-          {micState === "processing" && (pageState === "entry" ? "Starting session..." : "Processing...")}
-          {micState === "playing"    && `${sessionInfo?.personaName ?? "Maya"} is speaking`}
-        </p>
-        {userText && (
-          <p className="font-manrope text-sm text-on-surface-variant max-w-sm text-center leading-relaxed">
-            {renderUserText(userText, userCorrections)}
-          </p>
-        )}
-      </div>
-
-      {error && (
-        <div className="mx-6 mb-3 px-4 py-3 bg-error-container rounded-2xl text-error text-sm text-center font-manrope">
-          {error}
-        </div>
-      )}
-
-      {/* Suggestion chips — fixed height so layout doesn't shift */}
-      {pageState === "core" && (
-        <div className="pb-3 min-h-[80px] flex items-end justify-center">
-          {(micState === "idle" || micState === "recording") && (
-            <SuggestionChips
-              chips={chips}
-              visible={chipsVisible}
-              onSelect={handleChipSelect}
-            />
-          )}
-        </div>
-      )}
-
-      {/* Mic */}
-      <div className="pb-10 pt-3 flex flex-col items-center gap-3 border-t border-outline-variant/10 w-full">
-        <button
-          onClick={handleMicClick}
-          disabled={micState === "processing" || pageState === "entry"}
-          className={`relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none ${
-            micState === "idle"       ? "bg-primary hover:bg-primary/90 shadow-ambient" :
-            micState === "recording"  ? "bg-error shadow-ambient scale-110" :
-            micState === "processing" ? "bg-surface-highest cursor-not-allowed" :
-            "bg-tertiary shadow-ambient"
-          }`}
-        >
-          {micState === "idle"      && <span className="material-symbols-outlined ms-filled text-[32px] text-white">mic</span>}
-          {micState === "recording" && (
+          </span>
+          <span className="bg-tertiary-container text-tertiary text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider font-manrope flex-shrink-0">
+            {sessionInfo?.level ?? "A1"}
+          </span>
+          {pageState === "core" && (
             <>
-              <span className="material-symbols-outlined ms-filled text-[32px] text-white">mic</span>
-              <span className="absolute -inset-2 rounded-full border-2 border-error/40 animate-ping" />
+              <span className="font-manrope text-[11px] text-on-surface-variant flex-shrink-0">{turnCount}/{softCap}</span>
+              <div className="w-12 h-1 bg-surface-highest rounded-full overflow-hidden flex-shrink-0">
+                <div
+                  className="h-full bg-primary rounded-full transition-all duration-500"
+                  style={{ width: `${softCap > 0 ? Math.min(100, (turnCount / softCap) * 100) : 0}%` }}
+                />
+              </div>
             </>
           )}
-          {micState === "processing" && (
-            <div className="w-7 h-7 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-          )}
-          {micState === "playing" && <span className="material-symbols-outlined ms-filled text-[32px] text-white">stop</span>}
-        </button>
-        <p className="font-manrope text-xs text-on-surface-variant">
-          {micState === "recording" && "Release to send"}
-          {micState === "playing"   && "Tap to stop"}
-          {micState === "idle" && pageState === "core" && "Hold SPACE or tap mic"}
-        </p>
+        </div>
       </div>
+
+      {/* Maya avatar + name pill — fixed top */}
+      <div className="flex-shrink-0 flex flex-col items-center pt-0 pb-1">
+        <MayaAvatar micState={micState} />
+        <div className="bg-surface-lowest border border-outline-variant/20 px-4 py-1.5 rounded-full text-sm font-manrope font-medium text-on-surface-variant shadow-sm -mt-3 relative z-10 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-tertiary flex-shrink-0" />
+          {sessionInfo?.personaName ?? "Maya"}
+        </div>
+      </div>
+
+      {/* Maya text */}
+      <div className="flex-1 overflow-y-auto flex flex-col items-center px-4 pt-3">
+        {mayaText && (
+          <p className="font-manrope text-[26px] font-medium text-on-surface leading-tight tracking-tight text-center max-w-3xl">
+            {mayaText}
+          </p>
+        )}
+        {error && (
+          <div className="mt-3 px-4 py-3 bg-error-container rounded-2xl text-error text-sm text-center font-manrope w-full max-w-2xl">
+            {error}
+          </div>
+        )}
+      </div>
+
+      {/* Fixed bottom panel: feedback card + chips + mic */}
+      <div className="flex-shrink-0 flex flex-col items-center gap-2 px-4 pb-5 pt-2 w-full max-w-2xl mx-auto">
+
+        {/* Feedback card */}
+        <div className="w-full min-h-[72px]">
+          {userText && (
+            <div className={`bg-surface-lowest rounded-2xl p-4 shadow-sm relative animate-[fadeIn_0.4s_ease-out] ${
+              userCorrections.length > 0 ? "border-2 border-error/20" : "border border-outline-variant/20"
+            }`}>
+              <div className="text-[10px] font-semibold text-on-surface-variant mb-1.5 uppercase tracking-wider font-manrope flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[13px]">history</span>
+                You said:
+              </div>
+              <div className="font-manrope text-sm text-on-surface leading-relaxed mb-2">
+                {renderUserText(userText, userCorrections)}
+              </div>
+              {userCorrections.length > 0 && (
+                <div className="bg-surface-lowest rounded-xl p-3 border border-outline-variant/30 shadow-sm animate-[fadeIn_0.4s_ease-out]">
+                  <div className="text-xs font-medium text-on-surface mb-1.5 font-manrope flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[13px] text-tertiary">check_circle</span>
+                    How to say it better:
+                  </div>
+                  <p className="font-manrope text-sm text-on-surface leading-relaxed">
+                    {renderCorrectedText(userText, userCorrections)}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Suggestion chips */}
+        {pageState === "core" && chips.length > 0 && (micState === "idle" || micState === "recording") && (
+          <div className={`w-full transition-all duration-500 ${chipsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3 pointer-events-none"}`}>
+            <div className="text-[10px] font-semibold text-on-surface-variant uppercase tracking-widest mb-2 text-center font-manrope">
+              Ideas to respond
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {chips.map((chip, i) => (
+                <button
+                  key={i}
+                  className="bg-surface-lowest text-on-surface border border-outline-variant/40 px-4 py-2 rounded-xl text-sm font-manrope font-medium shadow-sm hover:border-primary/40 hover:bg-primary/5 transition-all flex items-center gap-1.5 group text-left whitespace-normal"
+                >
+                  <span className="w-5 h-5 rounded-full bg-surface-highest flex items-center justify-center text-on-surface-variant group-hover:bg-primary/20 group-hover:text-primary transition-colors flex-shrink-0">
+                    <span className="material-symbols-outlined text-[11px]">lightbulb</span>
+                  </span>
+                  {chip}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Mic */}
+        <div className="flex flex-col items-center gap-2 pt-1">
+          <button
+            onClick={handleMicClick}
+            disabled={micState === "processing" || pageState === "entry"}
+            className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none ring-4 ${
+              micState === "idle"       ? "bg-primary hover:bg-primary/90 shadow-[0_8px_30px_rgba(0,0,0,0.15)] ring-primary/10" :
+              micState === "recording"  ? "bg-error scale-110 ring-error/10" :
+              micState === "processing" ? "bg-surface-highest cursor-not-allowed ring-outline-variant/10" :
+              "bg-tertiary ring-tertiary/10"
+            }`}
+          >
+            {micState === "idle"      && <span className="material-symbols-outlined ms-filled text-[24px] text-white">mic</span>}
+            {micState === "recording" && (
+              <>
+                <span className="material-symbols-outlined ms-filled text-[24px] text-white">mic</span>
+                <span className="absolute -inset-2 rounded-full border-2 border-error/40 animate-ping" />
+              </>
+            )}
+            {micState === "processing" && (
+              <div className="w-5 h-5 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+            )}
+            {micState === "playing" && <span className="material-symbols-outlined ms-filled text-[24px] text-white">stop</span>}
+          </button>
+          <div className="flex items-center gap-3">
+            <button className="font-manrope text-sm text-on-surface-variant font-medium hover:text-on-surface transition-colors flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[15px]">keyboard</span>
+              Type instead
+            </button>
+            <span className="w-1 h-1 rounded-full bg-outline-variant" />
+            <span className="font-manrope text-sm text-on-surface-variant">
+              {micState === "recording" ? "Release to send" :
+               micState === "playing"   ? "Tap to stop" :
+               "Hold SPACE or tap mic"}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   );
 }
