@@ -22,6 +22,13 @@ const LEVELS = [
   { code: "B2", label: "Good but rusty", desc: "I understand well but struggle to speak" },
 ];
 
+const REASONS = [
+  { code: "living_abroad", label: "Living in the country", emoji: "🏙" },
+  { code: "work", label: "Work", emoji: "💼" },
+  { code: "travel", label: "Travel", emoji: "✈️" },
+  { code: "personal", label: "Personal interest", emoji: "❤️" },
+];
+
 const GOALS = [
   { value: 10, label: "10 min", desc: "A quick daily coffee break" },
   { value: 20, label: "20 min", desc: "Most popular choice", recommended: true },
@@ -412,13 +419,20 @@ export default function OnboardingPage() {
                   </button>
                 ))}
               </div>
+              {/* Free-text input with datalist autocomplete */}
               <input
                 type="text"
+                list="city-suggestions"
                 value={data.city}
                 onChange={(e) => setData((d) => ({ ...d, city: e.target.value }))}
                 placeholder="Or type any city or country..."
                 className="w-full bg-surface-low border border-outline-variant/40 rounded-2xl px-4 py-3 font-manrope text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary/60 transition-colors"
               />
+              <datalist id="city-suggestions">
+                {["Vienna", "Berlin", "Hamburg", "Munich", "Frankfurt", "Cologne", "Amsterdam", "Rotterdam", "Barcelona", "Madrid", "Paris", "Zurich", "Geneva", "London", "Rome", "Milan", "Lisbon", "Brussels", "Prague", "Warsaw"].map((c) => (
+                  <option key={c} value={c} />
+                ))}
+              </datalist>
             </div>
             <div className="mb-4">
               <label className="font-manrope font-semibold text-sm text-on-surface mb-0.5 block">
@@ -426,13 +440,13 @@ export default function OnboardingPage() {
                 <span className="font-normal text-xs text-on-surface-variant/60 ml-1.5">(optional)</span>
               </label>
               <p className="font-manrope text-xs text-on-surface-variant mb-2">Your job, interests, goals, or anything that helps Maya tailor conversations to you.</p>
-              <textarea
-                value={data.intro_sentence}
-                onChange={(e) => setData((d) => ({ ...d, intro_sentence: e.target.value }))}
+            <textarea
+              value={data.intro_sentence}
+              onChange={(e) => setData((d) => ({ ...d, intro_sentence: e.target.value }))}
                 placeholder="e.g. I'm a software engineer moving to Vienna for work, and I love hiking and coffee shops."
-                rows={3}
+              rows={3}
                 className="w-full bg-surface-low border border-outline-variant/40 rounded-2xl px-4 py-3 font-manrope text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary/60 resize-none transition-colors"
-              />
+            />
             </div>
             <div className="flex gap-3">
               <button

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import { createClient } from "@/lib/supabase";
+import { getDailyNews, type DailyNewsData } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -12,12 +13,6 @@ const quickStart = [
   { href: "/listening",  icon: "headphones",         iconBg: "bg-primary-container",    iconColor: "text-primary",   title: "Listening",  desc: "Audio practice" },
   { href: "/vocabulary", icon: "menu_book",           iconBg: "bg-secondary-container",  iconColor: "text-secondary", title: "Vocabulary", desc: "24 words due" },
   { href: "/grammar",    icon: "auto_stories",        iconBg: "bg-surface-highest",      iconColor: "text-on-surface",title: "Grammar",    desc: "Focus on Daily" },
-];
-
-const quizOptions = [
-  "Schneller und umweltfreundlicher zu sein",
-  "Die Ticketpreise deutlich zu senken",
-  "Mehr Zugpersonal einzustellen",
 ];
 
 const leaderboard = [
@@ -30,9 +25,13 @@ const leaderboard = [
 const rankColors = ["text-yellow-500", "text-slate-400", "text-amber-600"];
 
 export default function DashboardPage() {
-  const [selectedOption, setSelectedOption] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [answerChecked, setAnswerChecked] = useState(false);
+  const [currentQuizIdx, setCurrentQuizIdx] = useState(0);
   const [wordFlipped, setWordFlipped] = useState(false);
   const [displayName, setDisplayName] = useState<string>("");
+  const [news, setNews] = useState<DailyNewsData | null>(null);
+  const [newsLoading, setNewsLoading] = useState(true);
 
   useEffect(() => {
     const supabase = createClient();
@@ -53,6 +52,28 @@ export default function DashboardPage() {
       setDisplayName(email.split("@")[0]);
     });
   }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    getDailyNews(controller.signal)
+      .then((data) => { setNews(data); setNewsLoading(false); })
+      .catch((err) => { if (err?.name !== "AbortError") setNewsLoading(false); });
+    return () => controller.abort();
+  }, []);
+
+  const currentQuestion = news?.quiz_questions[currentQuizIdx] ?? null;
+
+  function handleCheckAnswer() {
+    if (selectedOption === null) return;
+    setAnswerChecked(true);
+  }
+
+  function handleNextQuestion() {
+    if (!news) return;
+    setCurrentQuizIdx((i) => Math.min(i + 1, news.quiz_questions.length - 1));
+    setSelectedOption(null);
+    setAnswerChecked(false);
+  }
 
   return (
     <>
@@ -99,51 +120,120 @@ export default function DashboardPage() {
                 <span className="material-symbols-outlined ms-filled text-[20px] text-primary">newspaper</span>
                 <h3 className="font-lexend font-semibold text-base text-on-surface">Daily News</h3>
               </div>
-              <span className="font-manrope font-bold text-xs bg-primary-container text-primary px-3 py-1 rounded-full">B2 Level</span>
+              {news && (
+                <span className="font-manrope font-bold text-xs bg-primary-container text-primary px-3 py-1 rounded-full">
+                  {news.level} Level
+                </span>
+              )}
             </div>
 
-            <h4 className="font-lora font-bold text-lg text-on-surface mb-2 leading-snug">
-              Die Deutsche Bahn plant neue Hochgeschwindigkeitszüge
-            </h4>
-            <p className="font-manrope text-sm text-on-surface-variant leading-relaxed mb-5">
-              Die Deutsche Bahn hat angekündigt, bis 2030 eine neue Flotte von Hochgeschwindigkeitszügen einzuführen. Diese Züge sollen nicht nur deutlich schneller, sondern auch weitaus umweltfreundlicher betrieben werden, um die Klimaziele zu unterstützen.
-            </p>
-
-            <div className="border-t border-outline-variant/50 pt-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-manrope font-semibold text-xs text-primary uppercase tracking-wide">Question 1 of 3</span>
-                <span className="font-manrope font-bold text-xs bg-tertiary text-white px-2.5 py-1 rounded-full">+15 XP</span>
+            {newsLoading ? (
+              <div className="space-y-3">
+                {/* Title skeleton */}
+                <div className="h-5 rounded-lg w-3/4 bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite]" />
+                {/* Body skeletons */}
+                <div className="space-y-2 mt-1">
+                  <div className="h-3 rounded w-full bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.1s]" />
+                  <div className="h-3 rounded w-[95%] bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.2s]" />
+                  <div className="h-3 rounded w-5/6 bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.3s]" />
+                  <div className="h-3 rounded w-4/6 bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.4s]" />
+                </div>
+                {/* Quiz skeleton */}
+                <div className="border-t border-outline-variant/30 pt-3 mt-2 space-y-2">
+                  <div className="h-3 rounded w-1/3 bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.5s]" />
+                  <div className="h-3 rounded w-2/3 bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.6s]" />
+                  <div className="h-8 rounded-xl w-full bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.7s]" />
+                  <div className="h-8 rounded-xl w-full bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.8s]" />
+                  <div className="h-8 rounded-xl w-full bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.9s]" />
+                </div>
               </div>
-              <p className="font-manrope font-semibold text-sm text-on-surface mb-3">
-                Was ist das Hauptziel der neuen Zugflotte?
-              </p>
-              <div className="space-y-2 mb-4">
-                {quizOptions.map((opt, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedOption(i)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl border text-sm text-left transition-all duration-200 font-manrope ${
-                      selectedOption === i
-                        ? "border-primary bg-primary-container text-primary font-semibold"
-                        : "border-outline-variant/70 text-on-surface hover:border-primary/40 hover:bg-primary-container/20"
-                    }`}
-                    style={selectedOption !== i ? { background: "var(--yellow-pale)" } : undefined}
-                  >
-                    <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
-                      selectedOption === i ? "border-primary bg-primary" : "border-outline-variant"
-                    }`}>
-                      {selectedOption === i && <div className="w-2 h-2 rounded-full bg-white" />}
+            ) : news ? (
+              <>
+                <h4 className="font-lora font-bold text-lg text-on-surface mb-2 leading-snug">
+                  {news.title}
+                </h4>
+                <p className="font-manrope text-sm text-on-surface-variant leading-relaxed mb-5">
+                  {news.body}
+                </p>
+
+                {currentQuestion && (
+                  <div className="border-t border-outline-variant/50 pt-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-manrope font-semibold text-[10px] text-primary uppercase tracking-wide">
+                        Question {currentQuizIdx + 1} of {news.quiz_questions.length}
+                      </span>
+                      <span className="font-manrope font-bold text-[10px] bg-tertiary text-white px-2 py-0.5 rounded-full">+15 XP</span>
                     </div>
-                    {opt}
-                  </button>
-                ))}
-              </div>
-              <div className="flex justify-center">
-                <button className="text-white font-manrope font-bold text-sm px-10 py-3 rounded-full transition-opacity hover:opacity-90" style={{ background: "linear-gradient(135deg, #A07DD6 0%, #7C5CBF 100%)", boxShadow: "0 4px 14px rgba(124,92,191,0.30)" }}>
-                  Check Answer
-                </button>
-              </div>
-            </div>
+                    <p className="font-manrope font-semibold text-xs text-on-surface mb-2">
+                      {currentQuestion.question}
+                    </p>
+                    <div className="space-y-1.5 mb-3">
+                      {currentQuestion.options.map((opt, i) => {
+                        const letter = ["A", "B", "C"][i];
+                        const isSelected = selectedOption === i;
+                        const isCorrect = letter === currentQuestion.correct;
+                        let style = "border-outline-variant/70 text-on-surface hover:border-primary/40 hover:bg-primary-container/20";
+                        if (answerChecked) {
+                          if (isCorrect) style = "border-tertiary bg-tertiary-container text-tertiary font-semibold";
+                          else if (isSelected) style = "border-error bg-error-container text-error font-semibold";
+                        } else if (isSelected) {
+                          style = "border-primary bg-primary-container text-primary font-semibold";
+                        }
+                        const reason = answerChecked ? currentQuestion.reasoning?.[i] : null;
+                        return (
+                          <div key={i}>
+                            <button
+                              onClick={() => !answerChecked && setSelectedOption(i)}
+                              disabled={answerChecked}
+                              className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl border text-xs text-left transition-all duration-200 font-manrope ${style}`}
+                              style={!isSelected && !answerChecked ? { background: "var(--yellow-pale)" } : undefined}
+                            >
+                              <div className={`w-3 h-3 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
+                                isSelected ? "border-current bg-current" : "border-outline-variant"
+                              }`}>
+                                {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                              </div>
+                              {opt}
+                            </button>
+                            {reason && (
+                              <p className={`font-manrope text-[10px] leading-snug px-3 pt-1 pb-0.5 animate-[fadeIn_0.3s_ease-out] ${
+                                isCorrect ? "text-tertiary" : isSelected ? "text-error" : "text-on-surface-variant/70"
+                              }`}>
+                                {reason}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="flex justify-center">
+                      {!answerChecked ? (
+                        <button
+                          onClick={handleCheckAnswer}
+                          disabled={selectedOption === null}
+                          className="text-white font-manrope font-bold text-xs px-8 py-2 rounded-full transition-opacity hover:opacity-90 disabled:opacity-40"
+                          style={{ background: "linear-gradient(135deg, #A07DD6 0%, #7C5CBF 100%)", boxShadow: "0 4px 14px rgba(124,92,191,0.30)" }}
+                        >
+                          Check Answer
+                        </button>
+                      ) : currentQuizIdx < news.quiz_questions.length - 1 ? (
+                        <button
+                          onClick={handleNextQuestion}
+                          className="text-white font-manrope font-bold text-xs px-8 py-2 rounded-full transition-opacity hover:opacity-90"
+                          style={{ background: "linear-gradient(135deg, #A07DD6 0%, #7C5CBF 100%)", boxShadow: "0 4px 14px rgba(124,92,191,0.30)" }}
+                        >
+                          Next Question →
+                        </button>
+                      ) : (
+                        <span className="font-manrope font-bold text-xs text-tertiary">Quiz complete! 🎉</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="font-manrope text-sm text-on-surface-variant">Could not load today&apos;s news.</p>
+            )}
           </div>
 
           {/* Progress Snapshot */}

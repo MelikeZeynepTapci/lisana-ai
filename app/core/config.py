@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     ELEVENLABS_API_KEY: Optional[str] = None
     ELEVENLABS_VOICE_ID: str = "zKHQdbB8oaQ7roNTiDTK"  # Laura
 
+    # News API
+    NEWS_API_KEY: Optional[str] = None
+
     # Audio storage (local for dev, can be S3/etc for prod)
     AUDIO_DIR: str = "audio_files"
 

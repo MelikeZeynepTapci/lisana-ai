@@ -92,38 +92,41 @@ async def stream_tutor_response(
 async def generate_welcome_message(
     language: str,
     level: str,
-    reason: str,
+    focus: str,
     interests: list[str],
     intro_sentence: str,
 ) -> str:
     """Generate personalized Maya welcome message for onboarding step 7."""
-    reason_map = {
-        "living_abroad": "yaşadığı ülkede günlük hayat için",
-        "work": "iş hayatında kullanmak için",
-        "travel": "seyahat için",
-        "exam": "sınav (IELTS/TestDAF/DELE) için",
-        "personal": "kişisel ilgi nedeniyle",
+    focus_map = {
+        "local_life": "living like a local — daily life, bureaucracy, real-world situations",
+        "relocate":   "preparing to move — settling in, housing, first weeks, culture",
+        "work":       "working confidently — meetings, emails, professional communication",
+        "travel":     "travelling with ease — ordering, directions, casual interactions",
+        "connect":    "connecting with people — friends, dating, natural conversations",
+        "culture":    "understanding the language and culture — how people really speak and live",
+        "exam":       "preparing for an exam (IELTS/TestDAF/DELE/Goethe)",
     }
-    reason_text = reason_map.get(reason, reason)
-    interests_text = ", ".join(interests[:3]) if interests else "genel konular"
-    intro_text = f'Kullanıcı kendini şöyle tanıttı: "{intro_sentence}"' if intro_sentence else ""
+    focus_text = focus_map.get(focus, focus) if focus else None
+    interests_text = ", ".join(interests[:3]) if interests else "general topics"
+    intro_text = f'The user introduced themselves: "{intro_sentence}"' if intro_sentence else ""
+    focus_line = f"- Main goal: {focus_text}" if focus_text else ""
 
-    prompt = f"""Sen Maya'sın — sıcak, doğal konuşan bir dil öğretmenisin.
-Kullanıcı şimdi sana katıldı. Kişiselleştirilmiş bir karşılama mesajı yaz.
+    prompt = f"""You are Maya — a warm, natural-sounding language tutor.
+A new user just joined. Write a short personalized welcome message in English.
 
-Bilgiler:
-- Öğrenilen dil: {language}
-- Seviye: {level}
-- Neden öğreniyor: {reason_text}
-- İlgi alanları: {interests_text}
+Details:
+- Learning: {language}
+- Level: {level}
+{focus_line}
+- Interests: {interests_text}
 {intro_text}
 
-Kurallar:
-- 2-3 cümle, max 60 kelime
-- Türkçe yaz ama gerçek veriyi doğal şekilde referans al
-- Son cümle {language} dilinde bir soru olsun, hemen altında parantez içinde Türkçe çevirisiyle
-- "Yapay zeka", "yardımcı olmak için buradayım" gibi ifadeler kullanma
-- İnsan gibi, sıcak konuş"""
+Rules:
+- 2–3 sentences, max 60 words
+- Write in English, naturally referencing their details (especially their main goal if set)
+- Do NOT end with a question
+- No "AI", "I'm here to help" phrases
+- Warm and human"""
 
     response = await client.chat.completions.create(
         model="gpt-4o-mini",

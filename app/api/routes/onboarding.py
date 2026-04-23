@@ -15,16 +15,17 @@ router = APIRouter(prefix="/api/onboarding", tags=["onboarding"])
 class OnboardingData(BaseModel):
     language: str
     level: str
-    reason: str
+    focus: str = ""
     daily_goal_minutes: int
     interests: list[str]
     intro_sentence: str = ""
+    city: str = ""
 
 
 class WelcomeRequest(BaseModel):
     language: str
     level: str
-    reason: str
+    focus: str = ""
     interests: list[str]
     intro_sentence: str = ""
 
@@ -43,13 +44,13 @@ async def get_welcome_message(
         message = await generate_welcome_message(
             language=body.language,
             level=body.level,
-            reason=body.reason,
+            focus=body.focus,
             interests=body.interests,
             intro_sentence=body.intro_sentence,
         )
     except Exception:
         # Fallback message if API fails
-        message = f"Harika, {body.language} öğrenmeye başlıyoruz! Seviyeni ve hedeflerini gördüm — birlikte iyi bir ilerleme kaydederiz.\n\nHazır mısın?"
+        message = f"Great, let's start learning {body.language}! I've seen your level and goals — we'll make great progress together.\n\nReady to begin?"
     return WelcomeResponse(message=message)
 
 
@@ -63,10 +64,11 @@ async def complete_onboarding(
     onboarding_data = {
         "language": body.language,
         "level": body.level,
-        "reason": body.reason,
+        "focus": body.focus,
         "daily_goal_minutes": body.daily_goal_minutes,
         "interests": body.interests,
         "intro_sentence": body.intro_sentence,
+        "city": body.city,
         "completed_at": datetime.now(timezone.utc).isoformat(),
     }
 

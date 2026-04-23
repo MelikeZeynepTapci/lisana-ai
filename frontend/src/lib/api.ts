@@ -88,6 +88,31 @@ export interface StreamEvent {
   data: Record<string, unknown>;
 }
 
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  correct: string;
+  reasoning: string[];
+}
+
+export interface DailyNewsData {
+  title: string;
+  body: string;
+  language: string;
+  level: string;
+  quiz_questions: QuizQuestion[];
+  for_date: string;
+}
+
+export async function getDailyNews(signal?: AbortSignal): Promise<DailyNewsData> {
+  const auth = await getAuthHeader();
+  const force = process.env.NODE_ENV === "development";
+  const url = `${API_URL}/api/news/daily${force ? "?force=true" : ""}`;
+  const res = await fetch(url, { headers: auth, signal });
+  if (!res.ok) throw new Error("Failed to fetch daily news");
+  return res.json();
+}
+
 async function* _parseSSEStream(res: Response): AsyncGenerator<StreamEvent> {
   const reader = res.body!.getReader();
   const decoder = new TextDecoder();

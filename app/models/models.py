@@ -268,7 +268,8 @@ class DailyWord(Base):
 
 class DailyNews(Base):
     """
-    AI-generated news article per language per level per day.
+    AI-generated news article per language per level per city per day.
+    city="" means no location context (global news).
     quiz_questions stored as JSONB array of 3 questions.
     """
     __tablename__ = "daily_news"
@@ -276,16 +277,13 @@ class DailyNews(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     language = Column(String, nullable=False)
     level = Column(String, nullable=False)
+    city = Column(String, nullable=False, server_default="")
     content = Column(Text, nullable=False)
     quiz_questions = Column(JSONB, default=[])
-    # [
-    #   {"question": "...", "options": ["A","B","C","D"], "correct": "B"},
-    #   ...
-    # ]
     for_date = Column(Date, nullable=False)
 
     __table_args__ = (
-        UniqueConstraint("language", "level", "for_date", name="uq_daily_news"),
+        UniqueConstraint("language", "level", "city", "for_date", name="uq_daily_news"),
     )
 
 
