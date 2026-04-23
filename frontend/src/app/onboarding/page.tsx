@@ -22,13 +22,6 @@ const LEVELS = [
   { code: "B2", label: "Good but rusty", desc: "I understand well but struggle to speak" },
 ];
 
-const REASONS = [
-  { code: "living_abroad", label: "Living in the country", emoji: "🏙" },
-  { code: "work", label: "Work", emoji: "💼" },
-  { code: "travel", label: "Travel", emoji: "✈️" },
-  { code: "personal", label: "Personal interest", emoji: "❤️" },
-];
-
 const GOALS = [
   { value: 10, label: "10 min", desc: "A quick daily coffee break" },
   { value: 20, label: "20 min", desc: "Most popular choice", recommended: true },
@@ -55,10 +48,11 @@ const INTERESTS = [
 interface OnboardingData {
   language: string;
   level: string;
-  reason: string;
+  focus: string;
   daily_goal_minutes: number;
   interests: string[];
   intro_sentence: string;
+  city: string;
 }
 
 // ─── Typewriter ──────────────────────────────────────────
@@ -91,10 +85,11 @@ export default function OnboardingPage() {
   const [data, setData] = useState<OnboardingData>({
     language: "",
     level: "",
-    reason: "",
+    focus: "",
     daily_goal_minutes: 0,
     interests: [],
     intro_sentence: "",
+    city: "",
   });
   const [welcomeMsg, setWelcomeMsg] = useState("");
   const [welcomeLoading, setWelcomeLoading] = useState(false);
@@ -139,7 +134,7 @@ export default function OnboardingPage() {
           body: JSON.stringify({
             language: data.language,
             level: data.level,
-            reason: data.reason,
+            focus: data.focus,
             interests: data.interests,
             intro_sentence: data.intro_sentence,
           }),
@@ -269,24 +264,35 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* ── Step 3: Reason ── */}
+        {/* ── Step 3: Focus ── */}
         {step === 3 && (
           <div className="w-full max-w-md">
-            <h1 className="font-lexend font-bold text-3xl text-on-surface mb-2 text-center">Why are you learning?</h1>
-            <p className="font-manrope text-sm text-on-surface-variant text-center mb-8">Maya adjusts her tone based on your goal</p>
+            <h1 className="font-lexend font-bold text-3xl text-on-surface mb-2 text-center">What should Maya help you with most?</h1>
+            <p className="font-manrope text-sm text-on-surface-variant text-center mb-6">This shapes every conversation and exercise</p>
             <div className="grid grid-cols-1 gap-3">
-              {REASONS.map((r) => (
+              {[
+                { code: "local_life",  emoji: "🏙", label: "Live like a local",          desc: "Daily life, bureaucracy, real-world situations" },
+                { code: "relocate",    emoji: "🧳", label: "Prepare to move there",      desc: "Settling in, housing, first weeks, culture" },
+                { code: "work",        emoji: "💼", label: "Work confidently",            desc: "Meetings, emails, professional talk" },
+                { code: "travel",      emoji: "✈️", label: "Travel with ease",            desc: "Ordering, directions, casual interactions" },
+                { code: "connect",     emoji: "❤️", label: "Connect with people",         desc: "Friends, dating, natural conversations" },
+                { code: "culture",     emoji: "🌍", label: "Learn the language & culture", desc: "How people really speak and live" },
+                { code: "exam",        emoji: "📝", label: "Prepare for an exam",         desc: "IELTS, TestDAF, DELE, Goethe, and more" },
+              ].map((f) => (
                 <button
-                  key={r.code}
-                  onClick={() => pick("reason", r.code)}
-                  className={`flex items-center gap-4 px-5 py-4 rounded-2xl border-2 transition-all duration-150 ${
-                    data.reason === r.code
+                  key={f.code}
+                  onClick={() => pick("focus", f.code)}
+                  className={`flex items-center gap-4 px-5 py-3.5 rounded-2xl border-2 transition-all duration-150 text-left ${
+                    data.focus === f.code
                       ? "border-primary bg-primary/5"
                       : "border-outline-variant/30 bg-surface-lowest hover:border-primary/40"
                   }`}
                 >
-                  <span className="text-2xl">{r.emoji}</span>
-                  <span className="font-manrope font-semibold text-sm text-on-surface">{r.label}</span>
+                  <span className="text-2xl flex-shrink-0">{f.emoji}</span>
+                  <div>
+                    <p className="font-manrope font-semibold text-sm text-on-surface">{f.label}</p>
+                    <p className="font-manrope text-xs text-on-surface-variant">{f.desc}</p>
+                  </div>
                 </button>
               ))}
             </div>
@@ -373,15 +379,61 @@ export default function OnboardingPage() {
             </div>
             <h1 className="font-lexend font-bold text-2xl text-on-surface mb-3 text-center">I'd love to get to know you.</h1>
             <p className="font-manrope text-sm text-on-surface-variant text-center mb-6">
-              Feel free to write anything — your job, a show you love, the city you live in... totally up to you.
+              The more you share, the more personalized your experience becomes.
             </p>
-            <textarea
-              value={data.intro_sentence}
-              onChange={(e) => setData((d) => ({ ...d, intro_sentence: e.target.value }))}
-              placeholder="Write something..."
-              rows={4}
-              className="w-full bg-surface-low border border-outline-variant/40 rounded-2xl px-4 py-3 font-manrope text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary/60 resize-none mb-4 transition-colors"
-            />
+            <div className="mb-4">
+              <label className="font-manrope font-semibold text-sm text-on-surface mb-0.5 flex items-center gap-1.5">
+                Which city should we prepare you for?
+                <span className="font-normal text-xs text-on-surface-variant/60">(optional)</span>
+              </label>
+              <p className="font-manrope text-xs text-on-surface-variant mb-2">Recommended for local language, culture, and real-life scenarios.</p>
+              <div className="flex flex-wrap gap-2 mb-2.5">
+                {[
+                  { flag: "🇦🇹", city: "Vienna" },
+                  { flag: "🇩🇪", city: "Berlin" },
+                  { flag: "🇩🇪", city: "Hamburg" },
+                  { flag: "🇳🇱", city: "Amsterdam" },
+                  { flag: "🇪🇸", city: "Barcelona" },
+                  { flag: "🇫🇷", city: "Paris" },
+                  { flag: "🇨🇭", city: "Zurich" },
+                  { flag: "🇬🇧", city: "London" },
+                ].map(({ flag, city }) => (
+                  <button
+                    key={city}
+                    type="button"
+                    onClick={() => setData((d) => ({ ...d, city: d.city === city ? "" : city }))}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-manrope font-semibold transition-all duration-150 ${
+                      data.city === city
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-outline-variant/40 bg-surface-low text-on-surface hover:border-primary/40"
+                    }`}
+                  >
+                    <span>{flag}</span>{city}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="text"
+                value={data.city}
+                onChange={(e) => setData((d) => ({ ...d, city: e.target.value }))}
+                placeholder="Or type any city or country..."
+                className="w-full bg-surface-low border border-outline-variant/40 rounded-2xl px-4 py-3 font-manrope text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary/60 transition-colors"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="font-manrope font-semibold text-sm text-on-surface mb-0.5 block">
+                What should Maya know about you?
+                <span className="font-normal text-xs text-on-surface-variant/60 ml-1.5">(optional)</span>
+              </label>
+              <p className="font-manrope text-xs text-on-surface-variant mb-2">Your job, interests, goals, or anything that helps Maya tailor conversations to you.</p>
+              <textarea
+                value={data.intro_sentence}
+                onChange={(e) => setData((d) => ({ ...d, intro_sentence: e.target.value }))}
+                placeholder="e.g. I'm a software engineer moving to Vienna for work, and I love hiking and coffee shops."
+                rows={3}
+                className="w-full bg-surface-low border border-outline-variant/40 rounded-2xl px-4 py-3 font-manrope text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary/60 resize-none transition-colors"
+              />
+            </div>
             <div className="flex gap-3">
               <button
                 onClick={next}
