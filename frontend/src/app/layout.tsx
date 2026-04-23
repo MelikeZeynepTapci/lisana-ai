@@ -23,9 +23,53 @@ const lora = Lora({
   display: "swap",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lisana.app";
+
 export const metadata: Metadata = {
-  title: "Lisana — AI Language Tutor for Expats and International Students",
-  description: "Practice real conversations with Maya, your personal AI language coach. No credit card needed. 5 languages, all levels.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Lisana — AI Language Tutor for Expats and International Students",
+    template: "%s | Lisana",
+  },
+  description:
+    "Practice real conversations with Maya, your personal AI language coach. Learn German, Spanish, French, Italian, or English. No credit card needed. All levels, all locations.",
+  keywords: [
+    "AI language tutor",
+    "learn German online",
+    "learn Spanish online",
+    "language learning for expats",
+    "AI speaking practice",
+    "CEFR language app",
+    "expat language app",
+    "Maya AI tutor",
+    "Lisana language app",
+  ],
+  openGraph: {
+    type: "website",
+    siteName: "Lisana",
+    title: "Lisana — AI Language Tutor for Expats and International Students",
+    description:
+      "Maya is your personal AI language coach. Real conversations, long-term memory, pronunciation feedback — built for expats and international students.",
+    url: siteUrl,
+    images: [
+      {
+        url: "/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "Lisana — AI Language Tutor for Expats",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Lisana — AI Language Tutor for Expats and International Students",
+    description:
+      "Practice real conversations with Maya, your personal AI language coach. Learn German, Spanish, French, Italian, or English.",
+    images: ["/og-default.png"],
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

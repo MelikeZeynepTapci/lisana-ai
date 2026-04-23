@@ -29,3 +29,5 @@ linguatutor_landing_page.md
 test_db.py
 seed_data.py
 create_tables.py
+
+tsconfig.tsbuildinfo

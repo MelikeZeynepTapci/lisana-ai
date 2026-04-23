@@ -32,9 +32,10 @@ export async function middleware(request: NextRequest) {
   const isOnboarding = pathname.startsWith("/onboarding");
   const isLanding = pathname === "/landing";
   const isDemo = pathname.startsWith("/demo");
+  const isSeoPage = pathname.startsWith("/learn/") || pathname.startsWith("/for/");
 
-  // Not logged in → landing page (allow auth pages, landing, and demo through)
-  if (!user && !isAuthPage && !isLanding && !isDemo) {
+  // Not logged in → landing page (allow auth pages, landing, demo, and SEO pages through)
+  if (!user && !isAuthPage && !isLanding && !isDemo && !isSeoPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/landing";
     return NextResponse.redirect(url);
