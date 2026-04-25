@@ -1,7 +1,9 @@
 import json
 import logging
+import asyncio
 from datetime import date
 
+import feedparser
 import httpx
 from fastapi import APIRouter, Depends
 from openai import AsyncOpenAI
@@ -17,12 +19,6 @@ from app.models.models import DailyNews, User, UserLanguageProfile, UserProfile
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/news", tags=["news"])
 openai_client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-
-_LANG_CODE: dict[str, str] = {
-    "German": "de", "Spanish": "es", "French": "fr",
-    "Italian": "it", "Portuguese": "pt", "Dutch": "nl",
-    "English": "en",
-}
 
 _BANNED_TOPICS = (
     "war, violence, crime, terrorism, murder, abuse, sexual content, "
@@ -45,54 +41,114 @@ class DailyNewsResponse(BaseModel):
     quiz_questions: list[QuizQuestion]
     for_date: str
 
+# RSS feeds per language (general)
+_LANGUAGE_FEEDS: dict[str, list[str]] = {
+    "German": [
+        "https://www.tagesschau.de/xml/rss2",
+        "https://www.spiegel.de/schlagzeilen/index.rss",
+        "https://www.derstandard.at/rss",
+    ],
+    "Spanish": [
+        "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",
+        "https://www.elmundo.es/rss/portada.xml",
+        "https://www.rtve.es/api/noticias.rss",
+    ],
+    "French": [
+        "https://www.lemonde.fr/rss/une.xml",
+        "https://www.france24.com/fr/rss",
+        "https://www.lefigaro.fr/rss/figaro_actualites.xml",
+    ],
+    "Italian": [
+        "https://www.ansa.it/sito/notizie/mondo/mondo_rss.xml",
+        "https://www.corriere.it/rss/homepage.xml",
+        "https://www.repubblica.it/rss/homepage/rss2.0.xml",
+    ],
+    "English": [
+        "https://feeds.bbci.co.uk/news/rss.xml",
+        "https://rss.cnn.com/rss/edition.rss",
+        "https://www.theguardian.com/world/rss",
+    ],
+}
 
-async def _fetch_candidates(language: str, city: str = "") -> list[dict]:
-    """Fetch top headlines. If city is set, search for city-specific news first."""
-    api_key = settings.NEWS_API_KEY
-    if not api_key:
-        return []
-    lang_code = _LANG_CODE.get(language, "en")
+# RSS feeds per city (more local)
+_CITY_FEEDS: dict[str, list[str]] = {
+    "Vienna": [
+        "https://www.derstandard.at/rss",
+        "https://kurier.at/xml/rss",
+    ],
+    "Berlin": [
+        "https://www.berliner-zeitung.de/feed.rss",
+        "https://www.tagesspiegel.de/contentexport/feed/home",
+    ],
+    "Hamburg": [
+        "https://www.abendblatt.de/rss",
+        "https://www.tagesschau.de/xml/rss2",
+    ],
+    "Amsterdam": [
+        "https://feeds.nos.nl/nosnieuwsalgemeen",
+        "https://www.parool.nl/rss",
+    ],
+    "Barcelona": [
+        "https://www.lavanguardia.com/rss/home.xml",
+        "https://www.elnacional.cat/feed/",
+    ],
+    "Paris": [
+        "https://www.lemonde.fr/rss/une.xml",
+        "https://www.lefigaro.fr/rss/figaro_actualites.xml",
+    ],
+    "Zurich": [
+        "https://www.nzz.ch/recent.rss",
+        "https://www.tagesanzeiger.ch/rss.html",
+    ],
+    "London": [
+        "https://feeds.bbci.co.uk/news/london/rss.xml",
+        "https://www.theguardian.com/uk/rss",
+    ],
+}
+
+
+async def _fetch_feed(client: httpx.AsyncClient, url: str) -> list[dict]:
+    """Fetch and parse a single RSS feed, returning normalised article dicts."""
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            if city:
-                # Search for city-specific articles via /everything
-                res = await client.get(
-                    "https://newsapi.org/v2/everything",
-                    params={
-                        "q": city,
-                        "language": lang_code,
-                        "pageSize": 10,
-                        "sortBy": "publishedAt",
-                        "from": str(date.today()),
-                        "apiKey": api_key,
-                    },
-                )
-                articles = [
-                    a for a in res.json().get("articles", [])
-                    if a.get("title") and (a.get("description") or a.get("content"))
-                ]
-                # Fall back to top headlines if city search yields nothing
-                if not articles:
-                    res = await client.get(
-                        "https://newsapi.org/v2/top-headlines",
-                        params={"language": lang_code, "pageSize": 10, "apiKey": api_key},
-                    )
-                    articles = [
-                        a for a in res.json().get("articles", [])
-                        if a.get("title") and (a.get("description") or a.get("content"))
-                    ]
-            else:
-                res = await client.get(
-                    "https://newsapi.org/v2/top-headlines",
-                    params={"language": lang_code, "pageSize": 10, "apiKey": api_key},
-                )
-                articles = [
-                    a for a in res.json().get("articles", [])
-                    if a.get("title") and (a.get("description") or a.get("content"))
-                ]
+        res = await client.get(url, follow_redirects=True)
+        res.raise_for_status()
+        loop = asyncio.get_event_loop()
+        feed = await loop.run_in_executor(None, feedparser.parse, res.text)
+        articles = []
+        for entry in feed.entries[:8]:
+            title = entry.get("title", "").strip()
+            description = (entry.get("summary") or entry.get("description") or "").strip()
+            if title and description:
+                articles.append({
+                    "title": title,
+                    "description": description,
+                    "source": {"name": feed.feed.get("title", url)},
+                })
         return articles
     except Exception:
-        logger.exception("NewsAPI fetch failed")
+        return []
+
+
+async def _fetch_candidates(language: str, city: str = "") -> list[dict]:
+    """Fetch RSS headlines. City feeds are tried first, then language feeds as fallback."""
+    feeds = _CITY_FEEDS.get(city, []) + _LANGUAGE_FEEDS.get(language, []) if city else _LANGUAGE_FEEDS.get(language, [])
+    if not feeds:
+        return []
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            results = await asyncio.gather(*[_fetch_feed(client, url) for url in feeds])
+        articles: list[dict] = []
+        seen: set[str] = set()
+        for batch in results:
+            for a in batch:
+                key = a["title"][:60]
+                if key not in seen:
+                    seen.add(key)
+                    articles.append(a)
+        print(f"[NEWS] RSS returned {len(articles)} articles (city={city!r}, language={language})", flush=True)
+        return articles[:12]
+    except Exception:
+        logger.exception("RSS fetch failed")
         return []
 
 
@@ -239,6 +295,7 @@ async def get_daily_news(
         )
 
     candidates = await _fetch_candidates(language, city)
+    print(f"[NEWS] Generating: language={language} level={level} city={city!r} candidates={len(candidates)}", flush=True)
     title, body, quiz = await _generate(candidates, language, level, city)
 
     news_record = DailyNews(

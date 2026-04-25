@@ -128,36 +128,27 @@ export default function DashboardPage() {
             </div>
 
             {newsLoading ? (
-              <div className="space-y-3">
-                {/* Title skeleton */}
-                <div className="h-5 rounded-lg w-3/4 bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite]" />
-                {/* Body skeletons */}
-                <div className="space-y-2 mt-1">
-                  <div className="h-3 rounded w-full bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.1s]" />
-                  <div className="h-3 rounded w-[95%] bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.2s]" />
-                  <div className="h-3 rounded w-5/6 bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.3s]" />
-                  <div className="h-3 rounded w-4/6 bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.4s]" />
-                </div>
-                {/* Quiz skeleton */}
-                <div className="border-t border-outline-variant/30 pt-3 mt-2 space-y-2">
-                  <div className="h-3 rounded w-1/3 bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.5s]" />
-                  <div className="h-3 rounded w-2/3 bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.6s]" />
-                  <div className="h-8 rounded-xl w-full bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.7s]" />
-                  <div className="h-8 rounded-xl w-full bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.8s]" />
-                  <div className="h-8 rounded-xl w-full bg-gradient-to-r from-surface-highest via-surface to-surface-highest bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] [animation-delay:0.9s]" />
-                </div>
+              <div className="flex items-center justify-center py-8">
+                <span
+                  className="font-lexend font-semibold text-lg bg-[length:200%_auto] animate-text-shimmer bg-clip-text text-transparent"
+                  style={{
+                    backgroundImage: "linear-gradient(90deg, #9ca3af 0%, #9ca3af 30%, #E8437A 50%, #F97316 60%, #9ca3af 70%, #9ca3af 100%)",
+                  }}
+                >
+                  Collecting daily news for you...
+                </span>
               </div>
             ) : news ? (
               <>
-                <h4 className="font-lora font-bold text-lg text-on-surface mb-2 leading-snug">
+                <h4 className="font-lora font-bold text-lg text-on-surface mb-2 leading-snug opacity-0 animate-fade-up [animation-delay:60ms] [animation-fill-mode:forwards]">
                   {news.title}
                 </h4>
-                <p className="font-manrope text-sm text-on-surface-variant leading-relaxed mb-5">
+                <p className="font-manrope text-sm text-on-surface-variant leading-relaxed mb-5 opacity-0 animate-fade-up [animation-delay:140ms] [animation-fill-mode:forwards]">
                   {news.body}
                 </p>
 
                 {currentQuestion && (
-                  <div className="border-t border-outline-variant/50 pt-3">
+                  <div className="border-t border-outline-variant/50 pt-3 opacity-0 animate-fade-up [animation-delay:240ms] [animation-fill-mode:forwards]">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-manrope font-semibold text-[10px] text-primary uppercase tracking-wide">
                         Question {currentQuizIdx + 1} of {news.quiz_questions.length}
@@ -181,7 +172,7 @@ export default function DashboardPage() {
                         }
                         const reason = answerChecked ? currentQuestion.reasoning?.[i] : null;
                         return (
-                          <div key={i}>
+                          <div key={i} className="opacity-0 animate-fade-up [animation-fill-mode:forwards]" style={{ animationDelay: `${320 + i * 60}ms` }}>
                             <button
                               onClick={() => !answerChecked && setSelectedOption(i)}
                               disabled={answerChecked}

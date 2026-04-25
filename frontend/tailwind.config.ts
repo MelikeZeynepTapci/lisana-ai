@@ -67,10 +67,20 @@ const config: Config = {
           "0%": { opacity: "0", transform: "translateY(12px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% center" },
+          "100%": { backgroundPosition: "200% center" },
+        },
+        "text-shimmer": {
+          "0%": { backgroundPosition: "200% center" },
+          "100%": { backgroundPosition: "-200% center" },
+        },
       },
       animation: {
         wave: "wave 1.2s ease-in-out infinite",
         "fade-up": "fade-up 0.4s ease-out forwards",
+        shimmer: "shimmer 1.4s ease-in-out infinite",
+        "text-shimmer": "text-shimmer 2.4s ease-in-out infinite",
       },
     },
   },
