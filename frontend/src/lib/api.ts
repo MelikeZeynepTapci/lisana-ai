@@ -104,9 +104,24 @@ export interface DailyNewsData {
   for_date: string;
 }
 
-export async function getDailyNews(signal?: AbortSignal): Promise<DailyNewsData> {
+export interface ProgressData {
+  current_level: string;
+  current_streak: number;
+  sessions_this_week: number;
+  last_session_score: number | null;
+  total_xp: number;
+  watch_out_topic: string | null;
+}
+
+export async function getProgress(): Promise<ProgressData> {
   const auth = await getAuthHeader();
-  const force = process.env.NODE_ENV === "development";
+  const res = await fetch(`${API_URL}/api/user/progress`, { headers: auth });
+  if (!res.ok) throw new Error("Failed to fetch progress");
+  return res.json();
+}
+
+export async function getDailyNews(signal?: AbortSignal, force = false): Promise<DailyNewsData> {
+  const auth = await getAuthHeader();
   const url = `${API_URL}/api/news/daily${force ? "?force=true" : ""}`;
   const res = await fetch(url, { headers: auth, signal });
   if (!res.ok) throw new Error("Failed to fetch daily news");

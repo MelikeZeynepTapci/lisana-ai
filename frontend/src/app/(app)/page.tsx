@@ -4,9 +4,16 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import { createClient } from "@/lib/supabase";
-import { getDailyNews, type DailyNewsData } from "@/lib/api";
+import { getDailyNews, getProgress, type DailyNewsData, type ProgressData } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+function levelToOffset(level: string): number {
+  const idx = CEFR_LEVELS.indexOf(level.toUpperCase());
+  if (idx === -1) return 185;
+  return Math.round(201 * (1 - (idx + 1) / 6));
+}
 
 const quickStart = [
   { href: "/speaking",   icon: "record_voice_over", iconBg: "bg-tertiary-container",   iconColor: "text-tertiary",  title: "Speaking",   desc: "Real scenarios" },
@@ -32,6 +39,7 @@ export default function DashboardPage() {
   const [displayName, setDisplayName] = useState<string>("");
   const [news, setNews] = useState<DailyNewsData | null>(null);
   const [newsLoading, setNewsLoading] = useState(true);
+  const [progress, setProgress] = useState<ProgressData | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -59,6 +67,10 @@ export default function DashboardPage() {
       .then((data) => { setNews(data); setNewsLoading(false); })
       .catch((err) => { if (err?.name !== "AbortError") setNewsLoading(false); });
     return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    getProgress().then(setProgress).catch(() => {});
   }, []);
 
   const currentQuestion = news?.quiz_questions[currentQuizIdx] ?? null;
@@ -243,24 +255,30 @@ export default function DashboardPage() {
               <div className="relative w-20 h-20 flex-shrink-0">
                 <svg viewBox="0 0 80 80" className="w-full h-full -rotate-90">
                   <circle cx="40" cy="40" r="32" fill="none" stroke="currentColor" className="text-surface-highest" strokeWidth="6" />
-                  <circle cx="40" cy="40" r="32" fill="none" stroke="currentColor" className="text-primary" strokeWidth="6" strokeDasharray="201" strokeDashoffset="50" strokeLinecap="round" />
+                  <circle cx="40" cy="40" r="32" fill="none" stroke="currentColor" className="text-primary" strokeWidth="6" strokeDasharray="201" strokeDashoffset={levelToOffset(progress?.current_level ?? "A1")} strokeLinecap="round" />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="font-lexend font-bold text-xl text-primary">B2</span>
+                  <span className="font-lexend font-bold text-xl text-primary">{progress?.current_level ?? "—"}</span>
                 </div>
               </div>
               <div className="flex-1 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="font-manrope text-sm text-on-surface-variant">Last Session Score</span>
-                  <span className="font-manrope font-bold text-sm text-on-surface">85/100</span>
+                  <span className="font-manrope font-bold text-sm text-on-surface">
+                    {progress?.last_session_score != null ? `${progress.last_session_score}/100` : "—"}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="font-manrope text-sm text-on-surface-variant">Fluency Trend</span>
-                  <span className="font-manrope font-bold text-sm text-tertiary">↑ +4%</span>
+                  <span className="font-manrope text-sm text-on-surface-variant">Current Streak</span>
+                  <span className="font-manrope font-bold text-sm text-tertiary">
+                    {progress != null ? `🔥 ${progress.current_streak} day${progress.current_streak !== 1 ? "s" : ""}` : "—"}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="font-manrope text-sm text-on-surface-variant">Sessions this week</span>
-                  <span className="font-manrope font-bold text-sm text-on-surface">4 / 5</span>
+                  <span className="font-manrope font-bold text-sm text-on-surface">
+                    {progress != null ? `${progress.sessions_this_week} / 5` : "—"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -273,14 +291,22 @@ export default function DashboardPage() {
                 </div>
                 <span className="font-manrope font-bold text-sm text-primary">Maya&apos;s Tip</span>
               </div>
-              <p className="font-manrope text-sm text-on-surface-variant leading-relaxed mb-3">
-                You&apos;ve been struggling with the <strong className="text-on-surface">Dativ case</strong> in your speaking sessions. A quick grammar drill today will help it click.
-              </p>
-              <div className="flex justify-center">
-                <button className="text-white font-manrope font-bold text-sm px-10 py-2.5 rounded-full transition-opacity hover:opacity-90" style={{ background: "linear-gradient(135deg, #A07DD6 0%, #7C5CBF 100%)", boxShadow: "0 4px 14px rgba(124,92,191,0.30)" }}>
-                  Practice Dativ Case
-                </button>
-              </div>
+              {progress?.watch_out_topic ? (
+                <>
+                  <p className="font-manrope text-sm text-on-surface-variant leading-relaxed mb-3">
+                    You&apos;ve been working on <strong className="text-on-surface">{progress.watch_out_topic}</strong> in your recent sessions. A quick grammar drill today will help it click.
+                  </p>
+                  <div className="flex justify-center">
+                    <button className="text-white font-manrope font-bold text-sm px-10 py-2.5 rounded-full transition-opacity hover:opacity-90" style={{ background: "linear-gradient(135deg, #A07DD6 0%, #7C5CBF 100%)", boxShadow: "0 4px 14px rgba(124,92,191,0.30)" }}>
+                      Practice {progress.watch_out_topic}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <p className="font-manrope text-sm text-on-surface-variant leading-relaxed">
+                  Complete a speaking session and Maya will give you a personalized tip based on your performance.
+                </p>
+              )}
             </div>
           </div>
         </div>
