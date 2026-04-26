@@ -202,10 +202,22 @@ Write the article in {language} strictly at CEFR level {level}. This is critical
 Level guidance: {level_guidance}
 
 - Title: one clear, engaging sentence. Prepend exactly 3 relevant emojis to the title (e.g. "🌱🔬🌍 Title here").
-- Body: 5–7 sentences, approximately 400-550 characters. Follow the level guidance strictly.
+- Body: 5–7 sentences, 400-550 characters. Follow the level guidance strictly.
 
-Then generate exactly 3 multiple-choice comprehension questions in {language}.
+Then generate exactly 3 multiple-choice comprehension questions in {language} that genuinely challenge the reader.
 Each question has 3 options (A, B, C). Mark the correct one.
+
+Question design rules — follow strictly:
+1. VARIETY: Each question must test a different skill:
+   - Q1: Factual detail — but ask about a specific number, name, or fact that requires careful reading, not just the headline.
+   - Q2: Inference / implication — the answer is not stated directly; the reader must draw a conclusion from the text.
+   - Q3: Vocabulary in context — pick a key word or phrase from the article and ask what it means or why it was used.
+2. DISTRACTORS: Wrong options must be plausible. They should:
+   - Come from the same domain (not obviously unrelated)
+   - Mix up numbers, names, or details actually mentioned elsewhere in the article
+   - Reflect common misreadings or partial truths, not absurd inventions
+3. DIFFICULTY: Avoid questions whose answer is obvious from the title alone or answerable without reading the body.
+4. LANGUAGE: Write questions and options at the same CEFR level ({level}) as the article.
 
 Return ONLY valid JSON in this exact schema:
 {{

@@ -39,6 +39,7 @@ export default function DashboardPage() {
   const [displayName, setDisplayName] = useState<string>("");
   const [news, setNews] = useState<DailyNewsData | null>(null);
   const [newsLoading, setNewsLoading] = useState(true);
+  const [newsError, setNewsError] = useState(false);
   const [progress, setProgress] = useState<ProgressData | null>(null);
 
   useEffect(() => {
@@ -64,8 +65,10 @@ export default function DashboardPage() {
   useEffect(() => {
     const controller = new AbortController();
     getDailyNews(controller.signal)
-      .then((data) => { setNews(data); setNewsLoading(false); })
-      .catch((err) => { if (err?.name !== "AbortError") setNewsLoading(false); });
+      .then(setNews)
+      .catch((err) => { if (err?.name !== "AbortError") setNewsError(true); })
+      .finally(() => setNewsLoading(false))
+      .finally(() => setNewsLoading(false));
     return () => controller.abort();
   }, []);
 
@@ -122,85 +125,100 @@ export default function DashboardPage() {
       {/* ── Two-column main ──────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
 
-        {/* Left column */}
+        {/* Left column  */}
         <div className="lg:col-span-3 space-y-5">
 
-          {/* Daily News */}
-          <div className="bg-surface-lowest border border-outline-variant/60 rounded-3xl p-6" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined ms-filled text-[20px] text-primary">newspaper</span>
-                <h3 className="font-lexend font-semibold text-base text-on-surface">Daily News</h3>
+          {/* Daily News — Mac window style */}
+          <div className="bg-surface rounded-3xl border border-outline-variant/50 overflow-hidden" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
+
+            {/* Window chrome bar */}
+            <div className="flex items-center justify-between px-5 py-3 border-b border-outline-variant/40 bg-surface-lowest">
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-error/40" />
+                <div className="w-3 h-3 rounded-full bg-yellow-300/70" />
+                <div className="w-3 h-3 rounded-full bg-tertiary/50" />
               </div>
-              {news && (
-                <span className="font-manrope font-bold text-xs bg-primary-container text-primary px-3 py-1 rounded-full">
-                  {news.level} Level
+              <span className="font-lexend font-semibold text-m text-on-surface-variant">Daily News</span>
+              {news ? (
+                <span className="font-manrope font-bold text-[11px] border border-outline-variant text-on-surface-variant px-2.5 py-0.5 rounded-full">
+                  {news.level}
                 </span>
+              ) : (
+                <div className="w-10" />
               )}
             </div>
 
-            {newsLoading ? (
-              <div className="flex items-center justify-center py-8">
+            {newsLoading && !newsError ? (
+              <div className="flex items-center justify-center py-10">
                 <span
-                  className="font-lexend font-semibold text-lg bg-[length:200%_auto] animate-text-shimmer bg-clip-text text-transparent"
-                  style={{
-                    backgroundImage: "linear-gradient(90deg, #9ca3af 0%, #9ca3af 30%, #E8437A 50%, #F97316 60%, #9ca3af 70%, #9ca3af 100%)",
-                  }}
+                  className="font-lexend font-semibold text-base bg-[length:200%_auto] animate-text-shimmer bg-clip-text text-transparent"
+                  style={{ backgroundImage: "linear-gradient(90deg, #9ca3af 0%, #9ca3af 30%, #E8437A 50%, #F97316 60%, #9ca3af 70%, #9ca3af 100%)" }}
                 >
                   Collecting daily news for you...
                 </span>
               </div>
-            ) : news ? (
-              <>
-                <h4 className="font-lora font-bold text-lg text-on-surface mb-2 leading-snug opacity-0 animate-fade-up [animation-delay:60ms] [animation-fill-mode:forwards]">
+            ) : news && !newsError ? (
+              <div className="p-5">
+
+                {/* Article */}
+                <h4 className="font-lora font-bold text-lg text-on-surface mb-2 leading-snug opacity-0 animate-fade-up [animation-fill-mode:forwards] [animation-delay:0ms]">
                   {news.title}
                 </h4>
-                <p className="font-manrope text-sm text-on-surface-variant leading-relaxed mb-5 opacity-0 animate-fade-up [animation-delay:140ms] [animation-fill-mode:forwards]">
+                <p className="font-manrope text-sm text-on-surface-variant leading-relaxed opacity-0 animate-fade-up [animation-fill-mode:forwards] [animation-delay:80ms]">
                   {news.body}
                 </p>
 
+                {/* Quiz — inline below article */}
                 {currentQuestion && (
-                  <div className="border-t border-outline-variant/50 pt-3 opacity-0 animate-fade-up [animation-delay:240ms] [animation-fill-mode:forwards]">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-manrope font-semibold text-[10px] text-primary uppercase tracking-wide">
+                  <div className="mt-5 pt-5 border-t border-outline-variant/40">
+                    <div className="flex items-center justify-between mb-3 opacity-0 animate-fade-up [animation-fill-mode:forwards] [animation-delay:160ms]">
+                      <span className="font-manrope font-semibold text-[10px] text-on-surface-variant uppercase tracking-widest">
                         Question {currentQuizIdx + 1} of {news.quiz_questions.length}
                       </span>
-                      <span className="font-manrope font-bold text-[10px] bg-tertiary text-white px-2 py-0.5 rounded-full">+15 XP</span>
+                      <span className="font-manrope font-bold text-[11px] bg-tertiary text-white px-2.5 py-0.5 rounded-full">+15 XP</span>
                     </div>
-                    <p className="font-manrope font-semibold text-xs text-on-surface mb-2">
-                      {currentQuestion.question}
-                    </p>
-                    <div className="space-y-1.5 mb-3">
+
+                    <div className="flex items-start gap-2.5 mb-3 opacity-0 animate-fade-up [animation-fill-mode:forwards] [animation-delay:220ms]">
+                      <div className="w-5 h-5 rounded-full bg-error flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="font-lexend font-bold text-white text-[10px]">?</span>
+                      </div>
+                      <p className="font-manrope font-semibold text-sm text-on-surface leading-snug">
+                        {currentQuestion.question}
+                      </p>
+                    </div>
+
+                    <div className="space-y-2 mb-4">
                       {currentQuestion.options.map((opt, i) => {
                         const letter = ["A", "B", "C"][i];
                         const isSelected = selectedOption === i;
                         const isCorrect = letter === currentQuestion.correct;
-                        let style = "border-outline-variant/70 text-on-surface hover:border-primary/40 hover:bg-primary-container/20";
-                        if (answerChecked) {
-                          if (isCorrect) style = "border-tertiary bg-tertiary-container text-tertiary font-semibold";
-                          else if (isSelected) style = "border-error bg-error-container text-error font-semibold";
-                        } else if (isSelected) {
-                          style = "border-primary bg-primary-container text-primary font-semibold";
-                        }
+                        const displayText = opt.replace(/^[ABC]\)\s*/, "");
                         const reason = answerChecked ? currentQuestion.reasoning?.[i] : null;
+
+                        let rowStyle = "border-outline-variant/60 text-on-surface hover:border-primary/40 hover:bg-primary-container/20";
+                        let badgeStyle = "border-outline-variant text-on-surface-variant";
+                        if (answerChecked) {
+                          if (isCorrect) { rowStyle = "border-tertiary bg-tertiary-container text-secondary"; badgeStyle = "border-tertiary bg-tertiary text-white"; }
+                          else if (isSelected) { rowStyle = "border-error bg-error-container text-error"; badgeStyle = "border-error bg-error text-white"; }
+                        } else if (isSelected) {
+                          rowStyle = "border-primary bg-primary-container text-primary"; badgeStyle = "border-primary bg-primary text-white";
+                        }
+
                         return (
-                          <div key={i} className="opacity-0 animate-fade-up [animation-fill-mode:forwards]" style={{ animationDelay: `${320 + i * 60}ms` }}>
+                          <div key={i} className="opacity-0 animate-fade-up [animation-fill-mode:forwards]" style={{ animationDelay: `${300 + i * 70}ms` }}>
                             <button
                               onClick={() => !answerChecked && setSelectedOption(i)}
                               disabled={answerChecked}
-                              className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl border text-xs text-left transition-all duration-200 font-manrope ${style}`}
-                              style={!isSelected && !answerChecked ? { background: "var(--yellow-pale)" } : undefined}
+                              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl border text-sm text-left transition-all duration-200 font-manrope ${rowStyle}`}
                             >
-                              <div className={`w-3 h-3 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
-                                isSelected ? "border-current bg-current" : "border-outline-variant"
-                              }`}>
-                                {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                              </div>
-                              {opt}
+                              <span className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center font-lexend font-bold text-xs flex-shrink-0 transition-colors ${badgeStyle}`}>
+                                {letter}
+                              </span>
+                              {displayText}
                             </button>
                             {reason && (
-                              <p className={`font-manrope text-[10px] leading-snug px-3 pt-1 pb-0.5 animate-[fadeIn_0.3s_ease-out] ${
-                                isCorrect ? "text-tertiary" : isSelected ? "text-error" : "text-on-surface-variant/70"
+                              <p className={`font-manrope text-[10px] leading-snug px-4 pt-1 ${
+                                isCorrect ? "text-secondary" : isSelected ? "text-error" : "text-on-surface-variant/70"
                               }`}>
                                 {reason}
                               </p>
@@ -209,37 +227,47 @@ export default function DashboardPage() {
                         );
                       })}
                     </div>
-                    <div className="flex justify-center">
-                      {!answerChecked ? (
-                        <button
-                          onClick={handleCheckAnswer}
-                          disabled={selectedOption === null}
-                          className="text-white font-manrope font-bold text-xs px-8 py-2 rounded-full transition-opacity hover:opacity-90 disabled:opacity-40"
-                          style={{ background: "linear-gradient(135deg, #A07DD6 0%, #7C5CBF 100%)", boxShadow: "0 4px 14px rgba(124,92,191,0.30)" }}
-                        >
-                          Check Answer
-                        </button>
-                      ) : currentQuizIdx < news.quiz_questions.length - 1 ? (
-                        <button
-                          onClick={handleNextQuestion}
-                          className="text-white font-manrope font-bold text-xs px-8 py-2 rounded-full transition-opacity hover:opacity-90"
-                          style={{ background: "linear-gradient(135deg, #A07DD6 0%, #7C5CBF 100%)", boxShadow: "0 4px 14px rgba(124,92,191,0.30)" }}
-                        >
-                          Next Question →
-                        </button>
-                      ) : (
-                        <span className="font-manrope font-bold text-xs text-tertiary">Quiz complete! 🎉</span>
-                      )}
-                    </div>
+
+                    {!answerChecked ? (
+                      <button
+                        onClick={handleCheckAnswer}
+                        disabled={selectedOption === null}
+                        className="w-full py-2.5 rounded-2xl font-manrope font-bold text-sm text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+                        style={{ background: "linear-gradient(135deg, #1B1F3B 0%, #2d3258 100%)" }}
+                      >
+                        Check Answer
+                      </button>
+                    ) : currentQuizIdx < news.quiz_questions.length - 1 ? (
+                      <button
+                        onClick={handleNextQuestion}
+                        className="w-full py-2.5 rounded-2xl font-manrope font-bold text-sm text-white transition-opacity hover:opacity-90"
+                        style={{ background: "linear-gradient(135deg, #A07DD6 0%, #7C5CBF 100%)", boxShadow: "0 4px 14px rgba(124,92,191,0.30)" }}
+                      >
+                        Next Question →
+                      </button>
+                    ) : (
+                      <div className="text-center py-1">
+                        <span className="font-manrope font-bold text-sm text-tertiary">Quiz complete! 🎉</span>
+                      </div>
+                    )}
                   </div>
                 )}
-              </>
+              </div>
             ) : (
-              <p className="font-manrope text-sm text-on-surface-variant">Could not load today&apos;s news.</p>
+              <div className="flex flex-col items-center justify-center py-10 px-5 gap-2">
+                <span className="material-symbols-outlined text-[36px] text-on-surface-variant/30">wifi_off</span>
+                <p className="font-manrope text-sm text-on-surface-variant text-center">Couldn&apos;t load today&apos;s news.<br />Check your connection and try again.</p>
+                <button
+                  onClick={() => { setNewsError(false); setNewsLoading(true); getDailyNews().then(setNews).catch(() => setNewsError(true)).finally(() => setNewsLoading(false)); }}
+                  className="mt-1 font-manrope font-semibold text-xs text-primary hover:opacity-70 transition-opacity"
+                >
+                  Retry
+                </button>
+              </div>
             )}
           </div>
 
-          {/* Progress Snapshot */}
+          {/* My Progress */}
           <div className="bg-surface-lowest border border-outline-variant/60 rounded-3xl p-6" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
@@ -311,7 +339,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Right column */}
+        {/* Right column  */}
         <div className="lg:col-span-2 space-y-5">
 
           {/* Word of the Day */}
