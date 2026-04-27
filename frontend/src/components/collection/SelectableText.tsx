@@ -53,6 +53,27 @@ export default function SelectableText({
     audioRef.current?.pause();
   }, []);
 
+  // Keep popover anchored to the selection as the user scrolls — direct DOM
+  // manipulation bypasses React re-render lag so there's no catch-up jitter.
+  useEffect(() => {
+    if (!popover) return;
+    function onScroll() {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed || selection.rangeCount === 0) return;
+      const rect = selection.getRangeAt(0).getBoundingClientRect();
+      if (popoverRef.current) {
+        popoverRef.current.style.left = `${rect.left + rect.width / 2}px`;
+        popoverRef.current.style.top = `${rect.top - 8}px`;
+      }
+    }
+    window.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll, { capture: true });
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [popover?.text]);
+
   // Dismiss on outside click
   useEffect(() => {
     if (!popover) return;

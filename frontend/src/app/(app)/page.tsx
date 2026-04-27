@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import { createClient } from "@/lib/supabase";
 import { getDailyNews, getProgress, type DailyNewsData, type ProgressData } from "@/lib/api";
 import SelectableText from "@/components/collection/SelectableText";
+import WordFlipCard from "@/components/ui/WordFlipCard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -36,8 +37,7 @@ export default function DashboardPage() {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [answerChecked, setAnswerChecked] = useState(false);
   const [currentQuizIdx, setCurrentQuizIdx] = useState(0);
-  const [wordFlipped, setWordFlipped] = useState(false);
-  const [displayName, setDisplayName] = useState<string>("");
+const [displayName, setDisplayName] = useState<string>("");
   const [news, setNews] = useState<DailyNewsData | null>(null);
   const [newsLoading, setNewsLoading] = useState(true);
   const [newsError, setNewsError] = useState(false);
@@ -345,65 +345,15 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 space-y-5">
 
           {/* Word of the Day */}
-          <div className="bg-surface-lowest border border-outline-variant/60 rounded-3xl p-6" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined ms-filled text-[20px] text-secondary">menu_book</span>
-                <h3 className="font-lexend font-semibold text-base text-on-surface">Word of the Day</h3>
-              </div>
-              <span className="font-manrope text-xs bg-secondary-container text-secondary px-2.5 py-1 rounded-full font-semibold border border-secondary/20">German</span>
-            </div>
-
-            <div className="text-center mb-5">
-              <h2 className="font-lora font-bold text-2xl text-on-surface mb-1.5">die Leidenschaft</h2>
-              <div className="flex items-center justify-center gap-2">
-                <span className="font-manrope text-xs text-on-surface-variant">[ˈlaɪdnʃaft] · Noun (f)</span>
-                <button className="text-primary hover:text-primary/70 transition-colors">
-                  <span className="material-symbols-outlined ms-filled text-[18px]">volume_up</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-2 mb-5">
-              <div className="bg-surface border border-outline-variant/60 rounded-2xl p-3">
-                <p className="font-manrope font-semibold text-[10px] text-on-surface-variant uppercase tracking-wide mb-1">Translation</p>
-                <p className="font-manrope font-semibold text-sm text-on-surface">Passion</p>
-              </div>
-              <div className="bg-surface border border-outline-variant/60 rounded-2xl p-3">
-                <p className="font-manrope font-semibold text-[10px] text-on-surface-variant uppercase tracking-wide mb-1">Example</p>
-                <p className="font-manrope text-sm text-on-surface italic">&ldquo;Sie kocht mit großer Leidenschaft.&rdquo;</p>
-                <p className="font-manrope text-xs text-on-surface-variant mt-1">(She cooks with great passion.)</p>
-              </div>
-            </div>
-
-            {!wordFlipped ? (
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  onClick={() => setWordFlipped(true)}
-                  className="flex items-center justify-center gap-1.5 border border-outline-variant text-on-surface font-manrope font-bold text-sm py-2.5 rounded-full hover:bg-surface transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[17px]">cached</span>
-                  Flip
-                </button>
-                <button className="flex items-center justify-center gap-1.5 text-white font-manrope font-bold text-sm py-2.5 rounded-full transition-opacity hover:opacity-90" style={{ background: "linear-gradient(135deg, #4ECBA8 0%, #2A9D7C 100%)", boxShadow: "0 4px 14px rgba(42,157,124,0.28)" }}>
-                  <span className="material-symbols-outlined ms-filled text-[17px]">check_circle</span>
-                  Learned
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  onClick={() => setWordFlipped(false)}
-                  className="border border-outline-variant text-on-surface font-manrope font-bold text-sm py-2.5 rounded-full hover:bg-surface transition-colors"
-                >
-                  Still Learning
-                </button>
-                <button className="text-white font-manrope font-bold text-sm py-2.5 rounded-full transition-opacity hover:opacity-90" style={{ background: "linear-gradient(135deg, #4ECBA8 0%, #2A9D7C 100%)", boxShadow: "0 4px 14px rgba(42,157,124,0.28)" }}>
-                  Know It ✓
-                </button>
-              </div>
-            )}
-          </div>
+          <WordFlipCard
+            word="die Leidenschaft"
+            phonetic="ˈlaɪdnʃaft"
+            partOfSpeech="Noun (f)"
+            language="German"
+            translation="Passion"
+            example="Sie kocht mit großer Leidenschaft."
+            exampleTranslation="She cooks with great passion."
+          />
 
           {/* Weekly Leaderboard */}
           <div className="bg-surface-lowest border border-outline-variant/60 rounded-3xl p-6" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>

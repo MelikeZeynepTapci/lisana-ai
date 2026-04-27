@@ -303,6 +303,34 @@ export interface LookupData {
   synonyms: string[];
 }
 
+export interface MistakeItem {
+  location: string;
+  explanation: string;
+}
+
+export interface SentenceCheckResult {
+  correct: boolean;
+  corrected: string | null;
+  feedback: string;
+  mistakes: MistakeItem[];
+  xp: number;
+}
+
+export async function checkSentence(
+  word: string,
+  sentence: string,
+  language: string
+): Promise<SentenceCheckResult> {
+  const auth = await getAuthHeader();
+  const res = await fetch(`${API_URL}/api/collection/check-sentence`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...auth },
+    body: JSON.stringify({ word, sentence, language }),
+  });
+  if (!res.ok) throw new Error("Sentence check failed");
+  return res.json();
+}
+
 export async function lookupText(text: string, language: string): Promise<LookupData> {
   const auth = await getAuthHeader();
   const res = await fetch(`${API_URL}/api/collection/lookup`, {

@@ -31,3 +31,4 @@ seed_data.py
 create_tables.py
 
 tsconfig.tsbuildinfo
+docs/private/

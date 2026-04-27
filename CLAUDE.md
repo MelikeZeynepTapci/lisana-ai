@@ -10,14 +10,14 @@ Lisana is an AI language learning app. The AI tutor is named **Maya**. Users lea
 ```
 lingua-tutor/
 ├── app/                  # FastAPI backend
-│   ├── api/routes/       # Route handlers (auth, conversation, news, onboarding, session, speaking, demo, user)
+│   ├── api/routes/       # Route handlers (auth, collection, conversation, news, onboarding, session, speaking, demo, user)
 │   ├── core/             # Config, Sentry init
 │   ├── models/           # SQLAlchemy models
 │   ├── schemas/          # Pydantic schemas
 │   └── services/         # AI service (OpenAI), business logic
 ├── frontend/             # Next.js 14 App Router
 │   └── src/app/
-│       ├── (app)/        # Authenticated app routes (dashboard, conversation, speaking, etc.)
+│       ├── (app)/        # Authenticated app routes (dashboard, conversation, speaking, collection, etc.)
 │       ├── (auth)/       # Login, signup
 │       ├── demo/         # Public demo + /demo/setup onboarding
 │       ├── landing/      # Public landing page
@@ -58,9 +58,27 @@ lingua-tutor/
 
 **Session state machine:** `IDLE → ENTRY → CORE → WRAP_UP_SIGNAL → WRAP_UP → ENDED`
 
-**Daily news:** Cached per `(language, level, city, for_date)`. City-aware: uses NewsAPI `/everything?q=city` when city is set, falls back to `/top-headlines`. City `""` means no location.
+**Daily news:** Cached per `(language, level, city, for_date)`. City-aware: uses NewsAPI `/everything?q=city` when city is set, falls back to `/top-headlines`. City `""` means no location. News article text is wrapped in `<SelectableText>` so users can highlight words/phrases.
 
 **Quiz questions:** Each question has `question`, `options[]`, `correct`, `reasoning[]` (one reasoning string per option).
+
+**Save to Collection:** Users select text in the daily news (or conversation) to open a popover with: See meaning, Example sentence, Synonyms, Pronunciation (OpenAI TTS on-demand), and Save. Saved items go to `saved_items` table (per-user). Enrichment (definition/example/part_of_speech) runs as a FastAPI `BackgroundTask` after save, using a shared `vocab_cache` table keyed by `(text, language)`. Collection page: `/collection`.
+- Backend: `app/api/routes/collection.py`, router prefix `/api/collection`
+- Frontend component: `frontend/src/components/collection/SelectableText.tsx`
+- Collection page: `frontend/src/app/(app)/collection/page.tsx`
+
+**SelectableText popover pattern:** Uses `createPortal(element, document.body)` with a `position:fixed; inset:0; pointer-events:none` outer overlay and `position:absolute` inner div. Scroll tracking uses direct DOM manipulation (`element.style.left/top`) instead of React state to avoid re-render lag. The `e.detail === 0` guard on `mouseup` prevents scroll-generated synthetic events from repositioning the popover.
+
+**WordFlipCard (`frontend/src/components/ui/WordFlipCard.tsx`):** CSS 3D flip card for Word of the Day. Front shows word + phonetic; back shows translation, example, and action buttons. Click-to-flip disabled when `knownState !== "idle"`.
+- States: `"idle" | "input" | "checking" | "result"`
+- "Know It" → shows sentence input field. User writes a sentence using the word.
+- Submit → calls `POST /api/collection/check-sentence` → shows correction popover (portal, same scroll-tracking pattern as SelectableText).
+- "Still Learning" → flips back to front.
+
+**Sentence checker (`POST /api/collection/check-sentence`):** Two-pass LLM check.
+- Pass 1: thorough per-mistake check (case, articles, conjugation, word order, tense, spelling, etc.). Returns `correct`, `corrected`, `feedback`, `mistakes: [{location, explanation}]`, `xp` (20 if correct, 10 if not).
+- Pass 2 (only when pass 1 finds errors): holistic validator checks the corrected sentence for coherence errors pass 1 missed (e.g. subject–pronoun agreement, gender agreement across the whole sentence). Merges any additional mistakes and updates `corrected`.
+- `temperature=0.2` (pass 1), `temperature=0.1` (pass 2), `response_format: json_object`.
 
 ## Middleware & Auth (frontend)
 
