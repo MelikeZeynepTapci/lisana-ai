@@ -5,6 +5,7 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import { createClient } from "@/lib/supabase";
 import { getDailyNews, getProgress, type DailyNewsData, type ProgressData } from "@/lib/api";
+import SelectableText from "@/components/collection/SelectableText";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -67,7 +68,6 @@ export default function DashboardPage() {
     getDailyNews(controller.signal)
       .then(setNews)
       .catch((err) => { if (err?.name !== "AbortError") setNewsError(true); })
-      .finally(() => setNewsLoading(false))
       .finally(() => setNewsLoading(false));
     return () => controller.abort();
   }, []);
@@ -160,13 +160,15 @@ export default function DashboardPage() {
             ) : news && !newsError ? (
               <div className="p-5">
 
-                {/* Article */}
-                <h4 className="font-lora font-bold text-lg text-on-surface mb-2 leading-snug opacity-0 animate-fade-up [animation-fill-mode:forwards] [animation-delay:0ms]">
-                  {news.title}
-                </h4>
-                <p className="font-manrope text-sm text-on-surface-variant leading-relaxed opacity-0 animate-fade-up [animation-fill-mode:forwards] [animation-delay:80ms]">
-                  {news.body}
-                </p>
+                {/* Article — wrapped in SelectableText so users can save phrases */}
+                <SelectableText language={news.language} sourceType="news" sourceId={news.for_date}>
+                  <h4 className="font-lora font-bold text-lg text-on-surface mb-2 leading-snug opacity-0 animate-fade-up [animation-fill-mode:forwards] [animation-delay:0ms]">
+                    {news.title}
+                  </h4>
+                  <p className="font-manrope text-sm text-on-surface-variant leading-relaxed opacity-0 animate-fade-up [animation-fill-mode:forwards] [animation-delay:80ms]">
+                    {news.body}
+                  </p>
+                </SelectableText>
 
                 {/* Quiz — inline below article */}
                 {currentQuestion && (

@@ -236,6 +236,95 @@ export async function* sendSpeakingTurn(
   yield* _parseSSEStream(res);
 }
 
+// ─── Collection ───────────────────────────────────────────────────────────────
+
+export interface SavedItemData {
+  id: string;
+  text: string;
+  source_type: string;
+  source_id: string | null;
+  language: string;
+  enrichment_status: "pending" | "done" | "failed";
+  definition: string | null;
+  example: string | null;
+  part_of_speech: string | null;
+  created_at: string;
+}
+
+export async function saveItem(payload: {
+  text: string;
+  source_type: string;
+  source_id?: string;
+  language: string;
+}): Promise<SavedItemData> {
+  const auth = await getAuthHeader();
+  const res = await fetch(`${API_URL}/api/collection`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...auth },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || "Failed to save item");
+  }
+  return res.json();
+}
+
+export async function getSavedItems(sourceType?: string): Promise<SavedItemData[]> {
+  const auth = await getAuthHeader();
+  const url = sourceType
+    ? `${API_URL}/api/collection?source_type=${encodeURIComponent(sourceType)}`
+    : `${API_URL}/api/collection`;
+  const res = await fetch(url, { headers: auth });
+  if (!res.ok) throw new Error("Failed to fetch saved items");
+  return res.json();
+}
+
+export async function getSavedItem(id: string): Promise<SavedItemData> {
+  const auth = await getAuthHeader();
+  const res = await fetch(`${API_URL}/api/collection/${id}`, { headers: auth });
+  if (!res.ok) throw new Error("Failed to fetch saved item");
+  return res.json();
+}
+
+export async function deleteSavedItem(id: string): Promise<void> {
+  const auth = await getAuthHeader();
+  const res = await fetch(`${API_URL}/api/collection/${id}`, {
+    method: "DELETE",
+    headers: auth,
+  });
+  if (!res.ok) throw new Error("Failed to delete saved item");
+}
+
+export interface LookupData {
+  definition: string;
+  example: string | null;
+  part_of_speech: string | null;
+  synonyms: string[];
+}
+
+export async function lookupText(text: string, language: string): Promise<LookupData> {
+  const auth = await getAuthHeader();
+  const res = await fetch(`${API_URL}/api/collection/lookup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...auth },
+    body: JSON.stringify({ text, language }),
+  });
+  if (!res.ok) throw new Error("Lookup failed");
+  return res.json();
+}
+
+export async function speakText(text: string, language: string): Promise<ArrayBuffer> {
+  const auth = await getAuthHeader();
+  const res = await fetch(`${API_URL}/api/collection/tts/speak`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...auth },
+    body: JSON.stringify({ text, language }),
+  });
+  if (!res.ok) throw new Error("TTS failed");
+  return res.arrayBuffer();
+}
+
 // ─── Demo (no auth) ───────────────────────────────────────────────────────────
 
 export async function* startDemoSession(

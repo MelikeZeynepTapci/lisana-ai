@@ -9,6 +9,7 @@ const tabs = [
   { href: "/vocabulary", label: "Vocab", icon: "menu_book" },
   { href: "/grammar", label: "Grammar", icon: "auto_stories" },
   { href: "/progress", label: "Progress", icon: "bar_chart" },
+  { href: "/collection", label: "Saved", icon: "bookmarks" },
 ];
 
 export default function MobileNav() {

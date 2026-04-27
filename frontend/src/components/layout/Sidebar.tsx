@@ -12,6 +12,7 @@ const dailyModeItems = [
   { href: "/vocabulary", label: "Vocabulary", icon: "menu_book" },
   { href: "/grammar", label: "Grammar", icon: "auto_stories" },
   { href: "/progress", label: "Progress", icon: "bar_chart" },
+  { href: "/collection", label: "Collection", icon: "bookmarks" },
 ];
 
 

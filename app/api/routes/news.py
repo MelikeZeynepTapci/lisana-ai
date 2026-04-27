@@ -218,7 +218,18 @@ Question design rules — follow strictly:
    - Reflect common misreadings or partial truths, not absurd inventions
 3. DIFFICULTY: Avoid questions whose answer is obvious from the title alone or answerable without reading the body.
 4. LANGUAGE: Write questions and options at the same CEFR level ({level}) as the article.
-
+5. ANTI-SHORTCUT CONSTRAINTS:
+- The correct answer must depend on a specific detail, phrasing, or context from the paragraph
+- Do NOT allow questions where general world knowledge or common sense is enough to guess the answer
+- Avoid “obvious” answers that are clearly more logical than the distractors without reading the text
+- Ensure that at least two options appear equally plausible without reading, but only one is correct when the paragraph is read carefully
+6. TEXT DEPENDENCY:
+- Every question must be anchored to a specific part of the text (explicit or implicit)
+- Use paraphrasing instead of copying sentences directly from the text
+- Do NOT reuse exact wording from the paragraph in the correct answer
+7. SELF-CHECK (MANDATORY):
+- Before finalizing, verify: “Can this question be answered correctly without reading the paragraph?”
+- If YES, discard and regenerate the question
 Return ONLY valid JSON in this exact schema:
 {{
   "title": "...",

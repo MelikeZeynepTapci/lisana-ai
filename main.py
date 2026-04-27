@@ -5,7 +5,7 @@ from pathlib import Path
 
 from app.core.config import settings
 from app.core.sentry import init_sentry
-from app.api.routes import session, conversation, auth, user, onboarding, speaking, demo, news
+from app.api.routes import session, conversation, auth, user, onboarding, speaking, demo, news, collection
 
 init_sentry()
 
@@ -20,7 +20,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
 
@@ -38,6 +38,7 @@ app.include_router(conversation.router)
 app.include_router(speaking.router)
 app.include_router(demo.router)
 app.include_router(news.router)
+app.include_router(collection.router)
 
 
 @app.get("/health")

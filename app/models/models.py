@@ -379,6 +379,53 @@ class ExamSession(Base):
 
 
 # ─────────────────────────────────────────────
+# COLLECTION
+# ─────────────────────────────────────────────
+
+class VocabCache(Base):
+    """
+    Global enrichment cache keyed by (text, language).
+    Populated by background enrichment; shared across all users.
+    """
+    __tablename__ = "vocab_cache"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    text = Column(Text, nullable=False)
+    language = Column(String, nullable=False)
+    definition = Column(Text, nullable=False)
+    example = Column(Text, nullable=True)
+    part_of_speech = Column(String, nullable=True)
+    synonyms = Column(JSONB, default=[])
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("text", "language", name="uq_vocab_cache_text_language"),
+    )
+
+
+class SavedItem(Base):
+    """
+    User-saved text selections from news articles or conversation turns.
+    source_type: 'news' | 'conversation'
+    source_id: opaque reference (news id or session id) — no FK constraint.
+    enrichment_status: 'pending' | 'done' | 'failed'
+    """
+    __tablename__ = "saved_items"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    source_type = Column(String, nullable=False)
+    source_id = Column(Text, nullable=True)
+    text = Column(Text, nullable=False)
+    language = Column(String, nullable=False)
+    enrichment_status = Column(String, nullable=False, default="pending")
+    definition = Column(Text, nullable=True)
+    example = Column(Text, nullable=True)
+    part_of_speech = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+# ─────────────────────────────────────────────
 # BILLING
 # ─────────────────────────────────────────────
 
