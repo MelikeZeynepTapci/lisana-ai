@@ -5,7 +5,7 @@ from pathlib import Path
 
 from app.core.config import settings
 from app.core.sentry import init_sentry
-from app.api.routes import session, conversation, auth, user, onboarding, speaking, demo, news, collection
+from app.api.routes import session, conversation, auth, user, onboarding, speaking, demo, news, collection, vocab
 
 init_sentry()
 
@@ -39,6 +39,7 @@ app.include_router(speaking.router)
 app.include_router(demo.router)
 app.include_router(news.router)
 app.include_router(collection.router)
+app.include_router(vocab.router)
 
 
 @app.get("/health")

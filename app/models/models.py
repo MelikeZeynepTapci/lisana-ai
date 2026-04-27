@@ -426,6 +426,50 @@ class SavedItem(Base):
 
 
 # ─────────────────────────────────────────────
+# VOCABULARY
+# ─────────────────────────────────────────────
+
+class VocabWord(Base):
+    """
+    Global vocabulary list seeded from Goethe/DTZ word lists.
+    level: A1/A2/B1/B2/C1 — nullable if unknown.
+    translation: filled on first use via vocab_cache.
+    """
+    __tablename__ = "vocab_words"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    word = Column(Text, nullable=False)
+    part_of_speech = Column(String, nullable=True)
+    language = Column(String, nullable=False)
+    level = Column(String, nullable=True)
+    translation = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    progress = relationship("UserWordProgress", back_populates="vocab_word")
+
+
+class UserWordProgress(Base):
+    """
+    Per-user vocabulary progress.
+    status: 'seen' | 'learning' | 'known'
+    """
+    __tablename__ = "user_word_progress"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    word_id = Column(UUID(as_uuid=True), ForeignKey("vocab_words.id", ondelete="CASCADE"), nullable=False)
+    status = Column(String, nullable=False, default="seen")
+    seen_at = Column(DateTime, default=datetime.utcnow)
+    known_at = Column(DateTime, nullable=True)
+
+    vocab_word = relationship("VocabWord", back_populates="progress")
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "word_id", name="uq_user_word_progress"),
+    )
+
+
+# ─────────────────────────────────────────────
 # BILLING
 # ─────────────────────────────────────────────
 
