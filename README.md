@@ -1,5 +1,26 @@
 # Lisana AI
 
+> **⚠ Work in Progress**
+> Lisana AI is currently under active development and not yet production-ready. Features, APIs, and UI are subject to change without notice.
+>
+> **Testing note:** For now, German is the primary language used during development and testing. When signing up, it is recommended to select **German** to get the best experience. Other languages may have limited or placeholder content.
+
+---
+
+## Page Status
+
+| Page | Status | Description |
+|---|---|---|
+| Dashboard | ✅ Done | Central hub showing daily news with a comprehension quiz, word of the day (flip card with sentence checker), progress overview, and leaderboard. |
+| Speaking | ✅ Done | Real-time AI conversations with Maya across various scenarios. Streams audio responses, tracks turn-by-turn corrections, and provides a session feedback report at the end. |
+| Collection | ✅ Done | Highlights words or phrases from any text (daily news, conversations) to look up definitions, examples, synonyms, and pronunciation. Saved items are stored per user and accessible in the Collection library. |
+| Grammar | 🚧 In Progress | Grammar exercises and lessons adapted to the user's CEFR level. |
+| Vocabulary | 🚧 In Progress | Flashcard-based vocabulary practice with spaced repetition. |
+| Listening | 🚧 In Progress | Audio-based listening comprehension exercises. |
+| Progress | 🚧 In Progress | Detailed statistics, session history, and performance trends. |
+
+---
+
 **AI-powered language learning platform for real conversational fluency.**
 
 Lisana AI helps expats, immigrants, and international students build genuine spoken fluency through natural AI conversation, live peer practice rooms, and intelligent progress tracking, available 24/7 at a fraction of the cost of a private tutor.

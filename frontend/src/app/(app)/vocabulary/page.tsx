@@ -114,8 +114,8 @@ export default function VocabularyPage() {
                     <p className="font-manrope text-xs font-semibold text-primary/60 uppercase tracking-widest mb-6">
                       Word 14 of 30
                     </p>
-                    <h2 className="font-lexend font-bold text-4xl sm:text-6xl text-on-surface mb-3">La Biblioteca</h2>
-                    <p className="font-manrope text-sm text-on-surface-variant mb-8">Noun • Spanish</p>
+                    <h2 className="font-lexend font-bold text-4xl sm:text-6xl text-on-surface mb-3">die Bibliothek</h2>
+                    <p className="font-manrope text-sm text-on-surface-variant mb-8">Noun • German</p>
                     <button className="flex items-center gap-2 bg-primary-container hover:bg-primary-container/70 border border-primary/20 text-primary px-5 py-2.5 rounded-full shadow-ambient-sm transition-all duration-200">
                       <span className="material-symbols-outlined ms-filled text-[18px]">cached</span>
                       <span className="font-manrope font-semibold text-sm">Flip Card</span>
@@ -130,7 +130,7 @@ export default function VocabularyPage() {
                     <p className="font-manrope text-sm text-on-surface-variant mb-2">A place where books are kept</p>
                     <div className="mt-4 bg-surface border border-outline-variant/60 rounded-2xl px-6 py-3">
                       <p className="font-manrope text-sm text-on-surface-variant italic">
-                        &ldquo;Voy a la <span className="text-primary font-semibold">biblioteca</span> cada semana.&rdquo;
+                        &ldquo;Ich gehe jede Woche in die <span className="text-primary font-semibold">Bibliothek</span>.&rdquo;
                       </p>
                       <p className="font-manrope text-xs text-on-surface-variant mt-1">I go to the library every week.</p>
                     </div>
@@ -181,8 +181,8 @@ export default function VocabularyPage() {
                   <p className="font-manrope font-semibold text-sm text-on-surface">Usage Hint</p>
                 </div>
                 <p className="font-manrope text-xs text-on-surface-variant leading-relaxed">
-                  Used to refer to any collection of books or the physical building. Not to be confused with{" "}
-                  <span className="font-semibold text-on-surface">&ldquo;librería&rdquo;</span> (bookstore).
+                  Always feminine with the article <span className="font-semibold text-on-surface">&ldquo;die&rdquo;</span>. Not to be confused with{" "}
+                  <span className="font-semibold text-on-surface">&ldquo;die Buchhandlung&rdquo;</span> (bookstore).
                 </p>
               </div>
               <div className="bg-surface-lowest border border-outline-variant/60 rounded-3xl p-5" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>
@@ -195,8 +195,8 @@ export default function VocabularyPage() {
                     <span className="material-symbols-outlined ms-filled text-[18px] text-primary">play_arrow</span>
                   </button>
                   <div>
-                    <p className="font-manrope text-xs font-semibold text-on-surface">/la βi.βljo.ˈte.ka/</p>
-                    <p className="font-manrope text-[10px] text-on-surface-variant">Castilian Spanish</p>
+                    <p className="font-manrope text-xs font-semibold text-on-surface">/diː ˌbɪblioˈteːk/</p>
+                    <p className="font-manrope text-[10px] text-on-surface-variant">Standard German</p>
                   </div>
                 </div>
               </div>

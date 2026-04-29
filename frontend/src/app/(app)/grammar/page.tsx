@@ -14,8 +14,8 @@ const modules = [
   {
     icon: "repeat",
     iconBg: "bg-tertiary",
-    title: "Reflexive Verbs",
-    desc: "Daily routines and actions done to oneself",
+    title: "Der, Die, Das",
+    desc: "Mastering German noun genders and definite articles",
     progress: 70,
     progressColor: "text-tertiary",
     strokeColor: "#22705f",
@@ -25,8 +25,8 @@ const modules = [
   {
     icon: "history",
     iconBg: "bg-primary",
-    title: "The Preterite",
-    desc: "Mastering completed actions in the past tense",
+    title: "Perfekt Tense",
+    desc: "Forming past tense with sein and haben",
     progress: 20,
     progressColor: "text-primary",
     strokeColor: "#725991",
@@ -36,8 +36,8 @@ const modules = [
   {
     icon: "psychology",
     iconBg: "bg-secondary",
-    title: "Subjunctive Mood",
-    desc: "Expressing desires, doubts, and the unknown",
+    title: "Konjunktiv II",
+    desc: "Expressing wishes, hypotheticals, and polite requests",
     progress: 0,
     progressColor: "text-secondary",
     strokeColor: "#8c5900",
@@ -87,9 +87,9 @@ export default function GrammarPage() {
                 <span className="font-manrope font-bold text-xs text-tertiary uppercase tracking-wide">Active Lesson</span>
               </div>
 
-              <h2 className="font-lexend font-bold text-2xl sm:text-3xl text-on-surface mb-2">Ser vs. Estar</h2>
+              <h2 className="font-lexend font-bold text-2xl sm:text-3xl text-on-surface mb-2">sein vs. haben</h2>
               <p className="font-manrope text-sm text-on-surface-variant mb-8 leading-relaxed">
-                Master the fundamental distinction between permanent traits and temporary states in Spanish.
+                Master the fundamental distinction between the two German auxiliary verbs used to form the perfect tense.
               </p>
 
               {/* Fill in the blank */}
@@ -98,7 +98,7 @@ export default function GrammarPage() {
                   Fill in the blank
                 </p>
                 <div className="flex items-baseline gap-2 flex-wrap font-lexend text-2xl font-semibold text-on-surface">
-                  <span>Yo</span>
+                  <span>Ich</span>
                   <div className="relative inline-flex items-end pb-1">
                     <input
                       type="text"
@@ -108,8 +108,8 @@ export default function GrammarPage() {
                       className="bg-transparent border-b-2 border-primary focus:border-tertiary outline-none font-lexend font-semibold text-2xl text-on-surface placeholder-on-surface-variant/40 text-center w-28 transition-colors duration-200"
                     />
                   </div>
-                  <span>cansado.</span>
-                  <span className="font-manrope text-sm text-on-surface-variant font-normal">(ser/estar)</span>
+                  <span>müde.</span>
+                  <span className="font-manrope text-sm text-on-surface-variant font-normal">(sein/haben)</span>
                 </div>
               </div>
 
@@ -156,15 +156,15 @@ export default function GrammarPage() {
                   <p className="font-lexend font-semibold text-base text-on-surface">AI Grammar Tutor</p>
                 </div>
                 <p className="font-manrope text-sm text-on-surface-variant leading-relaxed mb-4">
-                  Think about the <strong className="text-on-surface">nature of the state</strong>. Being &ldquo;tired&rdquo; (cansado) is a temporary condition that changes over time.
+                  Think about <strong className="text-on-surface">movement vs. state</strong>. Being &ldquo;tired&rdquo; (müde) is a state of being — it uses <strong className="text-tertiary">sein</strong>.
                 </p>
                 <div className="bg-surface border border-dashed border-outline-variant rounded-2xl p-4 mb-5">
                   <p className="font-manrope text-xs text-on-surface-variant mb-1">
                     <strong className="text-on-surface">Tip:</strong> Use{" "}
-                    <strong className="text-tertiary">Estar</strong> for:
+                    <strong className="text-tertiary">sein</strong> for:
                   </p>
                   <p className="font-manrope text-xs text-on-surface font-bold">
-                    P.L.A.C.E — Position, Location, Action, Condition, Emotion
+                    Movement, change of state, and &ldquo;to be&rdquo; (sein, bleiben, werden)
                   </p>
                 </div>
                 <div className="border-t border-outline-variant/50 pt-4">
