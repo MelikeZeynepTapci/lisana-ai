@@ -316,6 +316,35 @@ export interface SentenceCheckResult {
   xp: number;
 }
 
+// ─── Vocab / Word of the Day ──────────────────────────────────────────────────
+
+export interface WordOfDayData {
+  id: string;
+  word: string;
+  part_of_speech: string | null;
+  language: string;
+  level: string | null;
+}
+
+export async function getWordOfDay(): Promise<WordOfDayData> {
+  const auth = await getAuthHeader();
+  const res = await fetch(`${API_URL}/api/vocab/word-of-day`, { headers: auth });
+  if (!res.ok) throw new Error("Failed to fetch word of the day");
+  return res.json();
+}
+
+export async function updateWordProgress(
+  wordId: string,
+  status: "seen" | "learning" | "known"
+): Promise<void> {
+  const auth = await getAuthHeader();
+  await fetch(`${API_URL}/api/vocab/progress`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...auth },
+    body: JSON.stringify({ word_id: wordId, status }),
+  });
+}
+
 export async function checkSentence(
   word: string,
   sentence: string,

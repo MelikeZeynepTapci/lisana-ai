@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import { createClient } from "@/lib/supabase";
-import { getDailyNews, getProgress, type DailyNewsData, type ProgressData } from "@/lib/api";
+import { getDailyNews, getProgress, getWordOfDay, type DailyNewsData, type ProgressData, type WordOfDayData } from "@/lib/api";
 import SelectableText from "@/components/collection/SelectableText";
 import WordFlipCard from "@/components/ui/WordFlipCard";
 
@@ -42,6 +42,7 @@ const [displayName, setDisplayName] = useState<string>("");
   const [newsLoading, setNewsLoading] = useState(true);
   const [newsError, setNewsError] = useState(false);
   const [progress, setProgress] = useState<ProgressData | null>(null);
+  const [wordOfDay, setWordOfDay] = useState<WordOfDayData | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -74,6 +75,10 @@ const [displayName, setDisplayName] = useState<string>("");
 
   useEffect(() => {
     getProgress().then(setProgress).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    getWordOfDay().then(setWordOfDay).catch(() => {});
   }, []);
 
   const currentQuestion = news?.quiz_questions[currentQuizIdx] ?? null;
@@ -345,15 +350,15 @@ const [displayName, setDisplayName] = useState<string>("");
         <div className="lg:col-span-2 space-y-5">
 
           {/* Word of the Day */}
-          <WordFlipCard
-            word="die Leidenschaft"
-            phonetic="ˈlaɪdnʃaft"
-            partOfSpeech="Noun (f)"
-            language="German"
-            translation="Passion"
-            example="Sie kocht mit großer Leidenschaft."
-            exampleTranslation="She cooks with great passion."
-          />
+          {wordOfDay && (
+            <WordFlipCard
+              wordId={wordOfDay.id}
+              word={wordOfDay.word}
+              partOfSpeech={wordOfDay.part_of_speech}
+              language={wordOfDay.language}
+              level={wordOfDay.level}
+            />
+          )}
 
           {/* Weekly Leaderboard */}
           <div className="bg-surface-lowest border border-outline-variant/60 rounded-3xl p-6" style={{ boxShadow: "0 2px 8px rgba(27,31,59,0.07)" }}>

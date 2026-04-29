@@ -2,37 +2,57 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { checkSentence, type SentenceCheckResult, type MistakeItem } from "@/lib/api";
+import {
+  checkSentence,
+  lookupText,
+  updateWordProgress,
+  saveItem,
+  type SentenceCheckResult,
+  type MistakeItem,
+  type LookupData,
+} from "@/lib/api";
 
 interface WordFlipCardProps {
+  wordId: string;
   word: string;
-  phonetic: string;
-  partOfSpeech: string;
-  language: string; // used for sentence check, not displayed
-  translation: string;
-  example: string;
-  exampleTranslation?: string;
+  partOfSpeech: string | null;
+  language: string;
+  level: string | null;
 }
 
 type KnownState = "idle" | "input" | "checking" | "result";
+type LookupState = "idle" | "loading" | "done" | "error";
 
 export default function WordFlipCard({
+  wordId,
   word,
-  phonetic,
   partOfSpeech,
   language,
-  translation,
-  example,
-  exampleTranslation,
+  level,
 }: WordFlipCardProps) {
   const [flipped, setFlipped] = useState(false);
   const [knownState, setKnownState] = useState<KnownState>("idle");
+  const [saved, setSaved] = useState(false);
   const [sentence, setSentence] = useState("");
   const [result, setResult] = useState<SentenceCheckResult | null>(null);
   const [popoverPos, setPopoverPos] = useState<{ x: number; y: number } | null>(null);
+
+  // Lookup (translation + example) fetched on first flip
+  const [lookup, setLookup] = useState<LookupData | null>(null);
+  const [lookupState, setLookupState] = useState<LookupState>("idle");
+
   const inputRef = useRef<HTMLInputElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const resultPopoverRef = useRef<HTMLDivElement>(null);
+
+  // Fetch translation+example when card is flipped for the first time
+  useEffect(() => {
+    if (!flipped || lookupState !== "idle") return;
+    setLookupState("loading");
+    lookupText(word, language)
+      .then((data) => { setLookup(data); setLookupState("done"); })
+      .catch(() => setLookupState("error"));
+  }, [flipped]);
 
   function calcPopoverPos() {
     if (!cardRef.current) return null;
@@ -89,8 +109,22 @@ export default function WordFlipCard({
 
   function handleKnowIt(e: React.MouseEvent) {
     e.stopPropagation();
+    updateWordProgress(wordId, "known").catch(() => {});
     setKnownState("input");
     setTimeout(() => inputRef.current?.focus(), 50);
+  }
+
+  function handleSave(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (saved) return;
+    setSaved(true);
+    saveItem({ text: word, source_type: "vocab", language }).catch(() => setSaved(false));
+  }
+
+  function handleStillLearning(e: React.MouseEvent) {
+    e.stopPropagation();
+    updateWordProgress(wordId, "learning").catch(() => {});
+    setFlipped(false);
   }
 
   return (
@@ -113,16 +147,23 @@ export default function WordFlipCard({
           style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
           className="absolute inset-0 bg-surface-lowest border border-outline-variant/60 rounded-3xl p-6 flex flex-col"
         >
-          <div className="flex items-center gap-2 mb-4">
-            <span className="material-symbols-outlined ms-filled text-[20px] text-secondary">menu_book</span>
-            <h3 className="font-lexend font-semibold text-base text-on-surface">Word of the Day</h3>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined ms-filled text-[20px] text-secondary">menu_book</span>
+              <h3 className="font-lexend font-semibold text-base text-on-surface">Word of the Day</h3>
+            </div>
+            {level && (
+              <span className="font-manrope font-bold text-[11px] border border-outline-variant text-on-surface-variant px-2.5 py-0.5 rounded-full">
+                {level}
+              </span>
+            )}
           </div>
 
           <div className="flex-1 flex flex-col items-center justify-center text-center py-4">
             <h2 className="font-lora font-bold text-3xl text-on-surface mb-3">{word}</h2>
-            <p className="font-manrope text-xs text-on-surface-variant">
-              [{phonetic}] · {partOfSpeech}
-            </p>
+            {partOfSpeech && (
+              <p className="font-manrope text-xs text-on-surface-variant">{partOfSpeech}</p>
+            )}
           </div>
 
           <div className="flex items-center justify-center gap-1.5 mt-4 text-on-surface-variant/40">
@@ -147,13 +188,22 @@ export default function WordFlipCard({
               <span className="material-symbols-outlined ms-filled text-[20px] text-secondary">menu_book</span>
               <h3 className="font-lexend font-semibold text-base text-on-surface">Word of the Day</h3>
             </div>
-            <button
-              onClick={(e) => { e.stopPropagation(); setFlipped(false); }}
-              className="text-on-surface-variant/50 hover:text-on-surface transition-colors"
-              title="Flip back"
-            >
-              <span className="material-symbols-outlined text-[18px]">flip</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleSave}
+                className={`transition-colors ${saved ? "text-secondary" : "text-on-surface-variant/50 hover:text-secondary"}`}
+                title={saved ? "Saved to collection" : "Save to collection"}
+              >
+                <span className={`material-symbols-outlined text-[18px] ${saved ? "ms-filled" : ""}`}>bookmark</span>
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setFlipped(false); }}
+                className="text-on-surface-variant/50 hover:text-on-surface transition-colors"
+                title="Flip back"
+              >
+                <span className="material-symbols-outlined text-[18px]">flip</span>
+              </button>
+            </div>
           </div>
 
           <p className="font-lora font-semibold text-base text-on-surface mb-3">{word}</p>
@@ -162,25 +212,33 @@ export default function WordFlipCard({
           <div className="flex-1 space-y-2">
             <div className="bg-surface border border-outline-variant/60 rounded-2xl p-3">
               <p className="font-manrope font-semibold text-[10px] text-on-surface-variant uppercase tracking-wide mb-1">Translation</p>
-              <p className="font-manrope font-semibold text-sm text-on-surface">{translation}</p>
+              {lookupState === "loading" ? (
+                <p className="font-manrope text-sm text-on-surface-variant/50 animate-pulse">Loading…</p>
+              ) : lookupState === "done" && lookup ? (
+                <p className="font-manrope font-semibold text-sm text-on-surface">{lookup.definition}</p>
+              ) : lookupState === "error" ? (
+                <p className="font-manrope text-sm text-on-surface-variant/50">—</p>
+              ) : null}
             </div>
             <div className="bg-surface border border-outline-variant/60 rounded-2xl p-3">
               <p className="font-manrope font-semibold text-[10px] text-on-surface-variant uppercase tracking-wide mb-1">Example</p>
-              <p className="font-manrope text-sm text-on-surface italic">&ldquo;{example}&rdquo;</p>
-              {exampleTranslation && (
-                <p className="font-manrope text-xs text-on-surface-variant mt-1">({exampleTranslation})</p>
-              )}
+              {lookupState === "loading" ? (
+                <p className="font-manrope text-sm text-on-surface-variant/50 animate-pulse">Loading…</p>
+              ) : lookupState === "done" && lookup?.example ? (
+                <p className="font-manrope text-sm text-on-surface italic">&ldquo;{lookup.example}&rdquo;</p>
+              ) : lookupState === "done" ? (
+                <p className="font-manrope text-sm text-on-surface-variant/50">No example available.</p>
+              ) : null}
             </div>
           </div>
 
           {/* Bottom section */}
           <div className="mt-4 space-y-3">
 
-            {/* Idle: Still Learning / Know It buttons */}
             {knownState === "idle" && (
               <div className="grid grid-cols-2 gap-2.5">
                 <button
-                  onClick={(e) => { e.stopPropagation(); setFlipped(false); }}
+                  onClick={handleStillLearning}
                   className="flex items-center justify-center gap-1.5 border border-outline-variant text-on-surface font-manrope font-bold text-sm py-2.5 rounded-full hover:bg-surface transition-colors"
                 >
                   Still Learning
@@ -196,7 +254,6 @@ export default function WordFlipCard({
               </div>
             )}
 
-            {/* Input: write example sentence */}
             {(knownState === "input" || knownState === "checking") && (
               <form onSubmit={handleSubmit} onClick={(e) => e.stopPropagation()} className="space-y-2">
                 {knownState === "checking" ? (
@@ -215,7 +272,7 @@ export default function WordFlipCard({
                     onChange={(e) => setSentence(e.target.value)}
                     onKeyDown={(e) => e.stopPropagation()}
                     onClick={(e) => e.stopPropagation()}
-                    placeholder={`e.g. "Sie hat eine große ${word}..."`}
+                    placeholder={`e.g. "Ich habe eine große ${word}…"`}
                     disabled={knownState === "checking"}
                     className="flex-1 font-manrope text-sm bg-surface border border-outline-variant/60 rounded-xl px-3 py-2 text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 disabled:opacity-50 transition-colors"
                   />
@@ -234,7 +291,6 @@ export default function WordFlipCard({
                 </div>
               </form>
             )}
-
           </div>
         </div>
       </div>
@@ -282,7 +338,6 @@ export default function WordFlipCard({
                 <button
                   onClick={handleClosePopover}
                   className={`transition-colors ${result.correct ? "text-secondary/50 hover:text-secondary" : "text-amber-500 hover:text-amber-700"}`}
-                  title="Try again"
                 >
                   <span className="material-symbols-outlined text-[18px]">close</span>
                 </button>
@@ -318,8 +373,7 @@ export default function WordFlipCard({
               </div>
             )}
 
-            {/* Try again button for incorrect; just close for correct */}
-            <div className={`px-4 pb-3.5 ${!result.correct ? "pt-0" : "pt-0"}`}>
+            <div className="px-4 pb-3.5">
               <button
                 onClick={handleClosePopover}
                 className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-xl font-manrope font-bold text-sm transition-opacity hover:opacity-90 ${

@@ -443,6 +443,7 @@ class VocabWord(Base):
     language = Column(String, nullable=False)
     level = Column(String, nullable=True)
     translation = Column(Text, nullable=True)
+    category = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     progress = relationship("UserWordProgress", back_populates="vocab_word")
