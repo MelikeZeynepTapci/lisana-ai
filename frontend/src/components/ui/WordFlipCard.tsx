@@ -262,7 +262,7 @@ export default function WordFlipCard({
                   </p>
                 ) : (
                   <p className="font-manrope text-xs text-on-surface-variant">
-                    Write a sentence using <span className="font-semibold text-on-surface">{word}</span>:
+                    Write a sentence using <span className="font-semibold text-on-surface">{word}</span> to earn your daily 15 XP:
                   </p>
                 )}
                 <div className="flex gap-2">
@@ -272,7 +272,6 @@ export default function WordFlipCard({
                     onChange={(e) => setSentence(e.target.value)}
                     onKeyDown={(e) => e.stopPropagation()}
                     onClick={(e) => e.stopPropagation()}
-                    placeholder={`e.g. "Ich habe eine große ${word}…"`}
                     disabled={knownState === "checking"}
                     className="flex-1 font-manrope text-sm bg-surface border border-outline-variant/60 rounded-xl px-3 py-2 text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 disabled:opacity-50 transition-colors"
                   />
